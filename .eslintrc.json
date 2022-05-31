@@ -1,0 +1,21 @@
+{
+    "env": {},
+    "globals": {},
+    "overrides": [
+        {
+            "extends": ["plugin:@typescript-eslint/recommended", "plugin:@typescript-eslint/recommended-requiring-type-checking"],
+            "files": ["*.ts"],
+            "plugins": ["@typescript-eslint"]
+        }
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "parser": "@typescript-eslint/parser",
+        "sourceType": "module",
+        "project": "./tsconfig.json",
+        "tsconfigRootDir": "."
+    },
+    "plugins": [],
+    "root": true,
+    "rules": {}
+}

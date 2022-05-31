@@ -1,0 +1,9 @@
+.vscode/*
+!.vscode/tasks.json
+
+dist
+
+node_modules
+
+.DS_Store
+.env.json
