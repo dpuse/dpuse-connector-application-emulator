@@ -5,17 +5,15 @@
  * @license ISC
  */
 
-import commonJS from '@rollup/plugin-commonjs'; // Required for sax parser.
 import config from './src/config.json';
 import json from '@rollup/plugin-json';
-import nodePolyfills from 'rollup-plugin-polyfill-node'; // Required for sax parser.
 import pkg from './package.json';
 import typescript from 'rollup-plugin-typescript2';
 import { terser } from 'rollup-plugin-terser';
 
 export default [
     {
-        // external: ['chardet'], // TODO: Can be removed when engine main is published as an npm package.
+        external: ['chardet'], // TODO: Can be removed when engine main is published as an npm package.
         input: pkg.main,
         output: [
             {
@@ -24,6 +22,6 @@ export default [
                 format: 'es'
             }
         ],
-        plugins: [commonJS(), json(), nodePolyfills(), typescript(), terser({ output: { comments: false } })]
+        plugins: [json(), typescript(), terser({ output: { comments: false } })]
     }
 ];
