@@ -12,12 +12,12 @@ import { version } from '../package.json';
 
 // Engine component dependencies.
 import {
+    ConnectionEntry,
+    ConnectionEntryPreview,
+    ConnectionEntryPreviewTypeId,
+    ConnectionEntriesPage,
+    ConnectionEntryTypeId,
     ConnectionItem,
-    ConnectionElement,
-    ConnectionElementPreview,
-    ConnectionElementPreviewTypeId,
-    ConnectionElementsPage,
-    ConnectionElementTypeId,
     DataConnector,
     DataConnectorPreviewInterface,
     DataConnectorPreviewInterfaceSettings,
@@ -36,7 +36,7 @@ const defaultChunkSize = 4096;
 // #region Data Connector
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-export default class SAPSuccessFactorsDataConnector implements DataConnector {
+export default class ApplicationEmulatorDataConnector implements DataConnector {
     connectionItem: ConnectionItem;
     id: string;
     isAborted: boolean;
@@ -54,53 +54,48 @@ export default class SAPSuccessFactorsDataConnector implements DataConnector {
     }
 
     getPreviewInterface(): DataConnectorPreviewInterface {
-        return { connector: this, previewFileElement };
+        return { connector: this, previewFileEntry };
     }
 
     getReadInterface(): DataConnectorReadInterface {
         throw new Error('Not implemented');
     }
 
-    async listPageOfElementsForDirectoryPath(accountId: string, sessionAccessToken: string, directory: string): Promise<ConnectionElementsPage> {
-        switch (this.connectionItem.implementationId) {
-            case 'sapSuccessFactors':
-                return await listPageOfElementsForDirectoryPathUsingSAPSuccessFactors(directory);
-            default:
-                throw new Error('Unknown implementation identifier.');
-        }
+    async listEntries(accountId: string, sessionAccessToken: string, directory: string): Promise<ConnectionEntriesPage> {
+        return await listEntries(directory);
     }
 }
 
 // #endregion
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// #region List Page of Elements for Directory Path - Using SAPSuccessFactors
+// #region List Entries
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const listPageOfElementsForDirectoryPathUsingSAPSuccessFactors = (directoryPath: string): Promise<ConnectionElementsPage> => {
+const listEntries = (directoryPath: string): Promise<ConnectionEntriesPage> => {
     return new Promise((resolve, reject) => {
         try {
-            const elements: ConnectionElement[] = [];
+            const entries: ConnectionEntry[] = [];
             switch (directoryPath) {
                 default:
-                    elements.push(buildObjectItem('', 'empEmployment', 'Emp Employment', 2147));
-                    elements.push(buildObjectItem('', 'empJob', 'Emp Job', 5733));
-                    elements.push(buildObjectItem('', 'perGlobalInfoGBR', 'Per Information Global - GBR', 861));
-                    elements.push(buildObjectItem('', 'perGlobalInfoUSA', 'Per Information Global - USA', 51));
-                    elements.push(buildObjectItem('', 'perPerson', 'Per Person', 2147));
-                    elements.push(buildObjectItem('', 'perPersonal', 'Per Personal', 2174));
+                    entries.push(buildObjectItem('', 'empEmployment', 'Emp Employment', 2147));
+                    entries.push(buildObjectItem('', 'empJob', 'Emp Job', 5733));
+                    entries.push(buildObjectItem('', 'perGlobalInfoGBR', 'Per Information Global - GBR', 861));
+                    entries.push(buildObjectItem('', 'perGlobalInfoUSA', 'Per Information Global - USA', 51));
+                    entries.push(buildObjectItem('', 'perPerson', 'Per Person', 2147));
+                    entries.push(buildObjectItem('', 'perPersonal', 'Per Personal', 2174));
                     break;
             }
-            resolve({ cursor: undefined, isMore: false, elements });
+            resolve({ cursor: undefined, isMore: false, entries });
         } catch (error) {
             reject(error);
         }
     });
 };
 
-const buildObjectItem = (directoryPath: string, name: string, label: string, size: number): ConnectionElement => ({
+const buildObjectItem = (directoryPath: string, name: string, label: string, size: number): ConnectionEntry => ({
     _id: undefined,
-    childElementCount: undefined,
+    childEntryCount: undefined,
     directoryPath,
     encodingId: undefined,
     extension: 'csv',
@@ -112,31 +107,30 @@ const buildObjectItem = (directoryPath: string, name: string, label: string, siz
     name: `${name}.csv`,
     referenceId: undefined,
     size,
-    typeId: ConnectionElementTypeId.File
+    typeId: ConnectionEntryTypeId.File
 });
 
 // #endregion
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// #region Preview File Element
+// #region Preview File Entry
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const previewFileElement = async (
+const previewFileEntry = async (
     connector: DataConnector,
     sourceViewProperties: SourceViewProperties,
     accountId: string | undefined,
     sessionAccessToken: string | undefined,
     previewInterfaceSettings: DataConnectorPreviewInterfaceSettings,
-    connectionElement: ConnectionElement
-): Promise<ConnectionElementPreview> => {
+): Promise<ConnectionEntryPreview> => {
     const headers: HeadersInit = {
         Range: `bytes=0-${previewInterfaceSettings.chunkSize || defaultChunkSize}`
     };
 
-    const response = await fetch(`${env.SAP_SUCCESS_FACTORS_URL_PREFIX}%2F${encodeURIComponent(connectionElement.name)}?alt=media`, { headers });
+    const response = await fetch(`${env.SAP_SUCCESS_FACTORS_URL_PREFIX}%2F${encodeURIComponent(sourceViewProperties.fileName)}?alt=media`, { headers });
     if (!response.ok) {
         const data: ErrorData = {
-            body: { context: 'previewFileElement', message: await response.text() },
+            body: { context: 'previewFileEntry', message: await response.text() },
             statusCode: response.status,
             statusText: response.statusText
         };
@@ -144,13 +138,13 @@ const previewFileElement = async (
     }
     const arrayBuffer = await response.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
-    return { data: uint8Array, typeId: ConnectionElementPreviewTypeId.Uint8Array };
+    return { data: uint8Array, typeId: ConnectionEntryPreviewTypeId.Uint8Array };
 };
 
 // #endregion
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// #region Read File Element
+// #region Read File Entry
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 // #endregion
