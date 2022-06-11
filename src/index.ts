@@ -121,7 +121,7 @@ const previewFileEntry = async (
     sourceViewProperties: SourceViewProperties,
     accountId: string | undefined,
     sessionAccessToken: string | undefined,
-    previewInterfaceSettings: DataConnectorPreviewInterfaceSettings,
+    previewInterfaceSettings: DataConnectorPreviewInterfaceSettings
 ): Promise<ConnectionEntryPreview> => {
     const headers: HeadersInit = {
         Range: `bytes=0-${previewInterfaceSettings.chunkSize || defaultChunkSize}`
@@ -134,7 +134,7 @@ const previewFileEntry = async (
             statusCode: response.status,
             statusText: response.statusText
         };
-        throw new Error('Unable to preview element.|' + JSON.stringify(data));
+        throw new Error('Unable to preview entry.|' + JSON.stringify(data));
     }
     const arrayBuffer = await response.arrayBuffer();
     const uint8Array = new Uint8Array(arrayBuffer);
