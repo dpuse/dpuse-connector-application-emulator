@@ -13,7 +13,7 @@ import { terser } from 'rollup-plugin-terser';
 
 export default [
     {
-        external: ['chardet'], // TODO: Can be removed when engine main is published as an npm package.
+        external: ['chardet'], // TODO: Can be removed when 'engine main' is published as an npm package.
         input: pkg.main,
         output: [
             {

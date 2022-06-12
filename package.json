@@ -4,7 +4,7 @@
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
     "license": "ISC",
     "main": "./src/index.ts",
-    "version": "0.1.295",
+    "version": "0.1.296",
     "devDependencies": {
         "@rollup/plugin-json": "^4.1.0",
         "@typescript-eslint/eslint-plugin": "^5.11.0",
