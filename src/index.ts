@@ -37,10 +37,10 @@ const defaultChunkSize = 4096;
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 export default class ApplicationEmulatorDataConnector implements DataConnector {
-    connectionItem: ConnectionItem;
-    id: string;
+    readonly connectionItem: ConnectionItem;
+    readonly id: string;
     isAborted: boolean;
-    version: string;
+    readonly version: string;
 
     constructor(connectionItem: ConnectionItem) {
         this.connectionItem = connectionItem;
@@ -94,13 +94,12 @@ const listEntries = (directoryPath: string): Promise<ConnectionEntriesPage> => {
 };
 
 const buildObjectItem = (directoryPath: string, name: string, label: string, size: number): ConnectionEntry => ({
-    _id: undefined,
     childEntryCount: undefined,
     directoryPath,
     encodingId: undefined,
     extension: 'csv',
+    handle: undefined,
     id: name,
-    insertedId: undefined,
     label,
     lastModifiedAt: undefined,
     mimeType: undefined,
