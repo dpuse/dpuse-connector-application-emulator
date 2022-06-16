@@ -4,7 +4,7 @@
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
     "license": "ISC",
     "main": "./src/index.ts",
-    "version": "0.1.298",
+    "version": "0.1.299",
     "devDependencies": {
         "@rollup/plugin-json": "^4.1.0",
         "@typescript-eslint/eslint-plugin": "^5.11.0",
@@ -14,6 +14,7 @@
         "grunt": "^1.4.1",
         "grunt-bump": "^0.8.0",
         "grunt-run": "^0.8.1",
+        "lodash.camelcase": "^4.3.0",
         "node-fetch": "^3.2.3",
         "rollup": "^2.67.1",
         "rollup-plugin-terser": "^7.0.2",
