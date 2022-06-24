@@ -84,12 +84,12 @@ module.exports = (grunt) => {
 
     // Register local tasks.
     grunt.registerTask('audit', ['run:audit']); // cmd+shift+a.
-    grunt.registerTask('build', ['run:rollup_umd', 'run:copyToFirebase', 'updateFirestore']); // cmd+shift+b.
+    grunt.registerTask('build', ['run:rollup_es', 'run:copyToFirebase', 'updateFirestore']); // cmd+shift+b.
     grunt.registerTask('identifyLicenses', ['run:identifyLicensesUsingLicenseChecker', 'run:identifyLicensesUsingNLF']); // cmd+shift+i.
     grunt.registerTask('lint', ['run:lint']); // cmd+shift+l.
     grunt.registerTask('outdated', ['run:outdated']); // cmd+shift+o.
     grunt.registerTask('publish', ['run:publish']); // cmd+shift+u.
-    grunt.registerTask('release', ['bump', 'run:rollup_umd', 'run:copyToFirebase', 'updateFirestore']); // cmd+shift+r.
+    grunt.registerTask('release', ['bump', 'run:rollup_es', 'run:copyToFirebase', 'updateFirestore']); // cmd+shift+r.
     grunt.registerTask('synchronise', ['bump']); // cmd+shift+s.
     grunt.registerTask('test', ['run:test']); // cmd+shift+t.
 };

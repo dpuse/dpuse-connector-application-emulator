@@ -7,7 +7,6 @@
 
 // Connector asset dependencies.
 import config from './config.json';
-import env from '../.env.json';
 import { version } from '../package.json';
 
 // Engine component dependencies.
@@ -31,6 +30,7 @@ import {
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 const defaultChunkSize = 4096;
+const sapSuccessFactorsURLPrefix = 'https://firebasestorage.googleapis.com/v0/b/dataposapp-v00-dev-alpha.appspot.com/o/sandboxes%2FsapSuccessFactors';
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // #region Data Connector
@@ -126,7 +126,7 @@ const previewFileEntry = async (
         Range: `bytes=0-${previewInterfaceSettings.chunkSize || defaultChunkSize}`
     };
 
-    const response = await fetch(`${env.SAP_SUCCESS_FACTORS_URL_PREFIX}%2F${encodeURIComponent(sourceViewProperties.fileName)}?alt=media`, { headers });
+    const response = await fetch(`${sapSuccessFactorsURLPrefix}%2F${encodeURIComponent(sourceViewProperties.fileName)}?alt=media`, { headers });
     if (!response.ok) {
         const data: ErrorData = {
             body: { context: 'previewFileEntry', message: await response.text() },
