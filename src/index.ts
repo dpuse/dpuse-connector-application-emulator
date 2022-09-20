@@ -93,11 +93,11 @@ const listEntries = (directoryPath: string): Promise<ConnectionEntriesPage> => {
     });
 };
 
-const buildObjectItem = (directoryPath: string, name: string, label: string, size: number): ConnectionEntry => ({
+const buildObjectItem = (folderPath: string, name: string, label: string, size: number): ConnectionEntry => ({
     childEntryCount: undefined,
-    directoryPath,
     encodingId: undefined,
     extension: 'csv',
+    folderPath,
     handle: undefined,
     id: name,
     label,
