@@ -61,8 +61,8 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
         throw new Error('Not implemented');
     }
 
-    async listEntries(accountId: string, sessionAccessToken: string, directory: string): Promise<ConnectionEntriesPage> {
-        return await listEntries(directory);
+    async listEntries(accountId: string, sessionAccessToken: string, parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> {
+        return await listEntries(parentConnectionEntry);
     }
 }
 
@@ -72,11 +72,11 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
 // #region List Entries
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const listEntries = (directoryPath: string): Promise<ConnectionEntriesPage> => {
+const listEntries = (parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> => {
     return new Promise((resolve, reject) => {
         try {
             const entries: ConnectionEntry[] = [];
-            switch (directoryPath) {
+            switch (parentConnectionEntry.folderPath || '') {
                 default:
                     entries.push(buildObjectItem('', 'empEmployment', 'Emp Employment', 2147));
                     entries.push(buildObjectItem('', 'empJob', 'Emp Job', 5733));
