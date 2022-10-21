@@ -3,7 +3,7 @@
     "description": "Data positioning application application emulator data connector",
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
     "license": "ISC",
-    "version": "0.1.305",
+    "version": "0.1.306",
     "dependencies": {
         "@dataposapp/dataposapp-engine-main": "^0.1.464",
         "csv-parse": "^5.3.1"
