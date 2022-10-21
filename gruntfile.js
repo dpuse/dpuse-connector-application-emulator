@@ -25,13 +25,11 @@ module.exports = (grunt) => {
         pkg,
 
         run: {
-            audit: { args: ['npm', 'audit'], cmd: 'npx' },
             copyToFirebase: { args: ['cp', 'dist/*', 'gs://dataposapp-v00-dev-alpha.appspot.com/components/connectors/data/'], cmd: 'gsutil' },
             identifyLicensesUsingLicenseChecker: { args: ['license-checker', '--production', '--json', '--out', 'LICENSES.json'], cmd: 'npx' },
             identifyLicensesUsingNLF: { args: ['nlf', '-d'], cmd: 'npx' },
             lint: { args: ['eslint', 'src/index.ts'], cmd: 'npx' },
-            outdated: { args: ['npm', 'outdated'], cmd: 'npx' },
-            publish: { args: ['publish'], cmd: 'npx' },
+            npmPublish: { args: ['publish'], cmd: 'npx' },
             rollup_cjs: { args: ['rollup', '-c', 'rollup.config-cjs.js', '--environment', 'BUILD:production'], cmd: 'npx' },
             rollup_es: { args: ['rollup', '-c', 'rollup.config-es.js', '--environment', 'BUILD:production'], cmd: 'npx' },
             rollup_umd: { args: ['rollup', '-c', 'rollup.config-umd.js', '--environment', 'BUILD:production'], cmd: 'npx' },
@@ -83,13 +81,12 @@ module.exports = (grunt) => {
     grunt.loadNpmTasks('grunt-run');
 
     // Register local tasks.
-    grunt.registerTask('audit', ['run:audit']); // cmd+shift+a.
-    grunt.registerTask('build', ['run:rollup_es', 'run:copyToFirebase', 'updateFirestore']); // cmd+shift+b.
+    grunt.registerTask('build', ['run:rollup_cjs', 'run:rollup_es']); // cmd+shift+b.
     grunt.registerTask('identifyLicenses', ['run:identifyLicensesUsingLicenseChecker', 'run:identifyLicensesUsingNLF']); // cmd+shift+i.
     grunt.registerTask('lint', ['run:lint']); // cmd+shift+l.
-    grunt.registerTask('outdated', ['run:outdated']); // cmd+shift+o.
-    grunt.registerTask('publish', ['run:publish']); // cmd+shift+u.
-    grunt.registerTask('release', ['bump', 'run:rollup_es', 'run:copyToFirebase', 'updateFirestore']); // cmd+shift+r.
+    grunt.registerTask('npmPublish', ['bump', 'run:rollup_cjs', 'run:rollup_es', 'run:npmPublish']); // cmd+shift+n.
+    grunt.registerTask('release', ['bump', 'run:rollup_cjs', 'run:rollup_es', 'run:copyToFirebase', 'updateFirestore']); // cmd+shift+r.
     grunt.registerTask('synchronise', ['bump']); // cmd+shift+s.
     grunt.registerTask('test', ['run:test']); // cmd+shift+t.
+    grunt.registerTask('engineUpdate', ['run:engineUpdate']); // cmd+shift+e.
 };

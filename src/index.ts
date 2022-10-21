@@ -24,6 +24,9 @@ import type {
 } from '@dataposapp/dataposapp-engine-main';
 import { ConnectionEntryPreviewTypeId, ConnectionEntryTypeId } from '@dataposapp/dataposapp-engine-main';
 
+// Vendor dependencies.
+import type { CastingContext } from 'csv-parse/.';
+
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Declarations
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -70,7 +73,7 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
      * Get the read interface.
      * @returns The read interface.
      */
-     getReadInterface(): DataConnectorReadInterface {
+    getReadInterface(): DataConnectorReadInterface {
         throw new Error('Not implemented');
     }
 
@@ -81,7 +84,7 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
      * @param parentConnectionEntry
      * @returns A page of entries.
      */
-     async retrieveEntries(accountId: string, sessionAccessToken: string, parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> {
+    async retrieveEntries(accountId: string, sessionAccessToken: string, parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> {
         return await retrieveEntries(parentConnectionEntry);
     }
 }
@@ -97,28 +100,28 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
  * @param parentConnectionEntry
  * @returns A page of entries.
  */
- const retrieveEntries = (parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> => {
+const retrieveEntries = (parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> => {
     return new Promise((resolve, reject) => {
         try {
             const entries: ConnectionEntry[] = [];
             switch (parentConnectionEntry.folderPath || '') {
                 default:
-                    entries.push(buildObjectItem('', 'empEmployment', 'Emp Employment', 2147));
-                    entries.push(buildObjectItem('', 'empJob', 'Emp Job', 5733));
-                    entries.push(buildObjectItem('', 'perGlobalInfoGBR', 'Per Information Global - GBR', 861));
-                    entries.push(buildObjectItem('', 'perGlobalInfoUSA', 'Per Information Global - USA', 51));
-                    entries.push(buildObjectItem('', 'perPerson', 'Per Person', 2147));
-                    entries.push(buildObjectItem('', 'perPersonal', 'Per Personal', 2174));
+                    entries.push(buildFileEntry('', 'empEmployment', 'Emp Employment', 2147));
+                    entries.push(buildFileEntry('', 'empJob', 'Emp Job', 5733));
+                    entries.push(buildFileEntry('', 'perGlobalInfoGBR', 'Per Information Global - GBR', 861));
+                    entries.push(buildFileEntry('', 'perGlobalInfoUSA', 'Per Information Global - USA', 51));
+                    entries.push(buildFileEntry('', 'perPerson', 'Per Person', 2147));
+                    entries.push(buildFileEntry('', 'perPersonal', 'Per Personal', 2174));
                     break;
             }
-            resolve({ cursor: undefined, isMore: false, entries });
+            resolve({ cursor: undefined, isMore: false, entries, totalCount: entries.length });
         } catch (error) {
             reject(error);
         }
     });
 };
 
-const buildObjectItem = (folderPath: string, name: string, label: string, size: number): ConnectionEntry => ({
+const buildFileEntry = (folderPath: string, name: string, label: string, size: number): ConnectionEntry => ({
     childEntryCount: undefined,
     encodingId: undefined,
     extension: 'csv',
@@ -140,6 +143,15 @@ const buildObjectItem = (folderPath: string, name: string, label: string, size: 
 // #region Preview File Entry
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Preview a file entry.
+ * @param connector This data connector.
+ * @param sourceViewProperties The source view properties.
+ * @param accountId The identifier of the account to which the source belongs.
+ * @param sessionAccessToken An active session token.
+ * @param previewInterfaceSettings The preview interface settings.
+ * @returns A source file entry preview.
+ */
 const previewFileEntry = async (
     connector: DataConnector,
     sourceViewProperties: SourceViewProperties,
@@ -150,8 +162,11 @@ const previewFileEntry = async (
     const headers: HeadersInit = {
         Range: `bytes=0-${previewInterfaceSettings.chunkSize || defaultChunkSize}`
     };
-
-    const response = await fetch(`${sapSuccessFactorsURLPrefix}%2F${encodeURIComponent(sourceViewProperties.fileName)}?alt=media`, { headers });
+    connector.abortController = new AbortController();
+    const signal = connector.abortController.signal;
+    // signal.addEventListener('abort', () => console.log('TRACE: Preview File Entry ABORTED!'), { once: true, signal }); // Don't need once and signal?
+    const response = await fetch(`${sapSuccessFactorsURLPrefix}%2F${encodeURIComponent(sourceViewProperties.fileName)}?alt=media`, { headers, signal });
+    connector.abortController = undefined;
     if (!response.ok) {
         const data: ErrorData = {
             body: { context: 'previewFileEntry', message: await response.text() },
@@ -160,9 +175,8 @@ const previewFileEntry = async (
         };
         throw new Error('Unable to preview entry.|' + JSON.stringify(data));
     }
-    const arrayBuffer = await response.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-    return { data: uint8Array, typeId: ConnectionEntryPreviewTypeId.Uint8Array };
+    const uint8Array = new Uint8Array(await response.arrayBuffer());
+    return { data: uint8Array, fields: undefined, typeId: ConnectionEntryPreviewTypeId.Uint8Array };
 };
 
 // #endregion
