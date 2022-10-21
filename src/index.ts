@@ -10,12 +10,10 @@ import config from './config.json';
 import { version } from '../package.json';
 
 // Engine component dependencies.
-import {
+import type {
     ConnectionEntry,
     ConnectionEntryPreview,
-    ConnectionEntryPreviewTypeId,
     ConnectionEntriesPage,
-    ConnectionEntryTypeId,
     ConnectionItem,
     DataConnector,
     DataConnectorPreviewInterface,
@@ -23,13 +21,15 @@ import {
     DataConnectorReadInterface,
     ErrorData,
     SourceViewProperties
-} from '../../../../dataposapp-engine-main/src';
+} from '@dataposapp/dataposapp-engine-main';
+import { ConnectionEntryPreviewTypeId, ConnectionEntryTypeId } from '@dataposapp/dataposapp-engine-main';
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // Declarations
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 const defaultChunkSize = 4096;
+// TODO: Salesforce and SAP SuccessFactors data needs to be combined into a single organisation.
 const sapSuccessFactorsURLPrefix = 'https://firebasestorage.googleapis.com/v0/b/dataposapp-v00-dev-alpha.appspot.com/o/sandboxes%2FsapSuccessFactors';
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -37,42 +37,67 @@ const sapSuccessFactorsURLPrefix = 'https://firebasestorage.googleapis.com/v0/b/
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 export default class ApplicationEmulatorDataConnector implements DataConnector {
+    abortController: AbortController;
     readonly connectionItem: ConnectionItem;
     readonly id: string;
-    isAborted: boolean;
     readonly version: string;
 
     constructor(connectionItem: ConnectionItem) {
+        this.abortController = undefined;
         this.connectionItem = connectionItem;
         this.id = config.id;
-        this.isAborted = false;
         this.version = version;
     }
 
+    /**
+     * Abort current processing.
+     */
     abort(): void {
-        this.isAborted = true;
+        if (!this.abortController) return;
+        this.abortController.abort();
+        this.abortController = undefined;
     }
 
+    /**
+     * Get the preview interface.
+     * @returns The preview interface.
+     */
     getPreviewInterface(): DataConnectorPreviewInterface {
         return { connector: this, previewFileEntry };
     }
 
-    getReadInterface(): DataConnectorReadInterface {
+    /**
+     * Get the read interface.
+     * @returns The read interface.
+     */
+     getReadInterface(): DataConnectorReadInterface {
         throw new Error('Not implemented');
     }
 
-    async listEntries(accountId: string, sessionAccessToken: string, parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> {
-        return await listEntries(parentConnectionEntry);
+    /**
+     * Retrieve a page of entries for a given folder path.
+     * @param accountId The identifier of the account to which the source belongs.
+     * @param sessionAccessToken An active session access token.
+     * @param parentConnectionEntry
+     * @returns A page of entries.
+     */
+     async retrieveEntries(accountId: string, sessionAccessToken: string, parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> {
+        return await retrieveEntries(parentConnectionEntry);
     }
 }
 
 // #endregion
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// #region List Entries
+// #region Retrieve Entries
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-const listEntries = (parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> => {
+/**
+ * Retrieve a page of entries for a given folder path.
+ * @param parentConnectionEntry
+ * @returns A page of entries.
+ */
+ const retrieveEntries = (parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> => {
     return new Promise((resolve, reject) => {
         try {
             const entries: ConnectionEntry[] = [];
