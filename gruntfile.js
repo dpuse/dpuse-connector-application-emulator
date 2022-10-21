@@ -5,6 +5,7 @@
  * @license ISC
  */
 
+// TODO: TS warning for next line (see ... under require) suggests file can be converted to ES module, but uncertain how to do this?
 const { getConnectorConfig } = require('../../../dataposapp-engine-main/src/gruntComponentHelpers.js');
 const config = require('./src/config.json');
 const env = require('./.env.json');
@@ -32,8 +33,8 @@ module.exports = (grunt) => {
             npmPublish: { args: ['publish'], cmd: 'npx' },
             rollup_cjs: { args: ['rollup', '-c', 'rollup.config-cjs.js', '--environment', 'BUILD:production'], cmd: 'npx' },
             rollup_es: { args: ['rollup', '-c', 'rollup.config-es.js', '--environment', 'BUILD:production'], cmd: 'npx' },
-            rollup_umd: { args: ['rollup', '-c', 'rollup.config-umd.js', '--environment', 'BUILD:production'], cmd: 'npx' },
-            test: { args: ['WARNING: No tests implemented.'], cmd: 'echo' }
+            test: { args: ['WARNING: No tests implemented.'], cmd: 'echo' },
+            engineUpdate: { args: ['install', '@dataposapp/dataposapp-engine-main@latest'], cmd: 'npm' }
         }
     });
 
