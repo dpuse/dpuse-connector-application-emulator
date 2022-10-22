@@ -31,12 +31,14 @@ import { ConnectionEntryPreviewTypeId, ConnectionEntryTypeId } from '@dataposapp
 import type { CastingContext } from 'csv-parse/.';
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// Declarations
+// #region Declarations
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 const defaultChunkSize = 4096;
 // TODO: Salesforce and SAP SuccessFactors data needs to be combined into a single organisation.
 const urlPrefix = 'https://firebasestorage.googleapis.com/v0/b/dataposapp-v00-dev-alpha.appspot.com/o/sandboxes%2FsapSuccessFactors';
+
+// #endregion
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // #region Data Connector
