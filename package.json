@@ -3,9 +3,9 @@
     "description": "Data positioning Application Emulator data connector",
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
     "license": "ISC",
-    "version": "0.1.311",
+    "version": "0.1.312",
     "dependencies": {
-        "@dataposapp/dataposapp-engine-main": "^0.1.464",
+        "@dataposapp/dataposapp-engine-main": "^0.1.466",
         "csv-parse": "^5.3.1"
     },
     "devDependencies": {
@@ -19,7 +19,7 @@
         "grunt-bump": "^0.8.0",
         "grunt-run": "^0.8.1",
         "node-fetch": "^3.2.3",
-        "rollup": "^2.67.1",
+        "rollup": "^2.79.1",
         "rollup-plugin-terser": "^7.0.2",
         "rollup-plugin-typescript2": "^0.34.1",
         "typescript": "^4.8.4"
