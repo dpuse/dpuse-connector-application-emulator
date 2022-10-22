@@ -44,7 +44,10 @@ const urlPrefix = 'https://firebasestorage.googleapis.com/v0/b/dataposapp-v00-de
 // #region Data Connector
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-export default class ApplicationEmulatorDataConnector implements DataConnector {
+/**
+ * Encapsulates the FaunaDB data connector.
+ */
+ export default class ApplicationEmulatorDataConnector implements DataConnector {
     abortController: AbortController;
     readonly connectionItem: ConnectionItem;
     readonly id: string;
