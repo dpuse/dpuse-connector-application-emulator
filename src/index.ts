@@ -19,7 +19,10 @@ import type {
     DataConnectorPreviewInterface,
     DataConnectorPreviewInterfaceSettings,
     DataConnectorReadInterface,
+    DataConnectorReadInterfaceSettings,
+    Environment,
     ErrorData,
+    FieldInfos,
     SourceViewProperties
 } from '@dataposapp/dataposapp-engine-main';
 import { ConnectionEntryPreviewTypeId, ConnectionEntryTypeId } from '@dataposapp/dataposapp-engine-main';
@@ -33,7 +36,7 @@ import type { CastingContext } from 'csv-parse/.';
 
 const defaultChunkSize = 4096;
 // TODO: Salesforce and SAP SuccessFactors data needs to be combined into a single organisation.
-const sapSuccessFactorsURLPrefix = 'https://firebasestorage.googleapis.com/v0/b/dataposapp-v00-dev-alpha.appspot.com/o/sandboxes%2FsapSuccessFactors';
+const urlPrefix = 'https://firebasestorage.googleapis.com/v0/b/dataposapp-v00-dev-alpha.appspot.com/o/sandboxes%2FsapSuccessFactors';
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // #region Data Connector
@@ -74,7 +77,7 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
      * @returns The read interface.
      */
     getReadInterface(): DataConnectorReadInterface {
-        throw new Error('Not implemented');
+        return { connector: this, readFileEntry };
     }
 
     /**
@@ -164,8 +167,8 @@ const previewFileEntry = async (
     };
     connector.abortController = new AbortController();
     const signal = connector.abortController.signal;
-    // signal.addEventListener('abort', () => console.log('TRACE: Preview File Entry ABORTED!'), { once: true, signal }); // Don't need once and signal?
-    const response = await fetch(`${sapSuccessFactorsURLPrefix}%2F${encodeURIComponent(sourceViewProperties.fileName)}?alt=media`, { headers, signal });
+    // TODO: signal.addEventListener('abort', () => console.log('TRACE: Preview File Entry ABORTED!'), { once: true, signal }); // Don't need once and signal?
+    const response = await fetch(`${urlPrefix}%2F${encodeURIComponent(sourceViewProperties.fileName)}?alt=media`, { headers, signal });
     connector.abortController = undefined;
     if (!response.ok) {
         const data: ErrorData = {
@@ -184,5 +187,74 @@ const previewFileEntry = async (
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 // #region Read File Entry
 // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/**
+ * Read a file entry.
+ * @param connector This data connector.
+ * @param sourceViewProperties The source view properties.
+ * @param accountId The identifier of the account to which the source belongs.
+ * @param sessionAccessToken An active session token.
+ * @param readInterfaceSettings The read interface settings.
+ * @param environment
+ */
+const readFileEntry = async (
+    connector: DataConnector,
+    sourceViewProperties: SourceViewProperties,
+    accountId: string,
+    sessionAccessToken: string,
+    readInterfaceSettings: DataConnectorReadInterfaceSettings,
+    environment: Environment
+): Promise<void> => {
+    connector.abortController = new AbortController();
+    const signal = connector.abortController.signal;
+    // TODO: signal.addEventListener('abort', () => console.log('TRACE: Read File Entry ABORTED!'), { once: true, signal }); // Don't need once and signal?
+    const response = await fetch(`${urlPrefix}${encodeURIComponent(`${sourceViewProperties.folderPath}/${sourceViewProperties.fileName}`)}?alt=media`, { signal });
 
+    let chunk: { fieldInfos: FieldInfos[]; fieldValues: string[] }[] = [];
+    const fieldInfos: FieldInfos[] = [];
+    const maxChunkSize = 1000;
+
+    // TODO: csvParse seems to have some support for encoding. Need to test if this can be used to replace TextDecoderStream?.
+    const stream = response.body.pipeThrough(new TextDecoderStream(sourceViewProperties.preview.encodingId));
+    const decodedStreamReader = stream.getReader();
+
+    signal.throwIfAborted();
+    const parser = environment.csvParse.parse({
+        cast: (value, context) => {
+            fieldInfos[context.index] = { isQuoted: context.quoting };
+            return value;
+        },
+        delimiter: sourceViewProperties.preview.valueDelimiterId,
+        info: true,
+        relax_column_count: true,
+        relax_quotes: true
+    });
+    parser.on('readable', () => {
+        let data;
+        while ((data = parser.read() as { info: CastingContext; record: string[] }) !== null) {
+            signal.throwIfAborted();
+            chunk.push({ fieldInfos, fieldValues: data.record });
+            if (chunk.length < maxChunkSize) continue;
+            readInterfaceSettings.chunk(chunk);
+            chunk = [];
+        }
+    });
+    parser.on('error', (error) => readInterfaceSettings.error(error));
+    parser.on('end', () => {
+        signal.throwIfAborted();
+        connector.abortController = undefined;
+        if (chunk.length > 0) {
+            readInterfaceSettings.chunk(chunk);
+            chunk = [];
+        }
+        readInterfaceSettings.complete({
+            commentLineCount: parser.info.comment_lines,
+            emptyLineCount: parser.info.empty_lines,
+            lineCount: parser.info.lines,
+            recordCount: parser.info.records
+        });
+    });
+    let result;
+    while (!(result = await decodedStreamReader.read()).done) parser.write(result.value);
+    parser.end();
+};
 // #endregion
