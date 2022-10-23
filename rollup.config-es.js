@@ -31,6 +31,6 @@ export default [
                 format: 'es'
             }
         ],
-        plugins: [nodeResolve({ browser: true }), commonjs(), json(), typescript(), terser({ output: { comments: false } })]
+        plugins: [nodeResolve(), commonjs(), json(), typescript(), terser({ output: { comments: false } })]
     }
 ];
