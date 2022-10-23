@@ -212,17 +212,12 @@ const readFileEntry = async (
     connector.abortController = new AbortController();
     const signal = connector.abortController.signal;
     // TODO: signal.addEventListener('abort', () => console.log('TRACE: Read File Entry ABORTED!'), { once: true, signal }); // Don't need once and signal?
+
     const response = await fetch(`${urlPrefix}${encodeURIComponent(`${sourceViewProperties.folderPath}/${sourceViewProperties.fileName}`)}?alt=media`, { signal });
 
     let chunk: { fieldInfos: FieldInfos[]; fieldValues: string[] }[] = [];
     const fieldInfos: FieldInfos[] = [];
     const maxChunkSize = 1000;
-
-    // TODO: csvParse seems to have some support for encoding. Need to test if this can be used to replace TextDecoderStream?.
-    const stream = response.body.pipeThrough(new TextDecoderStream(sourceViewProperties.preview.encodingId));
-    const decodedStreamReader = stream.getReader();
-
-    signal.throwIfAborted();
     const parser = environment.csvParse.parse({
         cast: (value, context) => {
             fieldInfos[context.index] = { isQuoted: context.quoting };
@@ -258,8 +253,17 @@ const readFileEntry = async (
             recordCount: parser.info.records
         });
     });
+
+    // TODO: csvParse seems to have some support for encoding. Need to test if this can be used to replace TextDecoderStream?.
+    const stream = response.body.pipeThrough(new TextDecoderStream(sourceViewProperties.preview.encodingId));
+    const decodedStreamReader = stream.getReader();
     let result;
-    while (!(result = await decodedStreamReader.read()).done) parser.write(result.value);
+    while (!(result = await decodedStreamReader.read()).done) {
+        signal.throwIfAborted();
+        parser.write(result.value, (error) => {
+            if (error) readInterfaceSettings.error(error);
+        });
+    }
     parser.end();
 };
 // #endregion
