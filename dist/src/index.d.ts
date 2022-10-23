@@ -5,6 +5,9 @@
  * @license ISC
  */
 import type { ConnectionEntry, ConnectionEntriesPage, ConnectionItem, DataConnector, DataConnectorPreviewInterface, DataConnectorReadInterface } from '@dataposapp/dataposapp-engine-main';
+/**
+ * Encapsulates the Application Emulator data connector.
+ */
 export default class ApplicationEmulatorDataConnector implements DataConnector {
     abortController: AbortController;
     readonly connectionItem: ConnectionItem;

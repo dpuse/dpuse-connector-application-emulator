@@ -26,7 +26,7 @@ module.exports = (grunt) => {
         pkg,
 
         run: {
-            copyToFirebase: { args: ['cp', 'dist/*', 'gs://dataposapp-v00-dev-alpha.appspot.com/components/connectors/data/'], cmd: 'gsutil' },
+            copyToFirebase: { args: ['cp', 'dist/dataposapp-*', 'gs://dataposapp-v00-dev-alpha.appspot.com/components/connectors/data/'], cmd: 'gsutil' },
             identifyLicensesUsingLicenseChecker: { args: ['license-checker', '--production', '--json', '--out', 'LICENSES.json'], cmd: 'npx' },
             identifyLicensesUsingNLF: { args: ['nlf', '-d'], cmd: 'npx' },
             lint: { args: ['eslint', 'src/index.ts'], cmd: 'npx' },
@@ -85,7 +85,7 @@ module.exports = (grunt) => {
     grunt.registerTask('build', ['run:rollup_cjs', 'run:rollup_es']); // cmd+shift+b.
     grunt.registerTask('identifyLicenses', ['run:identifyLicensesUsingLicenseChecker', 'run:identifyLicensesUsingNLF']); // cmd+shift+i.
     grunt.registerTask('lint', ['run:lint']); // cmd+shift+l.
-    grunt.registerTask('npmPublish', ['bump', 'run:rollup_cjs', 'run:rollup_es', 'run:npmPublish']); // cmd+shift+n.
+    grunt.registerTask('npmPublish', ['run:npmPublish']); // cmd+shift+n.
     grunt.registerTask('release', ['bump', 'run:rollup_cjs', 'run:rollup_es', 'run:copyToFirebase', 'updateFirestore']); // cmd+shift+r.
     grunt.registerTask('synchronise', ['bump']); // cmd+shift+s.
     grunt.registerTask('test', ['run:test']); // cmd+shift+t.
