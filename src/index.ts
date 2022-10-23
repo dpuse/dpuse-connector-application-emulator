@@ -167,12 +167,13 @@ const previewFileEntry = async (
     sessionAccessToken: string | undefined,
     previewInterfaceSettings: DataConnectorPreviewInterfaceSettings
 ): Promise<ConnectionEntryPreview> => {
-    const headers: HeadersInit = {
-        Range: `bytes=0-${previewInterfaceSettings.chunkSize || defaultChunkSize}`
-    };
     connector.abortController = new AbortController();
     const signal = connector.abortController.signal;
     // TODO: signal.addEventListener('abort', () => console.log('TRACE: Preview File Entry ABORTED!'), { once: true, signal }); // Don't need once and signal?
+
+    const headers: HeadersInit = {
+        Range: `bytes=0-${previewInterfaceSettings.chunkSize || defaultChunkSize}`
+    };
     const response = await fetch(`${urlPrefix}%2F${encodeURIComponent(sourceViewProperties.fileName)}?alt=media`, { headers, signal });
     connector.abortController = undefined;
     if (!response.ok) {
@@ -184,6 +185,7 @@ const previewFileEntry = async (
         throw new Error('Unable to preview entry.|' + JSON.stringify(data));
     }
     const uint8Array = new Uint8Array(await response.arrayBuffer());
+
     return { data: uint8Array, fields: undefined, typeId: ConnectionEntryPreviewTypeId.Uint8Array };
 };
 
