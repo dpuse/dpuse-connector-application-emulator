@@ -1,7 +1,7 @@
 /**
  * @author Jonathan Terrell <terrell.jm@gmail.com>
  * @copyright 2022 Jonathan Terrell
- * @file dataposapp-connector-data-application-emulator/src/index.ts
+ * @file datapos-connector-data-application-emulator/src/index.ts
  * @license ISC
  */
 
@@ -24,8 +24,8 @@ import type {
     ErrorData,
     FieldInfos,
     SourceViewProperties
-} from '@dataposapp/dataposapp-engine-main';
-import { ConnectionEntryPreviewTypeId, ConnectionEntryTypeId } from '@dataposapp/dataposapp-engine-main';
+} from '@datapos/datapos-engine';
+import { ConnectionEntryPreviewTypeId, ConnectionEntryTypeId } from '@datapos/datapos-engine';
 
 // Vendor dependencies.
 import type { CastingContext } from 'csv-parse/.';
@@ -36,7 +36,7 @@ import type { CastingContext } from 'csv-parse/.';
 
 const defaultChunkSize = 4096;
 // TODO: Salesforce and SAP SuccessFactors data needs to be combined into a single organisation.
-const urlPrefix = 'https://firebasestorage.googleapis.com/v0/b/dataposapp-v00-dev-alpha.appspot.com/o/sandboxes%2FsapSuccessFactors';
+const urlPrefix = 'https://firebasestorage.googleapis.com/v0/b/datapos-v00-dev-alpha.appspot.com/o/sandboxes%2FsapSuccessFactors';
 
 // #endregion
 

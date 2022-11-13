@@ -1,12 +1,12 @@
 /**
  * @author Jonathan Terrell <terrell.jm@gmail.com>
  * @copyright 2022 Jonathan Terrell
- * @file dataposapp-connector-data-sample-files/gruntfile.js
+ * @file datapos-connector-data-sample-files/gruntfile.js
  * @license ISC
  */
 
 // TODO: TS warning for next line (see ... under require) suggests file can be converted to ES module, but uncertain how to do this?
-const { getConnectorConfig } = require('../../../dataposapp-engine-main/src/gruntComponentHelpers.js');
+const { getConnectorConfig } = require('@datapos/datapos-engine/src/gruntComponentHelpers');
 const config = require('./src/config.json');
 const env = require('./.env.json');
 const pkg = require('./package.json');
@@ -26,7 +26,7 @@ module.exports = (grunt) => {
         pkg,
 
         run: {
-            copyToFirebase: { args: ['cp', 'dist/dataposapp-*', 'gs://dataposapp-v00-dev-alpha.appspot.com/components/connectors/data/'], cmd: 'gsutil' },
+            copyToFirebase: { args: ['cp', 'dist/datapos-*', 'gs://datapos-v00-dev-alpha.appspot.com/plugins/connectors/data/'], cmd: 'gsutil' },
             identifyLicensesUsingLicenseChecker: { args: ['license-checker', '--production', '--json', '--out', 'LICENSES.json'], cmd: 'npx' },
             identifyLicensesUsingNLF: { args: ['nlf', '-d'], cmd: 'npx' },
             lint: { args: ['eslint', 'src/index.ts'], cmd: 'npx' },
@@ -34,7 +34,7 @@ module.exports = (grunt) => {
             rollup_cjs: { args: ['rollup', '-c', 'rollup.config-cjs.js', '--environment', 'BUILD:production'], cmd: 'npx' },
             rollup_es: { args: ['rollup', '-c', 'rollup.config-es.js', '--environment', 'BUILD:production'], cmd: 'npx' },
             test: { args: ['WARNING: No tests implemented.'], cmd: 'echo' },
-            engineUpdate: { args: ['install', '@dataposapp/dataposapp-engine-main@latest'], cmd: 'npm' }
+            engineUpdate: { args: ['install', '@datapos/datapos-engine@latest'], cmd: 'npm' }
         }
     });
 
@@ -60,7 +60,7 @@ module.exports = (grunt) => {
             const signInResult = await signInResponse.json();
 
             // Upsert connector record in application service database (firestore).
-            const upsertResponse = await fetchModule.default(`https://europe-west1-${env.FIREBASE_PROJECT_ID}.cloudfunctions.net/api/components`, {
+            const upsertResponse = await fetchModule.default(`https://europe-west1-${env.FIREBASE_PROJECT_ID}.cloudfunctions.net/api/plugins`, {
                 body: JSON.stringify(getConnectorConfig(config, grunt.config.data.pkg.version)),
                 headers: {
                     Authorization: signInResult.idToken,

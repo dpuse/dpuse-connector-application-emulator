@@ -10,7 +10,7 @@
 
 ```sh
 cd [parent directory]
-git clone https://github.com/dataposapp/dataposapp-connector-data-application-emulator.git
+git clone https://github.com/datapos/datapos-connector-data-application-emulator.git
 ```
 
 ## Project Commands

@@ -1,11 +1,11 @@
 {
-    "name": "@dataposapp/dataposapp-connector-data-application-emulator",
-    "description": "Data positioning Application Emulator data connector",
+    "name": "@datapos/datapos-connector-data-application-emulator",
+    "description": "Data Positioning - Application Emulator Data Connector",
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
     "license": "ISC",
-    "version": "0.1.318",
+    "version": "0.1.319",
     "dependencies": {
-        "@dataposapp/dataposapp-engine-main": "^0.1.466",
+        "@datapos/datapos-engine": "^0.1.478",
         "csv-parse": "^5.3.1"
     },
     "devDependencies": {
