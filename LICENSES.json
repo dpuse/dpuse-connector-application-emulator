@@ -1,0 +1,48 @@
+{
+  "@datapos/datapos-connector-data-application-emulator@0.1.321": {
+    "licenses": "ISC",
+    "publisher": "Jonathan Terrell",
+    "email": "terrell.jm@gmail.com",
+    "path": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator",
+    "licenseFile": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/LICENSE"
+  },
+  "@datapos/datapos-engine@0.1.478": {
+    "licenses": "ISC",
+    "publisher": "Jonathan Terrell",
+    "email": "terrell.jm@gmail.com",
+    "path": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/node_modules/@datapos/datapos-engine",
+    "licenseFile": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/node_modules/@datapos/datapos-engine/LICENSE"
+  },
+  "chardet@1.5.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/runk/node-chardet",
+    "publisher": "Dmitry Shirokov",
+    "email": "deadrunk@gmail.com",
+    "path": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/node_modules/chardet",
+    "licenseFile": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/node_modules/chardet/LICENSE"
+  },
+  "csv-parse@5.3.1": {
+    "licenses": "MIT",
+    "repository": "https://github.com/adaltas/node-csv",
+    "publisher": "David Worms",
+    "email": "david@adaltas.com",
+    "url": "https://www.adaltas.com",
+    "path": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/node_modules/csv-parse",
+    "licenseFile": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/node_modules/csv-parse/LICENSE"
+  },
+  "date-fns@2.29.3": {
+    "licenses": "MIT",
+    "repository": "https://github.com/date-fns/date-fns",
+    "path": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/node_modules/date-fns",
+    "licenseFile": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/node_modules/date-fns/LICENSE.md"
+  },
+  "lodash.clonedeep@4.5.0": {
+    "licenses": "MIT",
+    "repository": "https://github.com/lodash/lodash",
+    "publisher": "John-David Dalton",
+    "email": "john.david.dalton@gmail.com",
+    "url": "http://allyoucanleet.com/",
+    "path": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/node_modules/lodash.clonedeep",
+    "licenseFile": "/Users/jonathanterrell/Data Positioning/GitHub/connectors/data/datapos-connector-data-application-emulator/node_modules/lodash.clonedeep/LICENSE"
+  }
+}
