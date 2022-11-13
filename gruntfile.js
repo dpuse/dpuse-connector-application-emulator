@@ -6,7 +6,7 @@
  */
 
 // TODO: TS warning for next line (see ... under require) suggests file can be converted to ES module, but uncertain how to do this?
-const { getConnectorConfig } = require('@datapos/datapos-engine/src/gruntComponentHelpers');
+const { getConnectorConfig } = require('@datapos/datapos-engine/src/gruntPluginHelpers');
 const config = require('./src/config.json');
 const env = require('./.env.json');
 const pkg = require('./package.json');
@@ -14,17 +14,8 @@ const pkg = require('./package.json');
 module.exports = (grunt) => {
     // Initialise configuration.
     grunt.initConfig({
-        bump: {
-            options: {
-                commitFiles: ['-a'],
-                commitMessage: '<%if(grunt.config("commitMessage")){%><%=grunt.config("commitMessage")%><%}else{%>Release v%VERSION%<%}%>',
-                pushTo: 'origin',
-                updateConfigs: ['pkg']
-            }
-        },
-
+        bump: { options: { commitFiles: ['-a'], commitMessage: 'Release v%VERSION%', pushTo: 'origin', updateConfigs: ['pkg'] } },
         pkg,
-
         run: {
             copyToFirebase: { args: ['cp', 'dist/datapos-*', 'gs://datapos-v00-dev-alpha.appspot.com/plugins/connectors/data/'], cmd: 'gsutil' },
             identifyLicensesUsingLicenseChecker: { args: ['license-checker', '--production', '--json', '--out', 'LICENSES.json'], cmd: 'npx' },
