@@ -1,14 +1,14 @@
 {
     "name": "@datapos/datapos-connector-data-application-emulator",
-    "description": "Data Positioning - Application Emulator Data Connector",
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
     "license": "ISC",
-    "version": "0.1.323",
+    "version": "0.1.324",
     "dependencies": {
-        "@datapos/datapos-engine": "^0.1.482",
+        "@datapos/datapos-engine-support": "^0.0.5",
         "csv-parse": "^5.3.1"
     },
     "devDependencies": {
+        "@datapos/datapos-operations": "^0.1.12",
         "@rollup/plugin-commonjs": "^23.0.2",
         "@rollup/plugin-json": "^5.0.1",
         "@rollup/plugin-node-resolve": "^15.0.1",
@@ -17,6 +17,7 @@
         "eslint": "^8.26.0",
         "grunt": "^1.5.3",
         "grunt-bump": "^0.8.0",
+        "grunt-git": "^1.1.1",
         "grunt-run": "^0.8.1",
         "node-fetch": "^3.2.10",
         "rollup": "^2.79.1",

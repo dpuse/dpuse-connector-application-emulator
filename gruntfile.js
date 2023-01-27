@@ -1,20 +1,25 @@
 /**
  * @author Jonathan Terrell <terrell.jm@gmail.com>
- * @copyright 2022 Jonathan Terrell
- * @file datapos-connector-data-sample-files/gruntfile.js
+ * @copyright 2023 Jonathan Terrell
+ * @file datapos-connector-data-application-emulator/gruntfile.js
  * @license ISC
  */
 
-// TODO: TS warning for next line (see ... under require) suggests file can be converted to ES module, but uncertain how to do this?
-const { getConnectorConfig } = require('@datapos/datapos-engine/src/gruntPluginHelpers');
+// Application Dependencies
+const { uploadConnector } = require('@datapos/datapos-operations/connectorHelpers');
 const config = require('./src/config.json');
 const env = require('./.env.json');
 const pkg = require('./package.json');
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+// Initialisation
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 module.exports = (grunt) => {
     // Initialise configuration.
     grunt.initConfig({
         bump: { options: { commitFiles: ['-a'], commitMessage: 'Release v%VERSION%', pushTo: 'origin', updateConfigs: ['pkg'] } },
+        gitadd: { task: { options: { all: true } } },
         pkg,
         run: {
             copyToFirebase: { args: ['cp', 'dist/datapos-*', 'gs://datapos-v00-dev-alpha.appspot.com/plugins/connectors/data/'], cmd: 'gsutil' },
@@ -22,63 +27,54 @@ module.exports = (grunt) => {
             identifyLicensesUsingNLF: { args: ['nlf', '-d'], cmd: 'npx' },
             lint: { args: ['eslint', 'src/index.ts'], cmd: 'npx' },
             npmPublish: { args: ['publish'], cmd: 'npx' },
+            outdated: { args: ['npm', 'outdated'], cmd: 'npx' },
             rollup_cjs: { args: ['rollup', '-c', 'rollup.config-cjs.js', '--environment', 'BUILD:production'], cmd: 'npx' },
+            rollup_iife: { args: ['rollup', '-c', 'rollup.config-iife.js', '--environment', 'BUILD:production'], cmd: 'npx' },
             rollup_es: { args: ['rollup', '-c', 'rollup.config-es.js', '--environment', 'BUILD:production'], cmd: 'npx' },
-            test: { args: ['WARNING: No tests implemented.'], cmd: 'echo' },
-            engineUpdate: { args: ['install', '@datapos/datapos-engine@latest'], cmd: 'npm' }
+            rollup_umd: { args: ['rollup', '-c', 'rollup.config-umd.js', '--environment', 'BUILD:production'], cmd: 'npx' },
+            updateEngine: { args: ['install', '@datapos/datapos-engine@latest'], cmd: 'npm' },
+            updateEngineSupport: { args: ['install', '@datapos/datapos-engine-support@latest'], cmd: 'npm' },
+            updateOperations: { args: ['install', '--save-dev', '@datapos/datapos-operations@latest'], cmd: 'npm' }
         }
     });
 
-    // ...
-    grunt.task.registerTask('updateFirestore', 'Updates Firestore', async function () {
+    // Load external tasks.
+    grunt.loadNpmTasks('grunt-bump');
+    grunt.loadNpmTasks('grunt-git');
+    grunt.loadNpmTasks('grunt-run');
+
+    // Register upload connector task.
+    grunt.registerTask('uploadConnector', 'Upload Connector', async function () {
+        const done = this.async();
         try {
-            const done = this.async();
-
-            const fetchModule = await import('node-fetch');
-
-            // Sign in to firebase.
-            const signInResponse = await fetchModule.default(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${env.FIREBASE_API_KEY}`, {
-                body: JSON.stringify({
-                    email: env.FIREBASE_EMAIL_ADDRESS,
-                    password: env.FIREBASE_PASSWORD,
-                    returnSecureToken: true
-                }),
-                headers: {
-                    Referer: `${env.FIREBASE_PROJECT_ID}.web.app`
-                },
-                method: 'POST'
-            });
-            const signInResult = await signInResponse.json();
-
-            // Upsert connector record in application service database (firestore).
-            const upsertResponse = await fetchModule.default(`https://europe-west1-${env.FIREBASE_PROJECT_ID}.cloudfunctions.net/api/plugins`, {
-                body: JSON.stringify(getConnectorConfig(config, grunt.config.data.pkg.version)),
-                headers: {
-                    Authorization: signInResult.idToken,
-                    'Content-Type': 'application/json'
-                },
-                method: 'POST'
-            });
-            if (!upsertResponse.ok) console.log(upsertResponse.status, upsertResponse.statusText, await upsertResponse.text());
-
-            done();
+            const settings = {
+                firebaseAPIKey: env.FIREBASE_API_KEY,
+                firebaseEmailAddress: env.FIREBASE_EMAIL_ADDRESS,
+                firebasePassword: env.FIREBASE_PASSWORD,
+                firebaseProjectId: env.FIREBASE_PROJECT_ID,
+                sanityAPIToken: env.SANITY_API_TOKEN,
+                sanityAPIVersion: env.SANITY_API_VERSION,
+                sanityDataSetName: env.SANITY_DATASET_NAME,
+                sanityProjectId: env.SANITY_PROJECT_ID
+            };
+            const status = await uploadConnector(grunt, config, await import('node-fetch'), settings);
+            done(status);
         } catch (error) {
             console.log(error);
             done(false);
         }
     });
 
-    // Load external tasks.
-    grunt.loadNpmTasks('grunt-bump');
-    grunt.loadNpmTasks('grunt-run');
-
-    // Register local tasks.
-    grunt.registerTask('build', ['run:rollup_cjs', 'run:rollup_es']); // cmd+shift+b.
+    // Register standard repository management tasks.
+    grunt.registerTask('forceOn', () => grunt.option('force', true));
+    grunt.registerTask('forceOff', () => grunt.option('force', false));
+    grunt.registerTask('build', ['run:rollup_es']); // cmd+shift+b.
     grunt.registerTask('identifyLicenses', ['run:identifyLicensesUsingLicenseChecker', 'run:identifyLicensesUsingNLF']); // cmd+shift+i.
     grunt.registerTask('lint', ['run:lint']); // cmd+shift+l.
     grunt.registerTask('npmPublish', ['run:npmPublish']); // cmd+shift+n.
-    grunt.registerTask('release', ['bump', 'run:rollup_cjs', 'run:rollup_es', 'run:copyToFirebase', 'updateFirestore']); // cmd+shift+r.
-    grunt.registerTask('synchronise', ['bump']); // cmd+shift+s.
-    grunt.registerTask('test', ['run:test']); // cmd+shift+t.
-    grunt.registerTask('engineUpdate', ['run:engineUpdate']); // cmd+shift+e.
+    grunt.registerTask('release', ['gitadd', 'bump', 'run:rollup_es', 'run:copyToFirebase', 'uploadConnector']); // cmd+shift+r.
+    grunt.registerTask('synchronise', ['gitadd', 'bump']); // cmd+shift+s.
+    grunt.registerTask('updateApplicationDependencies', ['forceOn', 'run:outdated', 'run:updateEngine', 'run:updateEngineSupport', 'run:updateOperations']); // cmd+shift+u.
+
+    grunt.registerTask('test', ['uploadConnector']); // cmd+shift+t.
 };

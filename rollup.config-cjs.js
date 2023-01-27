@@ -1,6 +1,6 @@
 /**
  * @author Jonathan Terrell <terrell.jm@gmail.com>
- * @copyright 2022 Jonathan Terrell
+ * @copyright 2023 Jonathan Terrell
  * @file datapos-connector-data-file-store-emulator/rollup.config-cjs.js
  * @license ISC
  */
