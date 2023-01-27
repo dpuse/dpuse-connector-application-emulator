@@ -4,7 +4,7 @@
  * @file datapos-connector-data-application-emulator/src/index.ts
  * @license ISC
  */
-import type { ConnectionEntry, ConnectionEntriesPage, ConnectionItem, DataConnector, DataConnectorPreviewInterface, DataConnectorReadInterface } from '@datapos/datapos-engine';
+import type { ConnectionEntry, ConnectionEntriesPage, ConnectionItem, DataConnector, DataConnectorPreviewInterface, DataConnectorReadInterface } from '@datapos/datapos-engine-support';
 /**
  * Encapsulates the Application Emulator data connector.
  */
