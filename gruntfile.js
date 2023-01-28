@@ -32,7 +32,6 @@ module.exports = (grunt) => {
             rollup_iife: { args: ['rollup', '-c', 'rollup.config-iife.js', '--environment', 'BUILD:production'], cmd: 'npx' },
             rollup_es: { args: ['rollup', '-c', 'rollup.config-es.js', '--environment', 'BUILD:production'], cmd: 'npx' },
             rollup_umd: { args: ['rollup', '-c', 'rollup.config-umd.js', '--environment', 'BUILD:production'], cmd: 'npx' },
-            updateEngine: { args: ['install', '@datapos/datapos-engine@latest'], cmd: 'npm' },
             updateEngineSupport: { args: ['install', '@datapos/datapos-engine-support@latest'], cmd: 'npm' },
             updateOperations: { args: ['install', '--save-dev', '@datapos/datapos-operations@latest'], cmd: 'npm' }
         }
@@ -74,7 +73,7 @@ module.exports = (grunt) => {
     grunt.registerTask('npmPublish', ['run:npmPublish']); // cmd+shift+n.
     grunt.registerTask('release', ['gitadd', 'bump', 'run:rollup_es', 'run:copyToFirebase', 'uploadConnector']); // cmd+shift+r.
     grunt.registerTask('synchronise', ['gitadd', 'bump']); // cmd+shift+s.
-    grunt.registerTask('updateApplicationDependencies', ['forceOn', 'run:outdated', 'run:updateEngine', 'run:updateEngineSupport', 'run:updateOperations']); // cmd+shift+u.
+    grunt.registerTask('updateApplicationDependencies', ['forceOn', 'run:outdated', 'run:updateEngineSupport', 'run:updateOperations']); // cmd+shift+u.
 
     grunt.registerTask('test', ['uploadConnector']); // cmd+shift+t.
 };
