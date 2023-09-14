@@ -2,7 +2,7 @@
     "categoryId": "application",
     "id": "datapos-connector-data-application-emulator",
     "implementations": [{ "authMethodId": "none", "maxConnectionCount": 1 }],
-    "label": "Application Emulator",
+    "label": { "en": "Application Emulator" },
     "statusId": "pre-alpha",
     "summary": null,
     "typeId": "dataConnector",

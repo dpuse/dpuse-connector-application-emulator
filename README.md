@@ -1,24 +1,25 @@
-# Data Positioning Application Emulator Data Connector
+# Datapos - Application Emulator Data Connector
 
-This repository contains the Application Emulator data connector.
+A TypeScript library that implements the Application Emulator data connector by Datapos.
 
 ## Installation
 
-The Data Positioning Engine automatically downloads the connector associated with a given connection at runtime.
+The Datapos Operations library contains helper functions to upload connectors to the Datapos hosting platform. A developer account is required to access this functionality. Once uploaded, the Datapos engine will automatically retrieve the connector associated with a given connection at runtime.
 
 ## Repository Management Commands
 
-The following commands are available for repository management. For implementation details, see the [Grunt](https://gruntjs.com/) configuration file (gruntfile.js).
+The following list details the repository management commands implementation by this project. For more details, please refer to the scripts section of the 'package.json' file in this project.
 
-| Name                            | Key Code    | Notes                                                                                                                                                                                                                      |
-| ------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Build                           | cmd+shift+b | Type-check, compile and minify for production. Output in '/dist' directory.                                                                                                                                                |
-| Identify Licenses               | cmd+shift+i | Identify licenses for all dependencies.                                                                                                                                                                                    |
-| Lint                            | cmd+shift+l | Run [ESLint](https://eslint.org/) against the local repository.                                                                                                                                                            |
-| Release                         | cmd+shift+r | Synchronise the local repository with the GitHub repository and upload to Firebase/Sanity hosting.                                                                                                                         |
-| Synchronise with GitHub         | cmd+shift+s | Synchronise the local repository with the GitHub repository.                                                                                                                                                               |
-| Update Application Dependencies | cmd+shift+u | Install the latest published release of the [Engine Support](https://github.com/DataPositioning/datapos-engine-support) repository and the [Operations](https://github.com/DataPositioning/datapos-operations) repository. |
-
-## Issues
-
-1. Updating to the latest version of Rollup (v3.0.0 or later) generates plugin dependency errors. Appear to be in '@rollup/plugin-commonjs' and 'rollup-plugin-terser'. Staying with latest version 2 release (2.79.1) for time being. Maybe we should move to Vite?
+| Name           | Key Code         | Notes                                                                                                               |
+| -------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| audit          | alt+ctrl+shift+a | Audit the project's dependencies for known security vulnerabilities.                                                |
+| build          | alt+ctrl+shift+b | Type-check, compile and minify for production. Output in '/dist' directory.                                         |
+| check          | alt+ctrl+shift+c | List the dependencies in the project that are outdated.                                                             |
+| document       | alt+ctrl+shift+d | Identify the licenses of the project's dependencies.                                                                |
+| format         | alt+ctrl+shift+f | NOT implemented.                                                                                                    |
+| lint           | alt+ctrl+shift+l | Check the code for potential errors and enforces coding styles.                                                     |
+| publishToNPM   | alt+ctrl+shift+n | NOT implemented.                                                                                                    |
+| Release        | alt+ctrl+shift+r | Synchronise the local repository with the main GitHub repository and upload connector to Data Positioning platform. |
+| syncWithGitHub | alt+ctrl+shift+s | Synchronise the local repository with the main GitHub repository.                                                   |
+| test           | alt+ctrl+shift+l | NOT implemented.                                                                                                    |
+| update         | alt+ctrl+shift+l | Install the latest version of Data Positioning dependencies.                                                        |
