@@ -1,6 +1,6 @@
 {
-    "@datapos/datapos-share-core@0.1.402": {
-        "licenses": "UNKNOWN",
+    "@datapos/datapos-share-core@0.1.407": {
+        "licenses": "ISC",
         "licenseFile": "node_modules/@datapos/datapos-share-core/LICENSE.md",
         "parents": "datapos-connector-data-application-emulator"
     }
