@@ -2,7 +2,7 @@
     "name": "datapos-connector-data-application-emulator",
     "license": "ISC",
     "private": true,
-    "version": "0.1.341",
+    "version": "0.1.342",
     "dependencies": {
         "@datapos/datapos-share-core": "^0.1.402",
         "csv-parse": "^5.3.1"
@@ -24,7 +24,7 @@
         "audit": "npm audit",
         "build": "npx vite build",
         "bumpVersion": "node -e \"require('@datapos/datapos-operations/scriptHelpers').bumpVersion()\"",
-        "check": "npm outdated",
+        "check": "npx npm-check-updates && npm outdated",
         "document": "npx npm-license-crawler --onlyDirectDependencies --production --relativeLicensePath --json LICENSES.json",
         "format": "echo \"***** FORMAT SCRIPT NOT IMPLEMENTED. *****\"",
         "lint": "npx eslint **/*.ts",
