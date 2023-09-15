@@ -2,16 +2,16 @@
     "name": "datapos-connector-data-application-emulator",
     "license": "ISC",
     "private": true,
-    "version": "0.1.343",
+    "version": "0.1.344",
     "dependencies": {
-        "@datapos/datapos-share-core": "^0.1.402",
-        "csv-parse": "^5.3.1"
+        "@datapos/datapos-share-core": "^0.1.402"
     },
     "devDependencies": {
-        "@datapos/datapos-operations": "^0.1.300",
-        "@types/node": "^20.6.0",
+        "@datapos/datapos-operations": "^0.1.314",
+        "@types/node": "^20.6.1",
         "@typescript-eslint/eslint-plugin": "^6.7.0",
         "@typescript-eslint/parser": "^6.7.0",
+        "csv-parse": "^5.5.0",
         "eslint": "^8.49.0",
         "eslint-plugin-import": "^2.28.1",
         "eslint-plugin-prettier": "^5.0.0",

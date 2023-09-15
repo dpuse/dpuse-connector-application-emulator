@@ -1,18 +1,7 @@
 {
-    "@datapos/datapos-engine-support@0.0.5": {
-        "licenses": "ISC",
-        "parents": "@datapos/datapos-connector-data-application-emulator"
-    },
     "@datapos/datapos-share-core@0.1.402": {
         "licenses": "UNKNOWN",
         "licenseFile": "node_modules/@datapos/datapos-share-core/LICENSE.md",
-        "parents": "@datapos/datapos-connector-data-application-emulator"
-    },
-    "csv-parse@5.5.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/adaltas/node-csv",
-        "licenseFile": "node_modules/csv-parse/LICENSE",
-        "licenseUrl": "https://github.com/adaltas/node-csv/raw/master/LICENSE",
-        "parents": "@datapos/datapos-connector-data-application-emulator"
+        "parents": "datapos-connector-data-application-emulator"
     }
 }
