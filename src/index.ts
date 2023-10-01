@@ -27,7 +27,7 @@ const ERROR_LIST_ENTRY_READ_FAILED = 'Read list entry failed';
 const LIST_ENTRY_URL_PREFIX = 'https://datapos-resources.netlify.app/';
 
 // Classes - File Store Emulator Data Connector
-export default class FileStoreEmulatorDataConnector implements DataConnector {
+export default class ApplicationEmulatorDataConnector implements DataConnector {
     abortController: AbortController | undefined;
     readonly config: ConnectorConfig;
     readonly connectionConfig: ConnectionConfig;
@@ -85,7 +85,7 @@ const previewListEntry = (connector: DataConnector, sourceViewConfig: SourceView
             );
 
             // Fetch chunk from start of file.
-            const url = `${LIST_ENTRY_URL_PREFIX}fileStore${sourceViewConfig.folderPath}/${sourceViewConfig.fileName}`;
+            const url = `${LIST_ENTRY_URL_PREFIX}application${sourceViewConfig.folderPath}/${sourceViewConfig.fileName}`;
             const headers: HeadersInit = { Range: `bytes=0-${settings.chunkSize || DEFAULT_LIST_ENTRY_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
@@ -188,7 +188,7 @@ const readEntry = (
 
             // Fetch, decode and forward the contents of the file to the parser.
             const fullFileName = `${sourceViewConfig.fileName}${sourceViewConfig.fileExtension ? `.${sourceViewConfig.fileExtension}` : ''}`;
-            const url = `${LIST_ENTRY_URL_PREFIX}fileStore${sourceViewConfig.folderPath}/${fullFileName}`;
+            const url = `${LIST_ENTRY_URL_PREFIX}application${sourceViewConfig.folderPath}/${fullFileName}`;
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
