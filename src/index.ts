@@ -1,264 +1,258 @@
+// Dependencies - Vendor
+import type { Callback, CastingContext, Options, Parser } from 'csv-parse';
+
+// Dependencies - Shared Core Library
+import { AbortError, ConnectorError, FetchResponseError, ListEntryPreviewTypeId, ListEntryTypeId } from '@datapos/datapos-share-core';
+import type { ConnectionConfig, ConnectorCallbackData, ConnectorConfig, DataConnector, DataConnectorFieldInfo, DataConnectorRecord } from '@datapos/datapos-share-core';
+import { extractFileExtensionFromFilePath, lookupMimeTypeForFileExtension } from '@datapos/datapos-share-core';
+import type { ListEntriesSettings, ListEntryConfig, ListEntryDrilldownResult, ListEntryPreview } from '@datapos/datapos-share-core';
+import type { PreviewListEntryInterface, PreviewListEntryInterfaceSettings, ReadInterface, ReadInterfaceSettings, SourceViewConfig } from '@datapos/datapos-share-core';
+
+// Dependencies - Local Infrastructure
+import applicationIndex from './applicationIndex.json';
 import config from './config.json';
 import { version } from '../package.json';
 
-// Engine component dependencies.
-import type {
-    ConnectionConfig,
-    ConnectionEntry,
-    ConnectionEntryPreview,
-    // ConnectionEntriesPage,
-    // ConnectionItem,
-    ConnectorConfig,
-    DataConnector,
-    DataConnectorPreviewInterface,
-    DataConnectorPreviewInterfaceSettings,
-    DataConnectorReadInterface,
-    DataConnectorReadInterfaceSettings
-    // ErrorData,
-    // FieldInfos,
-    // SourceViewProperties
-} from '@datapos/datapos-share-core';
-import { ConnectionEntryPreviewTypeId, ConnectionEntryTypeId } from '@datapos/datapos-share-core';
+// Declarations - File Store Index
+type ApplicationIndex = Record<string, { childCount?: number; lastModifiedAt?: number; name: string; size?: number; typeId: string }[]>;
 
-// Vendor dependencies.
-import type { CastingContext } from 'csv-parse/.';
+// Constants
+const CALLBACK_LIST_ENTRY_PREVIEW_ABORTED = 'List entry preview aborted.';
+const CALLBACK_LIST_ENTRY_READ_ABORTED = 'List entry read aborted.';
+const DEFAULT_LIST_ENTRY_PREVIEW_CHUNK_SIZE = 4096;
+const DEFAULT_LIST_ENTRY_READ_CHUNK_SIZE = 1000;
+const ERROR_LIST_ENTRIES_FAILED = 'List entries failed';
+const ERROR_LIST_ENTRY_PREVIEW_FAILED = 'Preview list entry failed';
+const ERROR_LIST_ENTRY_READ_FAILED = 'Read list entry failed';
+const LIST_ENTRY_URL_PREFIX = 'https://datapos-resources.netlify.app/';
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// #region Declarations
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-const defaultChunkSize = 4096;
-// TODO: Salesforce and SAP SuccessFactors data needs to be combined into a single organisation.
-const urlPrefix = 'https://firebasestorage.googleapis.com/v0/b/datapos-v00-dev-alpha.appspot.com/o/sandboxes%2FsapSuccessFactors';
-
-// #endregion
-
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// #region Data Connector
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-/**
- * Encapsulates the Application Emulator data connector.
- */
-export default class ApplicationEmulatorDataConnector implements DataConnector {
-    abortController: AbortController;
+// Classes - File Store Emulator Data Connector
+export default class FileStoreEmulatorDataConnector implements DataConnector {
+    abortController: AbortController | undefined;
     readonly config: ConnectorConfig;
     readonly connectionConfig: ConnectionConfig;
-    readonly version: string;
 
-    // constructor(connectionItem: ConnectionItem) {
-    //     this.abortController = undefined;
-    //     this.connectionItem = connectionItem;
-    //     this.id = config.id;
-    //     this.version = version;
-    // }
+    constructor(connectionConfig: ConnectionConfig) {
+        this.abortController = null;
+        this.config = config as ConnectorConfig;
+        this.config.version = version;
+        this.connectionConfig = connectionConfig;
+    }
 
-    // /**
-    //  * Abort current processing.
-    //  */
-    // abort(): void {
-    //     if (!this.abortController) return;
-    //     this.abortController.abort();
-    //     this.abortController = undefined;
-    // }
+    abort(): void {
+        if (!this.abortController) return;
+        this.abortController.abort();
+        this.abortController = null;
+    }
 
-    // /**
-    //  * Get the preview interface.
-    //  * @returns The preview interface.
-    //  */
-    // getPreviewInterface(): DataConnectorPreviewInterface {
-    //     return { connector: this, previewFileEntry };
-    // }
+    getPreviewListEntryInterface(): PreviewListEntryInterface {
+        return { connector: this, previewListEntry };
+    }
 
-    // /**
-    //  * Get the read interface.
-    //  * @returns The read interface.
-    //  */
-    // getReadInterface(): DataConnectorReadInterface {
-    //     return { connector: this, readFileEntry };
-    // }
+    getReadInterface(): ReadInterface {
+        return { connector: this, readEntry };
+    }
 
-    // /**
-    //  * Retrieve a page of entries for a given folder path.
-    //  * @param accountId The identifier of the account to which the source belongs.
-    //  * @param sessionAccessToken An active session access token.
-    //  * @param parentConnectionEntry
-    //  * @returns A page of entries.
-    //  */
-    // async retrieveEntries(accountId: string, sessionAccessToken: string, parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> {
-    //     return await retrieveEntries(parentConnectionEntry);
-    // }
+    async listEntries(settings: ListEntriesSettings): Promise<ListEntryDrilldownResult> {
+        return new Promise((resolve, reject) => {
+            try {
+                const indexEntries = (applicationIndex as ApplicationIndex)[settings.folderPath];
+                const listEntryConfigs: ListEntryConfig[] = [];
+                for (const indexEntry of indexEntries) {
+                    if (indexEntry.typeId === 'folder') {
+                        listEntryConfigs.push(buildFolderEntryConfig(settings.folderPath, indexEntry.name, indexEntry.childCount));
+                    } else {
+                        listEntryConfigs.push(buildFileEntryConfig(settings.folderPath, indexEntry.name, indexEntry.lastModifiedAt, indexEntry.size));
+                    }
+                }
+                resolve({ cursor: undefined, isMore: false, listEntryConfigs, totalCount: listEntryConfigs.length });
+            } catch (error) {
+                reject(constructErrorAndTidyUp(this, ERROR_LIST_ENTRIES_FAILED, 'listEntries.1', error));
+            }
+        });
+    }
 }
 
-// #endregion
+// Interfaces - Preview ListEntry
+const previewListEntry = (connector: DataConnector, sourceViewConfig: SourceViewConfig, settings: PreviewListEntryInterfaceSettings): Promise<ListEntryPreview> => {
+    return new Promise((resolve, reject) => {
+        try {
+            // Create an abort controller. Get the signal for the abort controller and add an abort listener.
+            connector.abortController = new AbortController();
+            const signal = connector.abortController.signal;
+            signal.addEventListener('abort', () =>
+                reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'previewEntry.5', new AbortError(CALLBACK_LIST_ENTRY_PREVIEW_ABORTED)))
+            );
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// #region Retrieve Entries
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            // Fetch chunk from start of file.
+            const url = `${LIST_ENTRY_URL_PREFIX}fileStore${sourceViewConfig.folderPath}/${sourceViewConfig.fileName}`;
+            const headers: HeadersInit = { Range: `bytes=0-${settings.chunkSize || DEFAULT_LIST_ENTRY_PREVIEW_CHUNK_SIZE}` };
+            fetch(encodeURI(url), { headers, signal })
+                .then(async (response) => {
+                    try {
+                        if (response.ok) {
+                            connector.abortController = null;
+                            resolve({ data: new Uint8Array(await response.arrayBuffer()), typeId: ListEntryPreviewTypeId.Uint8Array });
+                        } else {
+                            const error = new FetchResponseError(response.status, response.statusText, await response.text());
+                            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'previewEntry.4', error));
+                        }
+                    } catch (error) {
+                        reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'previewEntry.3', error));
+                    }
+                })
+                .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'previewEntry.2', error)));
+        } catch (error) {
+            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'previewEntry.1', error));
+        }
+    });
+};
 
-/**
- * Retrieve a page of entries for a given folder path.
- * @param parentConnectionEntry
- * @returns A page of entries.
- */
-// const retrieveEntries = (parentConnectionEntry: ConnectionEntry): Promise<ConnectionEntriesPage> => {
-//     return new Promise((resolve, reject) => {
-//         try {
-//             const entries: ConnectionEntry[] = [];
-//             switch (parentConnectionEntry.folderPath || '') {
-//                 default:
-//                     entries.push(buildFileEntry('', 'empEmployment', 'Emp Employment', 2147));
-//                     entries.push(buildFileEntry('', 'empJob', 'Emp Job', 5733));
-//                     entries.push(buildFileEntry('', 'perGlobalInfoGBR', 'Per Information Global - GBR', 861));
-//                     entries.push(buildFileEntry('', 'perGlobalInfoUSA', 'Per Information Global - USA', 51));
-//                     entries.push(buildFileEntry('', 'perPerson', 'Per Person', 2147));
-//                     entries.push(buildFileEntry('', 'perPersonal', 'Per Personal', 2174));
-//                     break;
-//             }
-//             resolve({ cursor: undefined, isMore: false, entries, totalCount: entries.length });
-//         } catch (error) {
-//             reject(error);
-//         }
-//     });
-// };
+// Interfaces - Read Entry
+const readEntry = (
+    connector: DataConnector,
+    sourceViewConfig: SourceViewConfig,
+    settings: ReadInterfaceSettings,
+    csvParse: (options?: Options, callback?: Callback) => Parser,
+    callback: (data: ConnectorCallbackData) => void
+): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        try {
+            callback({ typeId: 'start', properties: { sourceViewConfig, settings } });
+            // Create an abort controller and get the signal. Add an abort listener to the signal.
+            connector.abortController = new AbortController();
+            const signal = connector.abortController.signal;
+            signal.addEventListener(
+                'abort',
+                () => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.8', new AbortError(CALLBACK_LIST_ENTRY_READ_ABORTED)))
+                /*, { once: true, signal } TODO: Don't need once and signal? */
+            );
 
-// const buildFileEntry = (folderPath: string, name: string, label: string, size: number): ConnectionEntry => ({
-//     childEntryCount: undefined,
-//     encodingId: undefined,
-//     extension: 'csv',
-//     folderPath,
-//     handle: undefined,
-//     id: name,
-//     label,
-//     lastModifiedAt: undefined,
-//     mimeType: undefined,
-//     name: `${name}.csv`,
-//     referenceId: undefined,
-//     size,
-//     typeId: ConnectionEntryTypeId.File
-// });
+            // Parser - Declare variables.
+            let pendingRows: DataConnectorRecord[] = []; // Array to store rows of parsed field values and associated information.
+            const fieldInfos: DataConnectorFieldInfo[] = []; // Array to store field information for a single row.
 
-// #endregion
+            // Parser - Create a parser object for CSV parsing.
+            const parser = csvParse({
+                cast: (value, context) => {
+                    fieldInfos[context.index] = { isQuoted: context.quoting };
+                    return value;
+                },
+                delimiter: sourceViewConfig.preview.valueDelimiterId,
+                info: true,
+                relax_column_count: true,
+                relax_quotes: true
+            });
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// #region Preview File Entry
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            // Parser - Event listener for the 'readable' (data available) event.
+            parser.on('readable', () => {
+                try {
+                    let data;
+                    while ((data = parser.read() as { info: CastingContext; record: string[] }) !== null) {
+                        signal.throwIfAborted(); // Check if the abort signal has been triggered.
+                        pendingRows.push({ fieldInfos, fieldValues: data.record }); // Append the row of parsed values and associated information to the pending rows array.
+                        if (pendingRows.length < DEFAULT_LIST_ENTRY_READ_CHUNK_SIZE) continue; // Continue with next iteration if the pending rows array is not yet full.
+                        settings.chunk(pendingRows); // Pass the pending rows to the engine using the 'chunk' callback.
+                        pendingRows = []; // Clear the pending rows array in preparation for the next batch of data.
+                    }
+                } catch (error) {
+                    reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.7', error));
+                }
+            });
 
-/**
- * Preview a file entry.
- * @param connector This data connector.
- * @param sourceViewProperties The source view properties.
- * @param accountId The identifier of the account to which the source belongs.
- * @param sessionAccessToken An active session token.
- * @param previewInterfaceSettings The preview interface settings.
- * @returns A source file entry preview.
- */
-// const previewFileEntry = async (
-//     connector: DataConnector,
-//     sourceViewProperties: SourceViewProperties,
-//     accountId: string | undefined,
-//     sessionAccessToken: string | undefined,
-//     previewInterfaceSettings: DataConnectorPreviewInterfaceSettings
-// ): Promise<ConnectionEntryPreview> => {
-//     connector.abortController = new AbortController();
-//     const signal = connector.abortController.signal;
-//     // TODO: signal.addEventListener('abort', () => console.log('TRACE: Preview File Entry ABORTED!'), { once: true, signal }); // Don't need once and signal?
+            // Parser - Event listener for the 'error' event.
+            parser.on('error', (error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.6', error)));
 
-//     const headers: HeadersInit = {
-//         Range: `bytes=0-${previewInterfaceSettings.chunkSize || defaultChunkSize}`
-//     };
-//     const response = await fetch(`${urlPrefix}%2F${encodeURIComponent(sourceViewProperties.fileName)}?alt=media`, { headers, signal });
-//     connector.abortController = undefined;
-//     if (!response.ok) {
-//         const data: ErrorData = {
-//             body: { context: 'previewFileEntry', message: await response.text() },
-//             statusCode: response.status,
-//             statusText: response.statusText
-//         };
-//         throw new Error('Unable to preview entry.|' + JSON.stringify(data));
-//     }
-//     const uint8Array = new Uint8Array(await response.arrayBuffer());
+            // Parser - Event listener for the 'end' (end of data) event.
+            parser.on('end', () => {
+                try {
+                    signal.throwIfAborted(); // Check if the abort signal has been triggered.
+                    connector.abortController = null; // Clear the abort controller.
+                    if (pendingRows.length > 0) {
+                        settings.chunk(pendingRows);
+                        pendingRows = [];
+                    }
+                    settings.complete({
+                        byteCount: parser.info.bytes,
+                        commentLineCount: parser.info.comment_lines,
+                        emptyLineCount: parser.info.empty_lines,
+                        invalidFieldLengthCount: parser.info.invalid_field_length,
+                        lineCount: parser.info.lines,
+                        recordCount: parser.info.records
+                    });
+                    resolve();
+                } catch (error) {
+                    reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.5', error));
+                }
+            });
 
-//     return { data: uint8Array, fields: undefined, typeId: ConnectionEntryPreviewTypeId.Uint8Array };
-// };
+            // Fetch, decode and forward the contents of the file to the parser.
+            const fullFileName = `${sourceViewConfig.fileName}${sourceViewConfig.fileExtension ? `.${sourceViewConfig.fileExtension}` : ''}`;
+            const url = `${LIST_ENTRY_URL_PREFIX}fileStore${sourceViewConfig.folderPath}/${fullFileName}`;
+            fetch(encodeURI(url), { signal })
+                .then(async (response) => {
+                    try {
+                        const stream = response.body.pipeThrough(new TextDecoderStream(sourceViewConfig.preview.encodingId));
+                        const decodedStreamReader = stream.getReader();
+                        let result;
+                        while (!(result = await decodedStreamReader.read()).done) {
+                            signal.throwIfAborted(); // Check if the abort signal has been triggered.
+                            // Write the decoded data to the parser and terminate if there is an error.
+                            parser.write(result.value, (error) => {
+                                if (error) reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.4', error));
+                            });
+                        }
+                        parser.end(); // Signal no more data will be written.
+                    } catch (error) {
+                        reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.3', error));
+                    }
+                })
+                .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.2', error)));
+            callback({ typeId: 'end', properties: { url } });
+        } catch (error) {
+            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.1', error));
+        }
+    });
+};
 
-// #endregion
+// Utilities - Build Folder Entry Configuration
+const buildFolderEntryConfig = (folderPath: string, name: string, childCount: number): ListEntryConfig => {
+    return {
+        childCount,
+        folderPath,
+        encodingId: undefined,
+        extension: undefined,
+        handle: undefined,
+        label: name,
+        lastModifiedAt: undefined,
+        mimeType: undefined,
+        name,
+        size: undefined,
+        typeId: ListEntryTypeId.Folder
+    };
+};
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-// #region Read File Entry
-// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-/**
- * Read a file entry.
- * @param connector This data connector.
- * @param sourceViewProperties The source view properties.
- * @param accountId The identifier of the account to which the source belongs.
- * @param sessionAccessToken An active session token.
- * @param readInterfaceSettings The read interface settings.
- * @param csvParse
- */
-// const readFileEntry = async (
-//     connector: DataConnector,
-//     sourceViewProperties: SourceViewProperties,
-//     accountId: string,
-//     sessionAccessToken: string,
-//     readInterfaceSettings: DataConnectorReadInterfaceSettings,
-//     csvParse: typeof import('csv-parse/browser/esm')
-// ): Promise<void> => {
-//     connector.abortController = new AbortController();
-//     const signal = connector.abortController.signal;
-//     // TODO: signal.addEventListener('abort', () => console.log('TRACE: Read File Entry ABORTED!'), { once: true, signal }); // Don't need once and signal?
+// Utilities - Build File Entry Configuration
+const buildFileEntryConfig = (folderPath: string, fullName: string, lastModifiedAt: number, size: number): ListEntryConfig => {
+    const extension = extractFileExtensionFromFilePath(fullName);
+    return {
+        childCount: undefined,
+        folderPath,
+        encodingId: undefined,
+        extension,
+        handle: undefined,
+        label: fullName,
+        lastModifiedAt,
+        mimeType: lookupMimeTypeForFileExtension(extension),
+        name: fullName,
+        size,
+        typeId: ListEntryTypeId.File
+    };
+};
 
-//     const response = await fetch(`${urlPrefix}${encodeURIComponent(`${sourceViewProperties.folderPath}/${sourceViewProperties.fileName}`)}?alt=media`, { signal });
-
-//     let chunk: { fieldInfos: FieldInfos[]; fieldValues: string[] }[] = [];
-//     const fieldInfos: FieldInfos[] = [];
-//     const maxChunkSize = 1000;
-//     const parser = csvParse.parse({
-//         cast: (value, context) => {
-//             fieldInfos[context.index] = { isQuoted: context.quoting };
-//             return value;
-//         },
-//         delimiter: sourceViewProperties.preview.valueDelimiterId,
-//         info: true,
-//         relax_column_count: true,
-//         relax_quotes: true
-//     });
-//     parser.on('readable', () => {
-//         let data;
-//         while ((data = parser.read() as { info: CastingContext; record: string[] }) !== null) {
-//             signal.throwIfAborted();
-//             chunk.push({ fieldInfos, fieldValues: data.record });
-//             if (chunk.length < maxChunkSize) continue;
-//             readInterfaceSettings.chunk(chunk);
-//             chunk = [];
-//         }
-//     });
-//     parser.on('error', (error) => readInterfaceSettings.error(error));
-//     parser.on('end', () => {
-//         signal.throwIfAborted();
-//         connector.abortController = undefined;
-//         if (chunk.length > 0) {
-//             readInterfaceSettings.chunk(chunk);
-//             chunk = [];
-//         }
-//         readInterfaceSettings.complete({
-//             commentLineCount: parser.info.comment_lines,
-//             emptyLineCount: parser.info.empty_lines,
-//             lineCount: parser.info.lines,
-//             recordCount: parser.info.records
-//         });
-//     });
-
-//     // TODO: csvParse seems to have some support for encoding. Need to test if this can be used to replace TextDecoderStream?.
-//     const stream = response.body.pipeThrough(new TextDecoderStream(sourceViewProperties.preview.encodingId));
-//     const decodedStreamReader = stream.getReader();
-//     let result;
-//     while (!(result = await decodedStreamReader.read()).done) {
-//         signal.throwIfAborted();
-//         parser.write(result.value, (error) => {
-//             if (error) readInterfaceSettings.error(error);
-//         });
-//     }
-//     parser.end();
-// };
-// #endregion
+// Utilities - Construct Error and Tidy Up
+const constructErrorAndTidyUp = (connector: DataConnector, message: string, context: string, error: unknown): unknown => {
+    connector.abortController = null;
+    const connectorError = new ConnectorError(`${message} at '${config.id}.${context}'.`, error);
+    return connectorError;
+};

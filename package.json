@@ -2,23 +2,23 @@
     "name": "datapos-connector-data-application-emulator",
     "license": "ISC",
     "private": true,
-    "version": "0.1.346",
+    "version": "0.1.347",
     "peer-dependencies": {
         "@datapos/datapos-share-core": "^0.1.402",
         "csv-parse": "^5.5.0"
     },
     "devDependencies": {
-        "@datapos/datapos-operations": "^0.1.314",
-        "@types/node": "^20.6.1",
-        "@typescript-eslint/eslint-plugin": "^6.7.0",
-        "@typescript-eslint/parser": "^6.7.0",
-        "eslint": "^8.49.0",
+        "@datapos/datapos-operations": "^0.1.338",
+        "@types/node": "^20.8.0",
+        "@typescript-eslint/eslint-plugin": "^6.7.3",
+        "@typescript-eslint/parser": "^6.7.3",
+        "eslint": "^8.50.0",
         "eslint-plugin-import": "^2.28.1",
         "eslint-plugin-prettier": "^5.0.0",
         "prettier": "^3.0.3",
         "typescript": "^5.2.2",
         "vite": "^4.4.9",
-        "vite-plugin-dts": "^3.5.3"
+        "vite-plugin-dts": "^3.6.0"
     },
     "scripts": {
         "audit": "npm audit",
@@ -36,5 +36,9 @@
         "updateOperations": "npm install --save-dev @datapos/datapos-operations@latest",
         "updateShareCore": "npm install @datapos/datapos-share-core@latest",
         "uploadConnector": "node -e \"require('@datapos/datapos-operations/scriptHelpers').uploadConnector()\""
+    },
+    "dependencies": {
+        "@datapos/datapos-share-core": "^0.1.454",
+        "csv-parse": "^5.5.0"
     }
 }
