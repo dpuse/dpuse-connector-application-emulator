@@ -1,8 +1,11 @@
 {
-    "env": {
-        "node": true
-    },
-    "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended-requiring-type-checking"],
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:import/typescript"
+    ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": "latest",
@@ -10,13 +13,14 @@
     },
     "plugins": ["@typescript-eslint", "import"],
     "rules": {
-        "import/consistent-type-specifier-style": "warn",
-        "no-empty": "warn",
-        "no-unused-vars": "warn",
-        "prefer-const": "warn",
-        "sort-imports": ["warn", { "allowSeparatedGroups": true, "ignoreCase": true, "memberSyntaxSortOrder": ["none", "all", "single", "multiple"] }],
         "@typescript-eslint/consistent-type-imports": "warn",
         "@typescript-eslint/no-import-type-side-effects": "warn",
-        "@typescript-eslint/no-unused-vars": "warn"
+        "@typescript-eslint/no-unused-vars": "warn",
+
+        "import/no-duplicates": "off",
+        "sort-imports": ["warn", { "allowSeparatedGroups": true, "ignoreCase": true, "memberSyntaxSortOrder": ["none", "all", "single", "multiple"] }],
+
+        "no-empty": "warn",
+        "prefer-const": "warn"
     }
 }

@@ -4,7 +4,6 @@
     "implementations": [{ "authMethodId": "none", "maxConnectionCount": 1 }],
     "label": { "en": "Application Emulator" },
     "statusId": "pre-alpha",
-    "summary": null,
     "typeId": "dataConnector",
     "usageId": "source",
     "vendorAccountURL": null,
