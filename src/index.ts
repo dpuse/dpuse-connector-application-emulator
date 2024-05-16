@@ -96,7 +96,9 @@ const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunk
                             resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: PreviewTypeId.Uint8Array } });
                         } else {
                             const error = new FetchError(
-                                `Preview failed to retrieve '${url}'. Status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}\0${await response.text()}`
+                                `Preview failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`,
+                                undefined,
+                                await response.text()
                             );
                             reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.4', error));
                         }
@@ -258,6 +260,6 @@ const buildFileEntryConfig = (folderPath: string, fullName: string, lastModified
 // Utilities - Construct Error and Tidy Up
 const constructErrorAndTidyUp = (connector: DataConnector, message: string, context: string, error: unknown): unknown => {
     connector.abortController = null;
-    const connectorError = new ConnectorError(`${message} at '${config.id}.${context}'.`, error);
+    const connectorError = new ConnectorError(message, `${config.id}.${context}`, undefined, undefined, error);
     return connectorError;
 };
