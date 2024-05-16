@@ -92,6 +92,7 @@ const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunk
                 .then(async (response) => {
                     try {
                         if (response.ok) {
+                            console.log('FETCHED', url);
                             connector.abortController = null;
                             resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: PreviewTypeId.Uint8Array } });
                         } else {
