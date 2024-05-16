@@ -96,7 +96,7 @@ const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunk
                             resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: PreviewTypeId.Uint8Array } });
                         } else {
                             const error = new FetchError(
-                                `Preview failed to retrieve '${url}'. Status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`
+                                `Preview failed to retrieve '${url}'. Status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}\0${await response.text()}`
                             );
                             reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.4', error));
                         }
