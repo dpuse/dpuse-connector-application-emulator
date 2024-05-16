@@ -82,7 +82,7 @@ const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunk
             connector.abortController = new AbortController();
             const signal = connector.abortController.signal;
             signal.addEventListener('abort', () =>
-                reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.5', new AbortError(CALLBACK_LIST_ENTRY_PREVIEW_ABORTED, undefined)))
+                reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.5', new AbortError(CALLBACK_LIST_ENTRY_PREVIEW_ABORTED)))
             );
 
             // Fetch chunk from start of file.
@@ -130,7 +130,7 @@ const read = (
             const signal = connector.abortController.signal;
             signal.addEventListener(
                 'abort',
-                () => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.8', new AbortError(CALLBACK_LIST_ENTRY_READ_ABORTED, undefined)))
+                () => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.8', new AbortError(CALLBACK_LIST_ENTRY_READ_ABORTED)))
                 /*, { once: true, signal } TODO: Don't need once and signal? */
             );
 
