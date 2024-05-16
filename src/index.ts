@@ -22,9 +22,9 @@ const CALLBACK_LIST_ENTRY_PREVIEW_ABORTED = 'List entry preview aborted.';
 const CALLBACK_LIST_ENTRY_READ_ABORTED = 'List entry read aborted.';
 const DEFAULT_LIST_ENTRY_PREVIEW_CHUNK_SIZE = 4096;
 const DEFAULT_LIST_ENTRY_READ_CHUNK_SIZE = 1000;
-const ERROR_LIST_ENTRIES_FAILED = 'List entries failed';
-const ERROR_LIST_ENTRY_PREVIEW_FAILED = 'Preview list entry failed';
-const ERROR_LIST_ENTRY_READ_FAILED = 'Read list entry failed';
+const ERROR_LIST_ENTRIES_FAILED = 'List entries failed.';
+const ERROR_LIST_ENTRY_PREVIEW_FAILED = 'Preview list entry failed.';
+const ERROR_LIST_ENTRY_READ_FAILED = 'Read list entry failed.';
 const LIST_ENTRY_URL_PREFIX = 'https://datapos-resources.netlify.app/';
 
 // Classes - Application Emulator Data Connector
@@ -92,7 +92,6 @@ const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunk
                 .then(async (response) => {
                     try {
                         if (response.ok) {
-                            console.log('FETCHED', url);
                             connector.abortController = null;
                             resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: PreviewTypeId.Uint8Array } });
                         } else {
