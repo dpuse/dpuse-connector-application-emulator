@@ -75,7 +75,7 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
 }
 
 // Interfaces - Preview
-const preview = (connector: DataConnector, sourceViewConfig: DataViewConfig, chunkSize?: number): Promise<{ error?: unknown; result?: Preview }> => {
+const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunkSize?: number): Promise<{ error?: unknown; result?: Preview }> => {
     return new Promise((resolve, reject) => {
         try {
             // Create an abort controller. Get the signal for the abort controller and add an abort listener.
@@ -86,7 +86,7 @@ const preview = (connector: DataConnector, sourceViewConfig: DataViewConfig, chu
             );
 
             // Fetch chunk from start of file.
-            const url = `${LIST_ENTRY_URL_PREFIX}application${sourceViewConfig.folderPath}/${sourceViewConfig.fileName}`;
+            const url = `${LIST_ENTRY_URL_PREFIX}application${dataViewConfig.folderPath}/${dataViewConfig.fileName}`;
             const headers: HeadersInit = { Range: `bytes=0-${chunkSize || DEFAULT_LIST_ENTRY_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
@@ -95,7 +95,7 @@ const preview = (connector: DataConnector, sourceViewConfig: DataViewConfig, chu
                             connector.abortController = null;
                             resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: PreviewTypeId.Uint8Array } });
                         } else {
-                            const error = new FetchError(`${response.status}${response.statusText ? ` - ${response.statusText}` : ''}`);
+                            const error = new FetchError(`Failed to retrieve '${url}'. ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`);
                             reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.4', error));
                         }
                     } catch (error) {
@@ -112,14 +112,14 @@ const preview = (connector: DataConnector, sourceViewConfig: DataViewConfig, chu
 // Interfaces - Read
 const read = (
     connector: DataConnector,
-    sourceViewConfig: DataViewConfig,
+    dataViewConfig: DataViewConfig,
     settings: ReadInterfaceSettings,
     csvParse: (options?: Options, callback?: Callback) => Parser,
     callback: (data: ConnectorCallbackData) => void
 ): Promise<void> => {
     return new Promise((resolve, reject) => {
         try {
-            callback({ typeId: 'start', properties: { sourceViewConfig, settings } });
+            callback({ typeId: 'start', properties: { dataViewConfig, settings } });
             // Create an abort controller and get the signal. Add an abort listener to the signal.
             connector.abortController = new AbortController();
             const signal = connector.abortController.signal;
@@ -139,7 +139,7 @@ const read = (
                     fieldInfos[context.index] = { isQuoted: context.quoting };
                     return value;
                 },
-                delimiter: sourceViewConfig.preview.valueDelimiterId,
+                delimiter: dataViewConfig.preview.valueDelimiterId,
                 info: true,
                 relax_column_count: true,
                 relax_quotes: true
@@ -188,12 +188,12 @@ const read = (
             });
 
             // Fetch, decode and forward the contents of the file to the parser.
-            const fullFileName = `${sourceViewConfig.fileName}${sourceViewConfig.fileExtension ? `.${sourceViewConfig.fileExtension}` : ''}`;
-            const url = `${LIST_ENTRY_URL_PREFIX}application${sourceViewConfig.folderPath}/${fullFileName}`;
+            const fullFileName = `${dataViewConfig.fileName}${dataViewConfig.fileExtension ? `.${dataViewConfig.fileExtension}` : ''}`;
+            const url = `${LIST_ENTRY_URL_PREFIX}application${dataViewConfig.folderPath}/${fullFileName}`;
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
-                        const stream = response.body.pipeThrough(new TextDecoderStream(sourceViewConfig.preview.encodingId));
+                        const stream = response.body.pipeThrough(new TextDecoderStream(dataViewConfig.preview.encodingId));
                         const decodedStreamReader = stream.getReader();
                         let result;
                         while (!(result = await decodedStreamReader.read()).done) {
