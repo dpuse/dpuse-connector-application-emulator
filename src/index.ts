@@ -98,6 +98,8 @@ const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunk
                             const error = new FetchError(
                                 `Preview failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`,
                                 undefined,
+                                undefined,
+                                undefined,
                                 await response.text()
                             );
                             reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.4', error));
@@ -260,6 +262,6 @@ const buildFileEntryConfig = (folderPath: string, fullName: string, lastModified
 // Utilities - Construct Error and Tidy Up
 const constructErrorAndTidyUp = (connector: DataConnector, message: string, context: string, error: unknown): unknown => {
     connector.abortController = null;
-    const connectorError = new ConnectorError(message, `${config.id}.${context}`, undefined, undefined, error);
+    const connectorError = new ConnectorError(message, `${config.id}.${context}`, undefined, undefined, undefined, error);
     return connectorError;
 };
