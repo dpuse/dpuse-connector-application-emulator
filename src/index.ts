@@ -1,19 +1,20 @@
 // Dependencies - Vendor
+import { nanoid } from 'nanoid';
 import type { Callback, CastingContext, Options, Parser } from 'csv-parse';
 
-// Dependencies - Shared Core Library
-import { AbortError, ConnectorError, FetchResponseError, ListEntryPreviewTypeId, ListEntryTypeId } from '@datapos/datapos-share-core';
+// Dependencies - Framework
+import { AbortError, ConnectorError, FetchError, ListEntryTypeId, PreviewTypeId } from '@datapos/datapos-share-core';
 import type { ConnectionConfig, ConnectorCallbackData, ConnectorConfig, DataConnector, DataConnectorFieldInfo, DataConnectorRecord } from '@datapos/datapos-share-core';
+import type { DataViewConfig, PreviewInterface, ReadInterface, ReadInterfaceSettings } from '@datapos/datapos-share-core';
 import { extractFileExtensionFromFilePath, lookupMimeTypeForFileExtension } from '@datapos/datapos-share-core';
-import type { ListEntriesSettings, ListEntryConfig, ListEntryDrilldownResult, ListEntryPreview } from '@datapos/datapos-share-core';
-import type { PreviewListEntryInterface, PreviewListEntryInterfaceSettings, ReadInterface, ReadInterfaceSettings, SourceViewConfig } from '@datapos/datapos-share-core';
+import type { ListEntriesResult, ListEntriesSettings, ListEntryConfig, Preview } from '@datapos/datapos-share-core';
 
-// Dependencies - Local Infrastructure
+// Dependencies - Data
 import applicationIndex from './applicationIndex.json';
 import config from './config.json';
 import { version } from '../package.json';
 
-// Declarations - File Store Index
+// Interfaces/Schemas/Types - Application Index
 type ApplicationIndex = Record<string, { childCount?: number; lastModifiedAt?: number; name: string; size?: number; typeId: string }[]>;
 
 // Constants
@@ -26,7 +27,7 @@ const ERROR_LIST_ENTRY_PREVIEW_FAILED = 'Preview list entry failed';
 const ERROR_LIST_ENTRY_READ_FAILED = 'Read list entry failed';
 const LIST_ENTRY_URL_PREFIX = 'https://datapos-resources.netlify.app/';
 
-// Classes - File Store Emulator Data Connector
+// Classes - Application Emulator Data Connector
 export default class ApplicationEmulatorDataConnector implements DataConnector {
     abortController: AbortController | undefined;
     readonly config: ConnectorConfig;
@@ -45,15 +46,15 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
         this.abortController = null;
     }
 
-    getPreviewListEntryInterface(): PreviewListEntryInterface {
-        return { connector: this, previewListEntry };
+    getPreviewInterface(): PreviewInterface {
+        return { connector: this, preview };
     }
 
     getReadInterface(): ReadInterface {
-        return { connector: this, readEntry };
+        return { connector: this, read };
     }
 
-    async listEntries(settings: ListEntriesSettings): Promise<ListEntryDrilldownResult> {
+    async listEntries(settings: ListEntriesSettings): Promise<ListEntriesResult> {
         return new Promise((resolve, reject) => {
             try {
                 const indexEntries = (applicationIndex as ApplicationIndex)[settings.folderPath];
@@ -73,45 +74,45 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
     }
 }
 
-// Interfaces - Preview ListEntry
-const previewListEntry = (connector: DataConnector, sourceViewConfig: SourceViewConfig, settings: PreviewListEntryInterfaceSettings): Promise<ListEntryPreview> => {
+// Interfaces - Preview
+const preview = (connector: DataConnector, sourceViewConfig: DataViewConfig, chunkSize?: number): Promise<{ error?: unknown; result?: Preview }> => {
     return new Promise((resolve, reject) => {
         try {
             // Create an abort controller. Get the signal for the abort controller and add an abort listener.
             connector.abortController = new AbortController();
             const signal = connector.abortController.signal;
             signal.addEventListener('abort', () =>
-                reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'previewEntry.5', new AbortError(CALLBACK_LIST_ENTRY_PREVIEW_ABORTED)))
+                reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.5', new AbortError(CALLBACK_LIST_ENTRY_PREVIEW_ABORTED)))
             );
 
             // Fetch chunk from start of file.
             const url = `${LIST_ENTRY_URL_PREFIX}application${sourceViewConfig.folderPath}/${sourceViewConfig.fileName}`;
-            const headers: HeadersInit = { Range: `bytes=0-${settings.chunkSize || DEFAULT_LIST_ENTRY_PREVIEW_CHUNK_SIZE}` };
+            const headers: HeadersInit = { Range: `bytes=0-${chunkSize || DEFAULT_LIST_ENTRY_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
                     try {
                         if (response.ok) {
                             connector.abortController = null;
-                            resolve({ data: new Uint8Array(await response.arrayBuffer()), typeId: ListEntryPreviewTypeId.Uint8Array });
+                            resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: PreviewTypeId.Uint8Array } });
                         } else {
-                            const error = new FetchResponseError(response.status, response.statusText, await response.text());
-                            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'previewEntry.4', error));
+                            const error = new FetchError(`${response.status}|${response.statusText}|${await response.text()}`);
+                            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.4', error));
                         }
                     } catch (error) {
-                        reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'previewEntry.3', error));
+                        reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.3', error));
                     }
                 })
-                .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'previewEntry.2', error)));
+                .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.2', error)));
         } catch (error) {
-            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'previewEntry.1', error));
+            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.1', error));
         }
     });
 };
 
-// Interfaces - Read Entry
-const readEntry = (
+// Interfaces - Read
+const read = (
     connector: DataConnector,
-    sourceViewConfig: SourceViewConfig,
+    sourceViewConfig: DataViewConfig,
     settings: ReadInterfaceSettings,
     csvParse: (options?: Options, callback?: Callback) => Parser,
     callback: (data: ConnectorCallbackData) => void
@@ -124,7 +125,7 @@ const readEntry = (
             const signal = connector.abortController.signal;
             signal.addEventListener(
                 'abort',
-                () => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.8', new AbortError(CALLBACK_LIST_ENTRY_READ_ABORTED)))
+                () => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.8', new AbortError(CALLBACK_LIST_ENTRY_READ_ABORTED)))
                 /*, { once: true, signal } TODO: Don't need once and signal? */
             );
 
@@ -156,12 +157,12 @@ const readEntry = (
                         pendingRows = []; // Clear the pending rows array in preparation for the next batch of data.
                     }
                 } catch (error) {
-                    reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.7', error));
+                    reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.7', error));
                 }
             });
 
             // Parser - Event listener for the 'error' event.
-            parser.on('error', (error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.6', error)));
+            parser.on('error', (error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.6', error)));
 
             // Parser - Event listener for the 'end' (end of data) event.
             parser.on('end', () => {
@@ -182,7 +183,7 @@ const readEntry = (
                     });
                     resolve();
                 } catch (error) {
-                    reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.5', error));
+                    reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.5', error));
                 }
             });
 
@@ -199,18 +200,18 @@ const readEntry = (
                             signal.throwIfAborted(); // Check if the abort signal has been triggered.
                             // Write the decoded data to the parser and terminate if there is an error.
                             parser.write(result.value, (error) => {
-                                if (error) reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.4', error));
+                                if (error) reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.4', error));
                             });
                         }
                         parser.end(); // Signal no more data will be written.
                     } catch (error) {
-                        reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.3', error));
+                        reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.3', error));
                     }
                 })
-                .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.2', error)));
+                .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.2', error)));
             callback({ typeId: 'end', properties: { url } });
         } catch (error) {
-            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'readEntry.1', error));
+            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.1', error));
         }
     });
 };
@@ -223,6 +224,7 @@ const buildFolderEntryConfig = (folderPath: string, name: string, childCount: nu
         encodingId: undefined,
         extension: undefined,
         handle: undefined,
+        id: nanoid(),
         label: name,
         lastModifiedAt: undefined,
         mimeType: undefined,
@@ -241,6 +243,7 @@ const buildFileEntryConfig = (folderPath: string, fullName: string, lastModified
         encodingId: undefined,
         extension,
         handle: undefined,
+        id: nanoid(),
         label: fullName,
         lastModifiedAt,
         mimeType: lookupMimeTypeForFileExtension(extension),
