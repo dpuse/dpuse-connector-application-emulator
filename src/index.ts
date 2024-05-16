@@ -86,7 +86,7 @@ const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunk
             );
 
             // Fetch chunk from start of file.
-            const url = `${LIST_ENTRY_URL_PREFIX}application${dataViewConfig.folderPath}/${dataViewConfig.fileName}`;
+            const url = `${LIST_ENTRY_URL_PREFIX}application${dataViewConfig.folderPath}${dataViewConfig.fileName}`;
             const headers: HeadersInit = { Range: `bytes=0-${chunkSize || DEFAULT_LIST_ENTRY_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
@@ -194,7 +194,7 @@ const read = (
 
             // Fetch, decode and forward the contents of the file to the parser.
             const fullFileName = `${dataViewConfig.fileName}${dataViewConfig.fileExtension ? `.${dataViewConfig.fileExtension}` : ''}`;
-            const url = `${LIST_ENTRY_URL_PREFIX}application${dataViewConfig.folderPath}/${fullFileName}`;
+            const url = `${LIST_ENTRY_URL_PREFIX}application${dataViewConfig.folderPath}${fullFileName}`;
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
