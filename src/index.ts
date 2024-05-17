@@ -57,6 +57,7 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
     async listEntries(settings: ListEntriesSettings): Promise<ListEntriesResult> {
         return new Promise((resolve, reject) => {
             try {
+                console.log('AAAA', settings.folderPath);
                 const indexEntries = (applicationIndex as ApplicationIndex)[settings.folderPath];
                 const listEntryConfigs: ListEntryConfig[] = [];
                 for (const indexEntry of indexEntries) {
