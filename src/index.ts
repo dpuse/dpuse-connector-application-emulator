@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 import type { Callback, CastingContext, Options, Parser } from 'csv-parse';
 
 // Dependencies - Framework
-import { AbortError, ConnectorError, FetchError, ListEntryTypeId, PreviewTypeId } from '@datapos/datapos-share-core';
+import { AbortError, ConnectionItemTypeId, ConnectorError, FetchError, PreviewTypeId } from '@datapos/datapos-share-core';
 import type { ConnectionConfig, ConnectorCallbackData, ConnectorConfig, DataConnector, DataConnectorFieldInfo, DataConnectorRecord } from '@datapos/datapos-share-core';
 import type { DataViewConfig, PreviewInterface, ReadInterface, ReadInterfaceSettings } from '@datapos/datapos-share-core';
 import { extractFileExtensionFromFilePath, lookupMimeTypeForFileExtension } from '@datapos/datapos-share-core';
@@ -255,7 +255,7 @@ const buildFileEntryConfig = (folderPath: string, fullName: string, lastModified
         mimeType: lookupMimeTypeForFileExtension(extension),
         name: fullName,
         size,
-        typeId: ListEntryTypeId.File
+        typeId: ConnectionItemTypeId.Object
     };
 };
 
