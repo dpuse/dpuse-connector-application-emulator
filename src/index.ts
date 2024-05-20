@@ -236,7 +236,7 @@ const buildFolderEntryConfig = (folderPath: string, name: string, childCount: nu
         mimeType: undefined,
         name,
         size: undefined,
-        typeId: ListEntryTypeId.Folder
+        typeId: ConnectionItemTypeId.Folder
     };
 };
 
