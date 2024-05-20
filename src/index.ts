@@ -4,18 +4,10 @@ import type { Callback, CastingContext, Options, Parser } from 'csv-parse';
 
 // Dependencies - Framework
 import { AbortError, ConnectionItemTypeId, ConnectorError, FetchError, PreviewTypeId } from '@datapos/datapos-share-core';
-import type {
-    ConnectionConfig,
-    ConnectionItemConfig,
-    ConnectorCallbackData,
-    ConnectorConfig,
-    DataConnector,
-    DataConnectorFieldInfo,
-    DataConnectorRecord
-} from '@datapos/datapos-share-core';
-import type { DataViewConfig, PreviewInterface, ReadInterface, ReadInterfaceSettings } from '@datapos/datapos-share-core';
+import type { ConnectionConfig, ConnectionItemConfig, Connector, ConnectorCallbackData, ConnectorConfig, ConnectorFieldInfo, ConnectorRecord } from '@datapos/datapos-share-core';
+import type { DataViewConfig, Preview, PreviewInterface, ReadInterface, ReadInterfaceSettings } from '@datapos/datapos-share-core';
 import { extractFileExtensionFromFilePath, lookupMimeTypeForFileExtension } from '@datapos/datapos-share-core';
-import type { ListItemsResult, ListItemsSettings, Preview } from '@datapos/datapos-share-core';
+import type { ListItemsResult, ListItemsSettings } from '@datapos/datapos-share-core';
 
 // Dependencies - Data
 import applicationIndex from './applicationIndex.json';
@@ -35,8 +27,8 @@ const ERROR_PREVIEW_FAILED = 'Preview failed.';
 const ERROR_READ_FAILED = 'Read failed.';
 const URL_PREFIX = 'https://datapos-resources.netlify.app/';
 
-// Classes - Application Emulator Data Connector
-export default class ApplicationEmulatorDataConnector implements DataConnector {
+// Classes - Application Emulator Connector
+export default class ApplicationEmulatorConnector implements Connector {
     abortController: AbortController | undefined;
     readonly config: ConnectorConfig;
     readonly connectionConfig: ConnectionConfig;
@@ -83,7 +75,7 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
 }
 
 // Interfaces - Preview
-const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunkSize?: number): Promise<{ error?: unknown; result?: Preview }> => {
+const preview = (connector: Connector, dataViewConfig: DataViewConfig, chunkSize?: number): Promise<{ error?: unknown; result?: Preview }> => {
     return new Promise((resolve, reject) => {
         try {
             // Create an abort controller. Get the signal for the abort controller and add an abort listener.
@@ -123,7 +115,7 @@ const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunk
 
 // Interfaces - Read
 const read = (
-    connector: DataConnector,
+    connector: Connector,
     dataViewConfig: DataViewConfig,
     settings: ReadInterfaceSettings,
     csvParse: (options?: Options, callback?: Callback) => Parser,
@@ -142,8 +134,8 @@ const read = (
             );
 
             // Parser - Declare variables.
-            let pendingRows: DataConnectorRecord[] = []; // Array to store rows of parsed field values and associated information.
-            const fieldInfos: DataConnectorFieldInfo[] = []; // Array to store field information for a single row.
+            let pendingRows: ConnectorRecord[] = []; // Array to store rows of parsed field values and associated information.
+            const fieldInfos: ConnectorFieldInfo[] = []; // Array to store field information for a single row.
 
             // Parser - Create a parser object for CSV parsing.
             const parser = csvParse({
@@ -266,7 +258,7 @@ const buildObjectItemConfig = (folderPath: string, fullName: string, lastModifie
 };
 
 // Utilities - Construct Error and Tidy Up
-const constructErrorAndTidyUp = (connector: DataConnector, message: string, context: string, error: unknown): unknown => {
+const constructErrorAndTidyUp = (connector: Connector, message: string, context: string, error: unknown): unknown => {
     connector.abortController = null;
     const connectorError = new ConnectorError(message, `${config.id}.${context}`, undefined, undefined, undefined, error);
     return connectorError;
