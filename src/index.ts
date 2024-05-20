@@ -4,10 +4,18 @@ import type { Callback, CastingContext, Options, Parser } from 'csv-parse';
 
 // Dependencies - Framework
 import { AbortError, ConnectionItemTypeId, ConnectorError, FetchError, PreviewTypeId } from '@datapos/datapos-share-core';
-import type { ConnectionConfig, ConnectorCallbackData, ConnectorConfig, DataConnector, DataConnectorFieldInfo, DataConnectorRecord } from '@datapos/datapos-share-core';
+import type {
+    ConnectionConfig,
+    ConnectionItemConfig,
+    ConnectorCallbackData,
+    ConnectorConfig,
+    DataConnector,
+    DataConnectorFieldInfo,
+    DataConnectorRecord
+} from '@datapos/datapos-share-core';
 import type { DataViewConfig, PreviewInterface, ReadInterface, ReadInterfaceSettings } from '@datapos/datapos-share-core';
 import { extractFileExtensionFromFilePath, lookupMimeTypeForFileExtension } from '@datapos/datapos-share-core';
-import type { ListEntriesResult, ListEntriesSettings, ListEntryConfig, Preview } from '@datapos/datapos-share-core';
+import type { ListItemsResult, ListItemsSettings, Preview } from '@datapos/datapos-share-core';
 
 // Dependencies - Data
 import applicationIndex from './applicationIndex.json';
@@ -18,14 +26,14 @@ import { version } from '../package.json';
 type ApplicationIndex = Record<string, { childCount?: number; lastModifiedAt?: number; name: string; size?: number; typeId: string }[]>;
 
 // Constants
-const CALLBACK_LIST_ENTRY_PREVIEW_ABORTED = 'List entry preview aborted.';
-const CALLBACK_LIST_ENTRY_READ_ABORTED = 'List entry read aborted.';
-const DEFAULT_LIST_ENTRY_PREVIEW_CHUNK_SIZE = 4096;
-const DEFAULT_LIST_ENTRY_READ_CHUNK_SIZE = 1000;
-const ERROR_LIST_ENTRIES_FAILED = 'List entries failed.';
-const ERROR_LIST_ENTRY_PREVIEW_FAILED = 'Preview list entry failed.';
-const ERROR_LIST_ENTRY_READ_FAILED = 'Read list entry failed.';
-const LIST_ENTRY_URL_PREFIX = 'https://datapos-resources.netlify.app/';
+const CALLBACK_PREVIEW_ABORTED = 'Preview aborted.';
+const CALLBACK_READ_ABORTED = 'Read aborted.';
+const DEFAULT_PREVIEW_CHUNK_SIZE = 4096;
+const DEFAULT_READ_CHUNK_SIZE = 1000;
+const ERROR_LIST_ITEMS_FAILED = 'List items failed.';
+const ERROR_PREVIEW_FAILED = 'Preview failed.';
+const ERROR_READ_FAILED = 'Read failed.';
+const URL_PREFIX = 'https://datapos-resources.netlify.app/';
 
 // Classes - Application Emulator Data Connector
 export default class ApplicationEmulatorDataConnector implements DataConnector {
@@ -54,21 +62,21 @@ export default class ApplicationEmulatorDataConnector implements DataConnector {
         return { connector: this, read };
     }
 
-    async listEntries(settings: ListEntriesSettings): Promise<ListEntriesResult> {
+    async listItems(settings: ListItemsSettings): Promise<ListItemsResult> {
         return new Promise((resolve, reject) => {
             try {
-                const indexEntries = (applicationIndex as ApplicationIndex)[settings.folderPath];
-                const listEntryConfigs: ListEntryConfig[] = [];
-                for (const indexEntry of indexEntries) {
-                    if (indexEntry.typeId === 'folder') {
-                        listEntryConfigs.push(buildFolderEntryConfig(settings.folderPath, indexEntry.name, indexEntry.childCount));
+                const indexItems = (applicationIndex as ApplicationIndex)[settings.folderPath];
+                const connectionItemConfigs: ConnectionItemConfig[] = [];
+                for (const indexItem of indexItems) {
+                    if (indexItem.typeId === 'folder') {
+                        connectionItemConfigs.push(buildFolderItemConfig(settings.folderPath, indexItem.name, indexItem.childCount));
                     } else {
-                        listEntryConfigs.push(buildFileEntryConfig(settings.folderPath, indexEntry.name, indexEntry.lastModifiedAt, indexEntry.size));
+                        connectionItemConfigs.push(buildObjectItemConfig(settings.folderPath, indexItem.name, indexItem.lastModifiedAt, indexItem.size));
                     }
                 }
-                resolve({ cursor: undefined, isMore: false, listEntryConfigs, totalCount: listEntryConfigs.length });
+                resolve({ cursor: undefined, isMore: false, connectionItemConfigs, totalCount: connectionItemConfigs.length });
             } catch (error) {
-                reject(constructErrorAndTidyUp(this, ERROR_LIST_ENTRIES_FAILED, 'listEntries.1', error));
+                reject(constructErrorAndTidyUp(this, ERROR_LIST_ITEMS_FAILED, 'listItems.1', error));
             }
         });
     }
@@ -81,13 +89,11 @@ const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunk
             // Create an abort controller. Get the signal for the abort controller and add an abort listener.
             connector.abortController = new AbortController();
             const signal = connector.abortController.signal;
-            signal.addEventListener('abort', () =>
-                reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.5', new AbortError(CALLBACK_LIST_ENTRY_PREVIEW_ABORTED)))
-            );
+            signal.addEventListener('abort', () => reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.5', new AbortError(CALLBACK_PREVIEW_ABORTED))));
 
             // Fetch chunk from start of file.
-            const url = `${LIST_ENTRY_URL_PREFIX}application${dataViewConfig.folderPath}${dataViewConfig.fileName}`;
-            const headers: HeadersInit = { Range: `bytes=0-${chunkSize || DEFAULT_LIST_ENTRY_PREVIEW_CHUNK_SIZE}` };
+            const url = `${URL_PREFIX}application${dataViewConfig.folderPath}${dataViewConfig.fileName}`;
+            const headers: HeadersInit = { Range: `bytes=0-${chunkSize || DEFAULT_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
                     try {
@@ -102,15 +108,15 @@ const preview = (connector: DataConnector, dataViewConfig: DataViewConfig, chunk
                                 undefined,
                                 await response.text()
                             );
-                            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.4', error));
+                            reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.4', error));
                         }
                     } catch (error) {
-                        reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.3', error));
+                        reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.3', error));
                     }
                 })
-                .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.2', error)));
+                .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.2', error)));
         } catch (error) {
-            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_PREVIEW_FAILED, 'preview.1', error));
+            reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.1', error));
         }
     });
 };
@@ -131,7 +137,7 @@ const read = (
             const signal = connector.abortController.signal;
             signal.addEventListener(
                 'abort',
-                () => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.8', new AbortError(CALLBACK_LIST_ENTRY_READ_ABORTED)))
+                () => reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.8', new AbortError(CALLBACK_READ_ABORTED)))
                 /*, { once: true, signal } TODO: Don't need once and signal? */
             );
 
@@ -158,17 +164,17 @@ const read = (
                     while ((data = parser.read() as { info: CastingContext; record: string[] }) !== null) {
                         signal.throwIfAborted(); // Check if the abort signal has been triggered.
                         pendingRows.push({ fieldInfos, fieldValues: data.record }); // Append the row of parsed values and associated information to the pending rows array.
-                        if (pendingRows.length < DEFAULT_LIST_ENTRY_READ_CHUNK_SIZE) continue; // Continue with next iteration if the pending rows array is not yet full.
+                        if (pendingRows.length < DEFAULT_READ_CHUNK_SIZE) continue; // Continue with next iteration if the pending rows array is not yet full.
                         settings.chunk(pendingRows); // Pass the pending rows to the engine using the 'chunk' callback.
                         pendingRows = []; // Clear the pending rows array in preparation for the next batch of data.
                     }
                 } catch (error) {
-                    reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.7', error));
+                    reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.7', error));
                 }
             });
 
             // Parser - Event listener for the 'error' event.
-            parser.on('error', (error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.6', error)));
+            parser.on('error', (error) => reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.6', error)));
 
             // Parser - Event listener for the 'end' (end of data) event.
             parser.on('end', () => {
@@ -189,13 +195,13 @@ const read = (
                     });
                     resolve();
                 } catch (error) {
-                    reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.5', error));
+                    reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.5', error));
                 }
             });
 
             // Fetch, decode and forward the contents of the file to the parser.
             const fullFileName = `${dataViewConfig.fileName}${dataViewConfig.fileExtension ? `.${dataViewConfig.fileExtension}` : ''}`;
-            const url = `${LIST_ENTRY_URL_PREFIX}application${dataViewConfig.folderPath}${fullFileName}`;
+            const url = `${URL_PREFIX}application${dataViewConfig.folderPath}${fullFileName}`;
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
@@ -206,24 +212,24 @@ const read = (
                             signal.throwIfAborted(); // Check if the abort signal has been triggered.
                             // Write the decoded data to the parser and terminate if there is an error.
                             parser.write(result.value, (error) => {
-                                if (error) reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.4', error));
+                                if (error) reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.4', error));
                             });
                         }
                         parser.end(); // Signal no more data will be written.
                     } catch (error) {
-                        reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.3', error));
+                        reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.3', error));
                     }
                 })
-                .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.2', error)));
+                .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.2', error)));
             callback({ typeId: 'end', properties: { url } });
         } catch (error) {
-            reject(constructErrorAndTidyUp(connector, ERROR_LIST_ENTRY_READ_FAILED, 'read.1', error));
+            reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.1', error));
         }
     });
 };
 
-// Utilities - Build Folder Entry Configuration
-const buildFolderEntryConfig = (folderPath: string, name: string, childCount: number): ListEntryConfig => {
+// Utilities - Build Folder Item Configuration
+const buildFolderItemConfig = (folderPath: string, name: string, childCount: number): ConnectionItemConfig => {
     return {
         childCount,
         folderPath,
@@ -240,8 +246,8 @@ const buildFolderEntryConfig = (folderPath: string, name: string, childCount: nu
     };
 };
 
-// Utilities - Build File Entry Configuration
-const buildFileEntryConfig = (folderPath: string, fullName: string, lastModifiedAt: number, size: number): ListEntryConfig => {
+// Utilities - Build Object (File) Item Configuration
+const buildObjectItemConfig = (folderPath: string, fullName: string, lastModifiedAt: number, size: number): ConnectionItemConfig => {
     const extension = extractFileExtensionFromFilePath(fullName);
     return {
         childCount: undefined,
