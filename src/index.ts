@@ -260,6 +260,5 @@ const buildObjectItemConfig = (folderPath: string, fullName: string, lastModifie
 // Utilities - Construct Error and Tidy Up
 const constructErrorAndTidyUp = (connector: Connector, message: string, context: string, error: unknown): unknown => {
     connector.abortController = null;
-    const connectorError = new ConnectorError(message, `${config.id}.${context}`, undefined, undefined, undefined, error);
-    return connectorError;
+    return new ConnectorError(message, `${config.id}.${context}`, undefined, undefined, undefined, error);
 };
