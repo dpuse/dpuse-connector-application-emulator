@@ -1,10 +1,10 @@
-# Datapos - Application Emulator Data Connector
+# DataPos - Application Emulator Data Connector
 
-A TypeScript library that implements the Application Emulator data connector by Datapos.
+A TypeScript library that implements the Application Emulator connector.
 
 ## Installation
 
-The Datapos Operations library contains helper functions to upload connectors to the Datapos hosting platform. A developer account is required to access this functionality. Once uploaded, the Datapos engine will automatically retrieve the connector associated with a given connection at runtime.
+The DataPos Operations library contains helper functions to upload connectors to the DataPos hosting platform. A developer account is required to access this functionality. Once uploaded, the DataPos engine will automatically retrieve the connector associated with a given connection at runtime.
 
 ## Repository Management Commands
 
