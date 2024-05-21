@@ -3,10 +3,10 @@ import { nanoid } from 'nanoid';
 import type { Callback, CastingContext, Options, Parser } from 'csv-parse';
 
 // Dependencies - Framework
-import { AbortError, ConnectionItemTypeId, ConnectorError, FetchError, PreviewTypeId } from '@datapos/datapos-share-core';
-import type { ConnectionConfig, ConnectionItemConfig, Connector, ConnectorCallbackData, ConnectorConfig, ConnectorFieldInfo, ConnectorRecord } from '@datapos/datapos-share-core';
+import { AbortError, ConnectorError, FetchError, ItemTypeId, PreviewTypeId } from '@datapos/datapos-share-core';
+import type { ConnectionConfig, Connector, ConnectorCallbackData, ConnectorConfig, ConnectorFieldInfo, ConnectorRecord, ItemConfig } from '@datapos/datapos-share-core';
 import type { DataViewConfig, Preview, PreviewInterface, ReadInterface, ReadInterfaceSettings } from '@datapos/datapos-share-core';
-import { extractFileExtensionFromFilePath, lookupMimeTypeForFileExtension } from '@datapos/datapos-share-core';
+import { extractExtensionFromPath, lookupMimeTypeForExtension } from '@datapos/datapos-share-core';
 import type { ListItemsResult, ListItemsSettings } from '@datapos/datapos-share-core';
 
 // Dependencies - Data
@@ -58,15 +58,15 @@ export default class ApplicationEmulatorConnector implements Connector {
         return new Promise((resolve, reject) => {
             try {
                 const indexItems = (applicationIndex as ApplicationIndex)[settings.folderPath];
-                const connectionItemConfigs: ConnectionItemConfig[] = [];
+                const itemConfigs: ItemConfig[] = [];
                 for (const indexItem of indexItems) {
                     if (indexItem.typeId === 'folder') {
-                        connectionItemConfigs.push(buildFolderItemConfig(settings.folderPath, indexItem.name, indexItem.childCount));
+                        itemConfigs.push(buildFolderItemConfig(settings.folderPath, indexItem.name, indexItem.childCount));
                     } else {
-                        connectionItemConfigs.push(buildObjectItemConfig(settings.folderPath, indexItem.name, indexItem.lastModifiedAt, indexItem.size));
+                        itemConfigs.push(buildObjectItemConfig(settings.folderPath, indexItem.name, indexItem.lastModifiedAt, indexItem.size));
                     }
                 }
-                resolve({ cursor: undefined, isMore: false, connectionItemConfigs, totalCount: connectionItemConfigs.length });
+                resolve({ cursor: undefined, isMore: false, itemConfigs, totalCount: itemConfigs.length });
             } catch (error) {
                 reject(constructErrorAndTidyUp(this, ERROR_LIST_ITEMS_FAILED, 'listItems.1', error));
             }
@@ -84,7 +84,7 @@ const preview = (connector: Connector, dataViewConfig: DataViewConfig, chunkSize
             signal.addEventListener('abort', () => reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.5', new AbortError(CALLBACK_PREVIEW_ABORTED))));
 
             // Fetch chunk from start of file.
-            const url = `${URL_PREFIX}application${dataViewConfig.folderPath}${dataViewConfig.fileName}`;
+            const url = `${URL_PREFIX}application${dataViewConfig.folderPath}${dataViewConfig.objectName}`;
             const headers: HeadersInit = { Range: `bytes=0-${chunkSize || DEFAULT_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
@@ -192,7 +192,7 @@ const read = (
             });
 
             // Fetch, decode and forward the contents of the file to the parser.
-            const fullFileName = `${dataViewConfig.fileName}${dataViewConfig.fileExtension ? `.${dataViewConfig.fileExtension}` : ''}`;
+            const fullFileName = `${dataViewConfig.objectName}${dataViewConfig.objectExtension ? `.${dataViewConfig.objectExtension}` : ''}`;
             const url = `${URL_PREFIX}application${dataViewConfig.folderPath}${fullFileName}`;
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
@@ -221,7 +221,7 @@ const read = (
 };
 
 // Utilities - Build Folder Item Configuration
-const buildFolderItemConfig = (folderPath: string, name: string, childCount: number): ConnectionItemConfig => {
+const buildFolderItemConfig = (folderPath: string, name: string, childCount: number): ItemConfig => {
     return {
         childCount,
         folderPath,
@@ -234,13 +234,13 @@ const buildFolderItemConfig = (folderPath: string, name: string, childCount: num
         mimeType: undefined,
         name,
         size: undefined,
-        typeId: ConnectionItemTypeId.Folder
+        typeId: ItemTypeId.Folder
     };
 };
 
 // Utilities - Build Object (File) Item Configuration
-const buildObjectItemConfig = (folderPath: string, fullName: string, lastModifiedAt: number, size: number): ConnectionItemConfig => {
-    const extension = extractFileExtensionFromFilePath(fullName);
+const buildObjectItemConfig = (folderPath: string, fullName: string, lastModifiedAt: number, size: number): ItemConfig => {
+    const extension = extractExtensionFromPath(fullName);
     return {
         childCount: undefined,
         folderPath,
@@ -250,10 +250,10 @@ const buildObjectItemConfig = (folderPath: string, fullName: string, lastModifie
         id: nanoid(),
         label: fullName,
         lastModifiedAt,
-        mimeType: lookupMimeTypeForFileExtension(extension),
+        mimeType: lookupMimeTypeForExtension(extension),
         name: fullName,
         size,
-        typeId: ConnectionItemTypeId.Object
+        typeId: ItemTypeId.Object
     };
 };
 
