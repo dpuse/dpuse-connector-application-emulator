@@ -227,7 +227,7 @@ const buildFolderItemConfig = (folderPath: string, name: string, childCount: num
         encodingId: undefined,
         extension: undefined,
         folderPath,
-        id: nanoid(),
+        id: undefined,
         handle: undefined,
         label: name,
         lastModifiedAt: undefined,
@@ -244,7 +244,7 @@ const buildObjectItemConfig = (folderPath: string, name: string, lastModifiedAt:
     return {
         childCount: undefined,
         folderPath,
-        id: nanoid(),
+        id: undefined,
         encodingId: undefined,
         extension,
         handle: undefined,
