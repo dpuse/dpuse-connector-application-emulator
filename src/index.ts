@@ -77,6 +77,7 @@ export default class ApplicationEmulatorConnector implements Connector {
 const preview = (connector: Connector, itemConfig: ItemConfig, chunkSize?: number): Promise<{ error?: unknown; result?: Preview }> => {
     return new Promise((resolve, reject) => {
         try {
+            console.log(7777, itemConfig);
             // Create an abort controller. Get the signal for the abort controller and add an abort listener.
             connector.abortController = new AbortController();
             const signal = connector.abortController.signal;
