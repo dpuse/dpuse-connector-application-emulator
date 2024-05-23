@@ -224,35 +224,35 @@ const read = (
 const buildFolderItemConfig = (folderPath: string, name: string, childCount: number): ItemConfig => {
     return {
         childCount,
+        encodingId: undefined,
+        extension: undefined,
         folderPath,
         id: nanoid(),
+        handle: undefined,
         label: name,
+        lastModifiedAt: undefined,
+        mimeType: undefined,
         name,
-        objectEncodingId: undefined,
-        objectExtension: undefined,
-        objectHandle: undefined,
-        objectLastModifiedAt: undefined,
-        objectMimeType: undefined,
-        objectSize: undefined,
+        size: undefined,
         typeId: ItemTypeId.Folder
     };
 };
 
 // Utilities - Build Object (File) Item Configuration
-const buildObjectItemConfig = (folderPath: string, fullName: string, objectLastModifiedAt: number, objectSize: number): ItemConfig => {
-    const objectExtension = extractExtensionFromPath(fullName);
+const buildObjectItemConfig = (folderPath: string, name: string, lastModifiedAt: number, size: number): ItemConfig => {
+    const extension = extractExtensionFromPath(name);
     return {
         childCount: undefined,
         folderPath,
         id: nanoid(),
-        label: fullName,
-        name: fullName,
-        objectEncodingId: undefined,
-        objectExtension,
-        objectHandle: undefined,
-        objectLastModifiedAt,
-        objectMimeType: lookupMimeTypeForExtension(objectExtension),
-        objectSize,
+        encodingId: undefined,
+        extension,
+        handle: undefined,
+        label: name,
+        lastModifiedAt,
+        mimeType: lookupMimeTypeForExtension(extension),
+        name,
+        size,
         typeId: ItemTypeId.Object
     };
 };
