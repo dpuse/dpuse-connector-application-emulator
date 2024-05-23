@@ -74,7 +74,7 @@ export default class ApplicationEmulatorConnector implements Connector {
 }
 
 // Interfaces - Preview
-const preview = (connector: Connector, dataViewConfig: DataViewConfig, chunkSize?: number): Promise<{ error?: unknown; result?: Preview }> => {
+const preview = (connector: Connector, itemConfig: ItemConfig, chunkSize?: number): Promise<{ error?: unknown; result?: Preview }> => {
     return new Promise((resolve, reject) => {
         try {
             // Create an abort controller. Get the signal for the abort controller and add an abort listener.
@@ -83,7 +83,7 @@ const preview = (connector: Connector, dataViewConfig: DataViewConfig, chunkSize
             signal.addEventListener('abort', () => reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.5', new AbortError(CALLBACK_PREVIEW_ABORTED))));
 
             // Fetch chunk from start of file.
-            const url = `${URL_PREFIX}application${dataViewConfig.folderPath}${dataViewConfig.objectName}`;
+            const url = `${URL_PREFIX}application${itemConfig.folderPath}${itemConfig.name}`;
             const headers: HeadersInit = { Range: `bytes=0-${chunkSize || DEFAULT_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
@@ -142,7 +142,7 @@ const read = (
                     fieldInfos[context.index] = { isQuoted: context.quoting };
                     return value;
                 },
-                delimiter: dataViewConfig.preview.valueDelimiterId,
+                delimiter: dataViewConfig.previewConfig.valueDelimiterId,
                 info: true,
                 relax_column_count: true,
                 relax_quotes: true
@@ -191,12 +191,12 @@ const read = (
             });
 
             // Fetch, decode and forward the contents of the file to the parser.
-            const fullFileName = `${dataViewConfig.objectName}${dataViewConfig.objectExtension ? `.${dataViewConfig.objectExtension}` : ''}`;
-            const url = `${URL_PREFIX}application${dataViewConfig.folderPath}${fullFileName}`;
+            const fullFileName = `${dataViewConfig.itemConfig.name}${dataViewConfig.itemConfig.extension ? `.${dataViewConfig.itemConfig.extension}` : ''}`;
+            const url = `${URL_PREFIX}application${dataViewConfig.itemConfig.folderPath}${fullFileName}`;
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
-                        const stream = response.body.pipeThrough(new TextDecoderStream(dataViewConfig.preview.encodingId));
+                        const stream = response.body.pipeThrough(new TextDecoderStream(dataViewConfig.previewConfig.encodingId));
                         const decodedStreamReader = stream.getReader();
                         let result;
                         while (!(result = await decodedStreamReader.read()).done) {
