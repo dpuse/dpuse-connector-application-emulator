@@ -144,6 +144,7 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
                     let data;
                     while ((data = parser.read() as { info: CastingContext; record: string[] }) !== null) {
                         signal.throwIfAborted(); // Check if the abort signal has been triggered.
+                        console.log('FIELD INFOS', JSON.stringify(fieldInfos));
                         pendingRows.push({ fieldInfos, fieldValues: data.record }); // Append the row of parsed values and associated information to the pending rows array.
                         if (pendingRows.length < DEFAULT_READ_CHUNK_SIZE) continue; // Continue with next iteration if the pending rows array is not yet full.
                         settings.chunk(pendingRows); // Pass the pending rows to the engine using the 'chunk' callback.
