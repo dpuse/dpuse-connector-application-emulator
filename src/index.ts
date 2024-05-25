@@ -84,7 +84,7 @@ const preview = (connector: Connector, itemConfig: ItemConfig, settings: Preview
             signal.addEventListener('abort', () => reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.5', new AbortError(CALLBACK_PREVIEW_ABORTED))));
 
             // Fetch chunk from start of file.
-            const url = `${URL_PREFIX}application${itemConfig.folderPath}${itemConfig.name}`;
+            const url = `${URL_PREFIX}application${itemConfig.folderPath}${itemConfig.name}${itemConfig.extension ? `.${itemConfig.extension}` : ''}`;
             const headers: HeadersInit = { Range: `bytes=0-${settings.chunkSize || DEFAULT_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
