@@ -183,12 +183,10 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
             // Fetch, decode and forward the contents of the file to the parser.
             const fullFileName = `${itemConfig.name}${itemConfig.extension ? `.${itemConfig.extension}` : ''}`;
             const url = `${URL_PREFIX}application${itemConfig.folderPath}${fullFileName}`;
-            console.log(7777, url);
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
                         if (response.ok) {
-                            console.log(8888, response, await response.text());
                             const stream = response.body.pipeThrough(new TextDecoderStream(previewConfig.encodingId));
                             const decodedStreamReader = stream.getReader();
                             let result;
@@ -231,6 +229,5 @@ const buildObjectItemConfig = (folderPath: string, name: string, lastModifiedAt:
 // Utilities - Construct Error and Tidy Up
 const constructErrorAndTidyUp = (connector: Connector, message: string, context: string, error: unknown): unknown => {
     connector.abortController = null;
-    console.log(4444, `${config.id}.${context}`);
     return new ConnectorError(message, `${config.id}.${context}`, undefined, undefined, undefined, error);
 };
