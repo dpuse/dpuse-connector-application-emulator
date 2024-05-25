@@ -18,13 +18,13 @@ import { version } from '../package.json';
 type ApplicationIndex = Record<string, { childCount?: number; lastModifiedAt?: number; name: string; size?: number; typeId: string }[]>;
 
 // Constants
-const CALLBACK_PREVIEW_ABORTED = 'Preview aborted.';
-const CALLBACK_READ_ABORTED = 'Read aborted.';
+const CALLBACK_PREVIEW_ABORTED = 'Connector preview aborted.';
+const CALLBACK_READ_ABORTED = 'Connector read aborted.';
 const DEFAULT_PREVIEW_CHUNK_SIZE = 4096;
 const DEFAULT_READ_CHUNK_SIZE = 1000;
-const ERROR_LIST_ITEMS_FAILED = 'List items failed.';
-const ERROR_PREVIEW_FAILED = 'Preview failed.';
-const ERROR_READ_FAILED = 'Read failed.';
+const ERROR_LIST_ITEMS_FAILED = 'Connector list items failed.';
+const ERROR_PREVIEW_FAILED = 'Connector preview failed.';
+const ERROR_READ_FAILED = 'Connector read failed.';
 const URL_PREFIX = 'https://datapos-resources.netlify.app/';
 
 // Classes - Application Emulator Connector
@@ -93,8 +93,8 @@ const preview = (connector: Connector, itemConfig: ItemConfig, settings: Preview
                             connector.abortController = null;
                             resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: 'uint8Array' } });
                         } else {
-                            const message = `Preview failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`;
-                            const error = new FetchError(message, undefined, undefined, undefined, await response.text());
+                            const message = `Connector preview failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`;
+                            const error = new FetchError(message, undefined, undefined, { body: await response.text() });
                             reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.4', error));
                         }
                     } catch (error) {
@@ -199,8 +199,8 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
                             }
                             parser.end(); // Signal no more data will be written.
                         } else {
-                            const message = `Read failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`;
-                            const error = new FetchError(message, undefined, undefined, undefined, await response.text());
+                            const message = `Connector read failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`;
+                            const error = new FetchError(message, undefined, undefined, { body: await response.text() });
                             reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.4', error));
                         }
                     } catch (error) {
@@ -229,5 +229,5 @@ const buildObjectItemConfig = (folderPath: string, name: string, lastModifiedAt:
 // Utilities - Construct Error and Tidy Up
 const constructErrorAndTidyUp = (connector: Connector, message: string, context: string, error: unknown): unknown => {
     connector.abortController = null;
-    return new ConnectorError(message, `${config.id}.${context}`, undefined, undefined, undefined, error);
+    return new ConnectorError(message, `${config.id}.${context}`, undefined, undefined, error);
 };
