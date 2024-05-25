@@ -183,6 +183,7 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
             // Fetch, decode and forward the contents of the file to the parser.
             const fullFileName = `${itemConfig.name}${itemConfig.extension ? `.${itemConfig.extension}` : ''}`;
             const url = `${URL_PREFIX}application${itemConfig.folderPath}${fullFileName}`;
+            console.log(7777, url);
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
