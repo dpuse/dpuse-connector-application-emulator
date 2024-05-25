@@ -1,12 +1,13 @@
 // Dependencies - Vendor
-import type { Callback, CastingContext, Options, Parser } from 'csv-parse';
+import type { CastingContext } from 'csv-parse';
 
 // Dependencies - Framework
-import { AbortError, ConnectorError, FetchError, PreviewTypeId } from '@datapos/datapos-share-core';
-import type { ConnectionConfig, Connector, ConnectorCallbackData, ConnectorConfig, ConnectorFieldInfo, ConnectorRecord, ItemConfig } from '@datapos/datapos-share-core';
-import type { DataViewConfig, Preview, PreviewInterface, ReadInterface, ReadInterfaceSettings } from '@datapos/datapos-share-core';
+import { AbortError, ConnectorError, FetchError } from '@datapos/datapos-share-core';
+import type { ConnectionConfig, Connector, ConnectorConfig, ConnectorFieldInfo, ConnectorRecord, DataViewPreviewConfig, ItemConfig } from '@datapos/datapos-share-core';
 import { extractExtensionFromPath, lookupMimeTypeForExtension } from '@datapos/datapos-share-core';
 import type { ListItemsResult, ListItemsSettings } from '@datapos/datapos-share-core';
+import type { PreviewInterface, PreviewInterfaceSettings, PreviewResult } from '@datapos/datapos-share-core';
+import type { ReadInterface, ReadInterfaceSettings } from '@datapos/datapos-share-core';
 
 // Dependencies - Data
 import applicationIndex from './applicationIndex.json';
@@ -74,7 +75,7 @@ export default class ApplicationEmulatorConnector implements Connector {
 }
 
 // Interfaces - Preview
-const preview = (connector: Connector, itemConfig: ItemConfig, chunkSize?: number): Promise<{ error?: unknown; result?: Preview }> => {
+const preview = (connector: Connector, itemConfig: ItemConfig, settings: PreviewInterfaceSettings): Promise<{ error?: unknown; result?: PreviewResult }> => {
     return new Promise((resolve, reject) => {
         try {
             // Create an abort controller. Get the signal for the abort controller and add an abort listener.
@@ -84,21 +85,16 @@ const preview = (connector: Connector, itemConfig: ItemConfig, chunkSize?: numbe
 
             // Fetch chunk from start of file.
             const url = `${URL_PREFIX}application${itemConfig.folderPath}${itemConfig.name}`;
-            const headers: HeadersInit = { Range: `bytes=0-${chunkSize || DEFAULT_PREVIEW_CHUNK_SIZE}` };
+            const headers: HeadersInit = { Range: `bytes=0-${settings.chunkSize || DEFAULT_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
                     try {
                         if (response.ok) {
                             connector.abortController = null;
-                            resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: PreviewTypeId.Uint8Array } });
+                            resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: 'uint8Array' } });
                         } else {
-                            const error = new FetchError(
-                                `Preview failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`,
-                                undefined,
-                                undefined,
-                                undefined,
-                                await response.text()
-                            );
+                            const message = `Preview failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`;
+                            const error = new FetchError(message, undefined, undefined, undefined, await response.text());
                             reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.4', error));
                         }
                     } catch (error) {
@@ -113,16 +109,10 @@ const preview = (connector: Connector, itemConfig: ItemConfig, chunkSize?: numbe
 };
 
 // Interfaces - Read
-const read = (
-    connector: Connector,
-    dataViewConfig: DataViewConfig,
-    settings: ReadInterfaceSettings,
-    callback: (data: ConnectorCallbackData) => void,
-    csvParse: (options?: Options, callback?: Callback) => Parser
-): Promise<void> => {
+const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataViewPreviewConfig, settings: ReadInterfaceSettings): Promise<void> => {
     return new Promise((resolve, reject) => {
         try {
-            callback({ typeId: 'start', properties: { dataViewConfig, settings } });
+            settings.callback({ typeId: 'start', properties: { itemConfig, previewConfig, settings } });
             // Create an abort controller and get the signal. Add an abort listener to the signal.
             connector.abortController = new AbortController();
             const signal = connector.abortController.signal;
@@ -137,12 +127,12 @@ const read = (
             const fieldInfos: ConnectorFieldInfo[] = []; // Array to store field information for a single row.
 
             // Parser - Create a parser object for CSV parsing.
-            const parser = csvParse({
+            const parser = settings.csvParse({
                 cast: (value, context) => {
                     fieldInfos[context.index] = { isQuoted: context.quoting };
                     return value;
                 },
-                delimiter: dataViewConfig.previewConfig.valueDelimiterId,
+                delimiter: previewConfig.valueDelimiterId,
                 info: true,
                 relax_column_count: true,
                 relax_quotes: true
@@ -191,12 +181,12 @@ const read = (
             });
 
             // Fetch, decode and forward the contents of the file to the parser.
-            const fullFileName = `${dataViewConfig.itemConfig.name}${dataViewConfig.itemConfig.extension ? `.${dataViewConfig.itemConfig.extension}` : ''}`;
-            const url = `${URL_PREFIX}application${dataViewConfig.itemConfig.folderPath}${fullFileName}`;
+            const fullFileName = `${itemConfig.name}${itemConfig.extension ? `.${itemConfig.extension}` : ''}`;
+            const url = `${URL_PREFIX}application${itemConfig.folderPath}${fullFileName}`;
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
-                        const stream = response.body.pipeThrough(new TextDecoderStream(dataViewConfig.previewConfig.encodingId));
+                        const stream = response.body.pipeThrough(new TextDecoderStream(previewConfig.encodingId));
                         const decodedStreamReader = stream.getReader();
                         let result;
                         while (!(result = await decodedStreamReader.read()).done) {
@@ -212,7 +202,7 @@ const read = (
                     }
                 })
                 .catch((error) => reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.2', error)));
-            callback({ typeId: 'end', properties: {} });
+            settings.callback({ typeId: 'end', properties: {} });
         } catch (error) {
             reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.1', error));
         }
@@ -221,37 +211,13 @@ const read = (
 
 // Utilities - Build Folder Item Configuration
 const buildFolderItemConfig = (folderPath: string, name: string, childCount: number): ItemConfig => {
-    return {
-        childCount,
-        extension: undefined,
-        folderPath,
-        id: undefined,
-        handle: undefined,
-        label: name,
-        lastModifiedAt: undefined,
-        mimeType: undefined,
-        name,
-        size: undefined,
-        typeId: 'folder'
-    };
+    return { childCount, folderPath, label: name, name, typeId: 'folder' };
 };
 
 // Utilities - Build Object (File) Item Configuration
 const buildObjectItemConfig = (folderPath: string, name: string, lastModifiedAt: number, size: number): ItemConfig => {
     const extension = extractExtensionFromPath(name);
-    return {
-        childCount: undefined,
-        folderPath,
-        id: undefined,
-        extension,
-        handle: undefined,
-        label: name,
-        lastModifiedAt,
-        mimeType: lookupMimeTypeForExtension(extension),
-        name,
-        size,
-        typeId: 'object'
-    };
+    return { folderPath, extension, label: name, lastModifiedAt, mimeType: lookupMimeTypeForExtension(extension), name, size, typeId: 'object' };
 };
 
 // Utilities - Construct Error and Tidy Up
