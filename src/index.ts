@@ -93,7 +93,7 @@ const preview = (connector: Connector, itemConfig: ItemConfig, settings: Preview
                             connector.abortController = null;
                             resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: 'uint8Array' } });
                         } else {
-                            const message = `Connector preview failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`;
+                            const message = `Connector preview failed to fetch table '${itemConfig.name}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
                             const error = new FetchError(message, undefined, undefined, { body: await response.text() });
                             reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.4', error));
                         }
@@ -199,7 +199,7 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
                             }
                             parser.end(); // Signal no more data will be written.
                         } else {
-                            const message = `Connector read failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`;
+                            const message = `Connector read failed to fetch table '${itemConfig.name}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
                             const error = new FetchError(message, undefined, undefined, { body: await response.text() });
                             reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.4', error));
                         }
