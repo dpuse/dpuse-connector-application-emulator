@@ -187,7 +187,7 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
-                        console.log(8888, response.text());
+                        console.log(8888, await response.text());
                         const stream = response.body.pipeThrough(new TextDecoderStream(previewConfig.encodingId));
                         const decodedStreamReader = stream.getReader();
                         let result;
