@@ -4,7 +4,7 @@ import type { CastingContext } from 'csv-parse';
 // Dependencies - Framework
 import { AbortError, ConnectorError, FetchError } from '@datapos/datapos-share-core';
 import type { ConnectionConfig, Connector, ConnectorConfig, ConnectorFieldInfo, ConnectorRecord, DataViewPreviewConfig, ItemConfig } from '@datapos/datapos-share-core';
-import { extractExtensionFromPath, lookupMimeTypeForExtension } from '@datapos/datapos-share-core';
+import { extractExtensionFromPath, extractNameFromPath, lookupMimeTypeForExtension } from '@datapos/datapos-share-core';
 import type { ListItemsResult, ListItemsSettings } from '@datapos/datapos-share-core';
 import type { PreviewInterface, PreviewInterfaceSettings, PreviewResult } from '@datapos/datapos-share-core';
 import type { ReadInterface, ReadInterfaceSettings } from '@datapos/datapos-share-core';
@@ -93,7 +93,7 @@ const preview = (connector: Connector, itemConfig: ItemConfig, settings: Preview
                             connector.abortController = null;
                             resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: 'uint8Array' } });
                         } else {
-                            const message = `Connector preview failed to fetch table '${itemConfig.name}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
+                            const message = `Connector preview failed to fetch '${itemConfig.name}' table. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
                             const error = new FetchError(message, undefined, undefined, { body: await response.text() });
                             reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.4', error));
                         }
@@ -199,7 +199,7 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
                             }
                             parser.end(); // Signal no more data will be written.
                         } else {
-                            const message = `Connector read failed to fetch table '${itemConfig.name}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
+                            const message = `Connector read failed to fetch '${itemConfig.name}' table. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
                             const error = new FetchError(message, undefined, undefined, { body: await response.text() });
                             reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.4', error));
                         }
@@ -221,9 +221,10 @@ const buildFolderItemConfig = (folderPath: string, name: string, childCount: num
 };
 
 // Utilities - Build Object (File) Item Configuration
-const buildObjectItemConfig = (folderPath: string, name: string, lastModifiedAt: number, size: number): ItemConfig => {
-    const extension = extractExtensionFromPath(name);
-    return { folderPath, extension, label: name, lastModifiedAt, mimeType: lookupMimeTypeForExtension(extension), name, size, typeId: 'object' };
+const buildObjectItemConfig = (folderPath: string, fullName: string, lastModifiedAt: number, size: number): ItemConfig => {
+    const name = extractNameFromPath(fullName);
+    const extension = extractExtensionFromPath(fullName);
+    return { folderPath, extension, label: fullName, lastModifiedAt, mimeType: lookupMimeTypeForExtension(extension), name, size, typeId: 'object' };
 };
 
 // Utilities - Construct Error and Tidy Up
