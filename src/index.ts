@@ -203,7 +203,7 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
                         } else {
                             const message = `Read failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`;
                             const error = new FetchError(message, undefined, undefined, undefined, await response.text());
-                            reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'read.4', error));
+                            reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.4', error));
                         }
                     } catch (error) {
                         reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.3', error));
@@ -231,5 +231,6 @@ const buildObjectItemConfig = (folderPath: string, name: string, lastModifiedAt:
 // Utilities - Construct Error and Tidy Up
 const constructErrorAndTidyUp = (connector: Connector, message: string, context: string, error: unknown): unknown => {
     connector.abortController = null;
+    console.log(4444, `${config.id}.${context}`);
     return new ConnectorError(message, `${config.id}.${context}`, undefined, undefined, undefined, error);
 };
