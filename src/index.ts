@@ -118,7 +118,7 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
             const signal = connector.abortController.signal;
             signal.addEventListener(
                 'abort',
-                () => reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.8', new AbortError(CALLBACK_READ_ABORTED)))
+                () => reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.9', new AbortError(CALLBACK_READ_ABORTED)))
                 /*, { once: true, signal } TODO: Don't need once and signal? */
             );
 
@@ -150,12 +150,12 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
                         pendingRows = []; // Clear the pending rows array in preparation for the next batch of data.
                     }
                 } catch (error) {
-                    reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.7', error));
+                    reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.8', error));
                 }
             });
 
             // Parser - Event listener for the 'error' event.
-            parser.on('error', (error) => reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.6', error)));
+            parser.on('error', (error) => reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.7', error)));
 
             // Parser - Event listener for the 'end' (end of data) event.
             parser.on('end', () => {
@@ -176,7 +176,7 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
                     });
                     resolve();
                 } catch (error) {
-                    reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.5', error));
+                    reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.6', error));
                 }
             });
 
@@ -187,18 +187,24 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
-                        console.log(8888, response, await response.text());
-                        const stream = response.body.pipeThrough(new TextDecoderStream(previewConfig.encodingId));
-                        const decodedStreamReader = stream.getReader();
-                        let result;
-                        while (!(result = await decodedStreamReader.read()).done) {
-                            signal.throwIfAborted(); // Check if the abort signal has been triggered.
-                            // Write the decoded data to the parser and terminate if there is an error.
-                            parser.write(result.value, (error) => {
-                                if (error) reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.4', error));
-                            });
+                        if (response.ok) {
+                            console.log(8888, response, await response.text());
+                            const stream = response.body.pipeThrough(new TextDecoderStream(previewConfig.encodingId));
+                            const decodedStreamReader = stream.getReader();
+                            let result;
+                            while (!(result = await decodedStreamReader.read()).done) {
+                                signal.throwIfAborted(); // Check if the abort signal has been triggered.
+                                // Write the decoded data to the parser and terminate if there is an error.
+                                parser.write(result.value, (error) => {
+                                    if (error) reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.5', error));
+                                });
+                            }
+                            parser.end(); // Signal no more data will be written.
+                        } else {
+                            const message = `Read failed to fetch '${url}'. Response status ${response.status}${response.statusText ? ` - ${response.statusText}.` : '.'}`;
+                            const error = new FetchError(message, undefined, undefined, undefined, await response.text());
+                            reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'read.4', error));
                         }
-                        parser.end(); // Signal no more data will be written.
                     } catch (error) {
                         reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.3', error));
                     }
