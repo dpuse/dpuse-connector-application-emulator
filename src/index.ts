@@ -3,7 +3,16 @@ import type { CastingContext } from 'csv-parse';
 
 // Dependencies - Framework
 import { AbortError, ConnectorError, FetchError } from '@datapos/datapos-share-core';
-import type { ConnectionConfig, Connector, ConnectorConfig, ConnectorFieldInfo, ConnectorRecord, DataViewPreviewConfig, ItemConfig } from '@datapos/datapos-share-core';
+import type {
+    ConnectionConfig,
+    Connector,
+    ConnectorCallbackData,
+    ConnectorConfig,
+    ConnectorFieldInfo,
+    ConnectorRecord,
+    DataViewPreviewConfig,
+    ItemConfig
+} from '@datapos/datapos-share-core';
 import { extractExtensionFromPath, extractNameFromPath, lookupMimeTypeForExtension } from '@datapos/datapos-share-core';
 import type { ListItemsResult, ListItemsSettings } from '@datapos/datapos-share-core';
 import type { PreviewInterface, PreviewInterfaceSettings, PreviewResult } from '@datapos/datapos-share-core';
@@ -54,7 +63,7 @@ export default class ApplicationEmulatorConnector implements Connector {
         return { connector: this, read };
     }
 
-    async listItems(settings: ListItemsSettings): Promise<ListItemsResult> {
+    async listItems(connector: Connector, callback: (data: ConnectorCallbackData) => void, settings: ListItemsSettings): Promise<ListItemsResult> {
         return new Promise((resolve, reject) => {
             try {
                 const indexItems = (applicationIndex as ApplicationIndex)[settings.folderPath];
@@ -75,7 +84,12 @@ export default class ApplicationEmulatorConnector implements Connector {
 }
 
 // Interfaces - Preview
-const preview = (connector: Connector, itemConfig: ItemConfig, settings: PreviewInterfaceSettings): Promise<{ error?: unknown; result?: PreviewResult }> => {
+const preview = (
+    connector: Connector,
+    callback: (data: ConnectorCallbackData) => void,
+    itemConfig: ItemConfig,
+    settings: PreviewInterfaceSettings
+): Promise<{ error?: unknown; result?: PreviewResult }> => {
     return new Promise((resolve, reject) => {
         try {
             // Create an abort controller. Get the signal for the abort controller and add an abort listener.
@@ -109,10 +123,16 @@ const preview = (connector: Connector, itemConfig: ItemConfig, settings: Preview
 };
 
 // Interfaces - Read
-const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataViewPreviewConfig, settings: ReadInterfaceSettings): Promise<void> => {
+const read = (
+    connector: Connector,
+    callback: (data: ConnectorCallbackData) => void,
+    itemConfig: ItemConfig,
+    previewConfig: DataViewPreviewConfig,
+    settings: ReadInterfaceSettings
+): Promise<void> => {
     return new Promise((resolve, reject) => {
         try {
-            settings.callback({ typeId: 'start', properties: { itemConfig, previewConfig, settings } });
+            callback({ typeId: 'start', properties: { itemConfig, previewConfig, settings } });
             // Create an abort controller and get the signal. Add an abort listener to the signal.
             connector.abortController = new AbortController();
             const signal = connector.abortController.signal;
@@ -176,7 +196,7 @@ const read = (connector: Connector, itemConfig: ItemConfig, previewConfig: DataV
                         recordCount: parser.info.records
                     });
                     resolve();
-                    settings.callback({ typeId: 'end', properties: {} });
+                    callback({ typeId: 'end', properties: {} });
                 } catch (error) {
                     reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.6', error));
                 }
