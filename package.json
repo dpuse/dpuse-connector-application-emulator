@@ -3,7 +3,7 @@
     "license": "ISC",
     "private": true,
     "type": "module",
-    "version": "0.1.414",
+    "version": "0.1.415",
     "peerDependencies": {
         "@datapos/datapos-share-core": "^0.1.538",
         "csv-parse": "^5.5.6",
