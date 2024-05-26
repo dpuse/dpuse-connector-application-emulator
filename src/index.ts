@@ -64,6 +64,7 @@ export default class ApplicationEmulatorConnector implements Connector {
     }
 
     async listItems(callback: (data: ConnectorCallbackData) => void, settings: ListItemsSettings): Promise<ListItemsResult> {
+        callback({ typeId: 'ffff', properties: { count: 890 } });
         console.log('XXXX', callback);
         console.log('YYYY', settings);
         return new Promise((resolve, reject) => {
