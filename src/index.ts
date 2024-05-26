@@ -130,6 +130,11 @@ const read = (
     previewConfig: DataViewPreviewConfig,
     settings: ReadInterfaceSettings
 ): Promise<void> => {
+    console.log('connector', connector);
+    console.log('callback', callback);
+    console.log('itemConfig', itemConfig);
+    console.log('previewConfig', previewConfig);
+    console.log('settings', settings);
     return new Promise((resolve, reject) => {
         try {
             callback({ typeId: 'start', properties: { itemConfig, previewConfig, settings } });
