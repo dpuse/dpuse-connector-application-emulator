@@ -64,7 +64,8 @@ export default class ApplicationEmulatorConnector implements Connector {
     }
 
     async listItems(callback: (data: ConnectorCallbackData) => void, settings: ListItemsSettings): Promise<ListItemsResult> {
-        console.log('XXXX', callback, settings);
+        console.log('XXXX', callback);
+        console.log('YYYY', settings);
         return new Promise((resolve, reject) => {
             try {
                 const indexItems = (applicationIndex as ApplicationIndex)[settings.folderPath];
