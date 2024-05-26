@@ -130,14 +130,9 @@ const read = (
     previewConfig: DataViewPreviewConfig,
     settings: ReadInterfaceSettings
 ): Promise<void> => {
-    console.log('connector', connector);
-    console.log('callback', callback);
-    console.log('itemConfig', itemConfig);
-    console.log('previewConfig', previewConfig);
-    console.log('settings', settings);
     return new Promise((resolve, reject) => {
         try {
-            callback({ typeId: 'start', properties: { count: '765' } });
+            callback({ typeId: 'start', properties: {} });
             // Create an abort controller and get the signal. Add an abort listener to the signal.
             connector.abortController = new AbortController();
             const signal = connector.abortController.signal;
