@@ -63,7 +63,7 @@ export default class ApplicationEmulatorConnector implements Connector {
         return { connector: this, read };
     }
 
-    async listItems(connector: Connector, callback: (data: ConnectorCallbackData) => void, settings: ListItemsSettings): Promise<ListItemsResult> {
+    async listItems(callback: (data: ConnectorCallbackData) => void, settings: ListItemsSettings): Promise<ListItemsResult> {
         return new Promise((resolve, reject) => {
             try {
                 const indexItems = (applicationIndex as ApplicationIndex)[settings.folderPath];
