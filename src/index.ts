@@ -5,18 +5,18 @@ import type { CastingContext } from 'csv-parse';
 import { AbortError, ConnectorError, FetchError } from '@datapos/datapos-share-core';
 import type {
     ConnectionConfig,
+    ConnectionItemConfig,
     Connector,
     ConnectorCallbackData,
     ConnectorConfig,
     ConnectorFieldInfo,
     ConnectorRecord,
-    DataViewPreviewConfig,
-    ItemConfig
+    DataViewPreviewConfig
 } from '@datapos/datapos-share-core';
 import { extractExtensionFromPath, extractNameFromPath, lookupMimeTypeForExtension } from '@datapos/datapos-share-core';
-import type { ListItemsResult, ListItemsSettings } from '@datapos/datapos-share-core';
-import type { PreviewInterface, PreviewInterfaceSettings, PreviewResult } from '@datapos/datapos-share-core';
-import type { ReadInterface, ReadInterfaceSettings } from '@datapos/datapos-share-core';
+import type { ListResult, ListSettings } from '@datapos/datapos-share-core';
+import type { PreviewInterface, PreviewResult, PreviewSettings } from '@datapos/datapos-share-core';
+import type { ReadInterface, ReadSettings } from '@datapos/datapos-share-core';
 
 // Dependencies - Data
 import applicationIndex from './applicationIndex.json';
@@ -63,19 +63,19 @@ export default class ApplicationEmulatorConnector implements Connector {
         return { connector: this, read };
     }
 
-    async listItems(callback: (data: ConnectorCallbackData) => void, settings: ListItemsSettings): Promise<ListItemsResult> {
+    async listItems(callback: (data: ConnectorCallbackData) => void, settings: ListSettings): Promise<ListResult> {
         return new Promise((resolve, reject) => {
             try {
                 const indexItems = (applicationIndex as ApplicationIndex)[settings.folderPath];
-                const itemConfigs: ItemConfig[] = [];
+                const connectionItemConfigs: ConnectionItemConfig[] = [];
                 for (const indexItem of indexItems) {
                     if (indexItem.typeId === 'folder') {
-                        itemConfigs.push(buildFolderItemConfig(settings.folderPath, indexItem.name, indexItem.childCount));
+                        connectionItemConfigs.push(buildFolderItemConfig(settings.folderPath, indexItem.name, indexItem.childCount));
                     } else {
-                        itemConfigs.push(buildObjectItemConfig(settings.folderPath, indexItem.name, indexItem.lastModifiedAt, indexItem.size));
+                        connectionItemConfigs.push(buildObjectItemConfig(settings.folderPath, indexItem.name, indexItem.lastModifiedAt, indexItem.size));
                     }
                 }
-                resolve({ cursor: undefined, isMore: false, itemConfigs, totalCount: itemConfigs.length });
+                resolve({ cursor: undefined, isMore: false, connectionItemConfigs, totalCount: connectionItemConfigs.length });
             } catch (error) {
                 reject(constructErrorAndTidyUp(this, ERROR_LIST_ITEMS_FAILED, 'listItems.1', error));
             }
@@ -87,8 +87,8 @@ export default class ApplicationEmulatorConnector implements Connector {
 const preview = (
     connector: Connector,
     callback: (data: ConnectorCallbackData) => void,
-    itemConfig: ItemConfig,
-    settings: PreviewInterfaceSettings
+    connectionItemConfig: ConnectionItemConfig,
+    settings: PreviewSettings
 ): Promise<{ error?: unknown; result?: PreviewResult }> => {
     return new Promise((resolve, reject) => {
         try {
@@ -98,7 +98,7 @@ const preview = (
             signal.addEventListener('abort', () => reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.5', new AbortError(CALLBACK_PREVIEW_ABORTED))));
 
             // Fetch chunk from start of file.
-            const url = `${URL_PREFIX}application${itemConfig.folderPath}${itemConfig.name}${itemConfig.extension ? `.${itemConfig.extension}` : ''}`;
+            const url = `${URL_PREFIX}application${connectionItemConfig.folderPath}${connectionItemConfig.name}${connectionItemConfig.extension ? `.${connectionItemConfig.extension}` : ''}`;
             const headers: HeadersInit = { Range: `bytes=0-${settings.chunkSize || DEFAULT_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
@@ -107,7 +107,7 @@ const preview = (
                             connector.abortController = null;
                             resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: 'uint8Array' } });
                         } else {
-                            const message = `Connector preview failed to fetch '${itemConfig.name}' table. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
+                            const message = `Connector preview failed to fetch '${connectionItemConfig.name}' table. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
                             const error = new FetchError(message, undefined, undefined, { body: await response.text() });
                             reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.4', error));
                         }
@@ -126,9 +126,9 @@ const preview = (
 const read = (
     connector: Connector,
     callback: (data: ConnectorCallbackData) => void,
-    itemConfig: ItemConfig,
+    connectionItemConfig: ConnectionItemConfig,
     previewConfig: DataViewPreviewConfig,
-    settings: ReadInterfaceSettings
+    settings: ReadSettings
 ): Promise<void> => {
     return new Promise((resolve, reject) => {
         try {
@@ -203,8 +203,8 @@ const read = (
             });
 
             // Fetch, decode and forward the contents of the file to the parser.
-            const fullFileName = `${itemConfig.name}${itemConfig.extension ? `.${itemConfig.extension}` : ''}`;
-            const url = `${URL_PREFIX}application${itemConfig.folderPath}${fullFileName}`;
+            const fullFileName = `${connectionItemConfig.name}${connectionItemConfig.extension ? `.${connectionItemConfig.extension}` : ''}`;
+            const url = `${URL_PREFIX}application${connectionItemConfig.folderPath}${fullFileName}`;
             fetch(encodeURI(url), { signal })
                 .then(async (response) => {
                     try {
@@ -221,7 +221,7 @@ const read = (
                             }
                             parser.end(); // Signal no more data will be written.
                         } else {
-                            const message = `Connector read failed to fetch '${itemConfig.name}' table. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
+                            const message = `Connector read failed to fetch '${connectionItemConfig.name}' table. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
                             const error = new FetchError(message, undefined, undefined, { body: await response.text() });
                             reject(constructErrorAndTidyUp(connector, ERROR_READ_FAILED, 'read.4', error));
                         }
@@ -237,12 +237,12 @@ const read = (
 };
 
 // Utilities - Build Folder Item Configuration
-const buildFolderItemConfig = (folderPath: string, name: string, childCount: number): ItemConfig => {
+const buildFolderItemConfig = (folderPath: string, name: string, childCount: number): ConnectionItemConfig => {
     return { childCount, folderPath, label: name, name, typeId: 'folder' };
 };
 
 // Utilities - Build Object (File) Item Configuration
-const buildObjectItemConfig = (folderPath: string, fullName: string, lastModifiedAt: number, size: number): ItemConfig => {
+const buildObjectItemConfig = (folderPath: string, fullName: string, lastModifiedAt: number, size: number): ConnectionItemConfig => {
     const name = extractNameFromPath(fullName);
     const extension = extractExtensionFromPath(fullName);
     return { folderPath, extension, label: fullName, lastModifiedAt, mimeType: lookupMimeTypeForExtension(extension), name, size, typeId: 'object' };
