@@ -3,17 +3,8 @@ import type { CastingContext } from 'csv-parse';
 
 // Dependencies - Framework
 import { AbortError, ConnectorError, FetchError } from '@datapos/datapos-share-core';
-import type {
-    ConnectionConfig,
-    ConnectionItemConfig,
-    Connector,
-    ConnectorCallbackData,
-    ConnectorConfig,
-    ConnectorFieldInfo,
-    ConnectorRecord,
-    DataViewPreviewConfig
-} from '@datapos/datapos-share-core';
-import { extractExtensionFromPath, extractNameFromPath, lookupMimeTypeForExtension } from '@datapos/datapos-share-core';
+import type { ConnectionConfig, ConnectionItemConfig, Connector, ConnectorCallbackData, ConnectorConfig, DataViewPreviewConfig, ReadRecord } from '@datapos/datapos-share-core';
+import { convertMillisecondsToTimestamp, extractExtensionFromPath, extractNameFromPath, lookupMimeTypeForExtension } from '@datapos/datapos-share-core';
 import type { ListResult, ListSettings } from '@datapos/datapos-share-core';
 import type { PreviewInterface, PreviewResult, PreviewSettings } from '@datapos/datapos-share-core';
 import type { ReadInterface, ReadSettings } from '@datapos/datapos-share-core';
@@ -143,13 +134,13 @@ const read = (
             );
 
             // Parser - Declare variables.
-            let pendingRows: ConnectorRecord[] = []; // Array to store rows of parsed field values and associated information.
-            const fieldInfos: ConnectorFieldInfo[] = []; // Array to store field information for a single row.
+            let pendingRows: ReadRecord[] = []; // Array to store rows of parsed field values and associated information.
+            const fieldQuotings: boolean[] = []; // Array to store field information for a single row.
 
             // Parser - Create a parser object for CSV parsing.
             const parser = settings.csvParse({
                 cast: (value, context) => {
-                    fieldInfos[context.index] = { isQuoted: context.quoting };
+                    fieldQuotings[context.index] = context.quoting;
                     return value;
                 },
                 delimiter: previewConfig.valueDelimiterId,
@@ -165,7 +156,7 @@ const read = (
                     while ((data = parser.read() as { info: CastingContext; record: string[] }) !== null) {
                         signal.throwIfAborted(); // Check if the abort signal has been triggered.
                         // TODO: Do we need to clear 'fieldInfos' array for each record? Different number of values in a row?
-                        pendingRows.push({ fieldInfos: { ...fieldInfos }, fieldValues: data.record }); // Append the row of parsed values and associated information to the pending rows array.
+                        pendingRows.push({ fieldQuotings, fieldValues: data.record }); // Append the row of parsed values and associated information to the pending rows array.
                         if (pendingRows.length < DEFAULT_READ_CHUNK_SIZE) continue; // Continue with next iteration if the pending rows array is not yet full.
                         settings.chunk(pendingRows); // Pass the pending rows to the engine using the 'chunk' callback.
                         pendingRows = []; // Clear the pending rows array in preparation for the next batch of data.
@@ -245,7 +236,16 @@ const buildFolderItemConfig = (folderPath: string, name: string, childCount: num
 const buildObjectItemConfig = (folderPath: string, fullName: string, lastModifiedAt: number, size: number): ConnectionItemConfig => {
     const name = extractNameFromPath(fullName);
     const extension = extractExtensionFromPath(fullName);
-    return { folderPath, extension, label: fullName, lastModifiedAt, mimeType: lookupMimeTypeForExtension(extension), name, size, typeId: 'object' };
+    return {
+        folderPath,
+        extension,
+        label: fullName,
+        lastModifiedAt: convertMillisecondsToTimestamp(lastModifiedAt),
+        mimeType: lookupMimeTypeForExtension(extension),
+        name,
+        size,
+        typeId: 'object'
+    };
 };
 
 // Utilities - Construct Error and Tidy Up
