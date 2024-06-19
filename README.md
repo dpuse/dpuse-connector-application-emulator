@@ -4,8 +4,10 @@ A TypeScript library that implements the Application Emulator connector. Emulate
 
 ## Installation
 
+Use the git clone command to create a local copy.
+
 ```
-git clone ???
+git clone https://github.com/data-positioning/datapos-connector-application-emulator.git
 ```
 
 ## Uploading
