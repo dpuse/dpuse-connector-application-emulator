@@ -4,6 +4,12 @@ A TypeScript library that implements the Application Emulator connector. Emulate
 
 ## Installation
 
+```
+git clone ???
+```
+
+## Uploading
+
 The DataPos Operations library contains helper functions to upload connectors to the DataPos hosting platform. A developer account is required to access this functionality. Once uploaded, the DataPos engine will automatically retrieve the connector associated with a given connection at runtime.
 
 ## Repository Management Commands
