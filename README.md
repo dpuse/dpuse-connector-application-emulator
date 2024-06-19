@@ -14,7 +14,7 @@ The following list details the repository management commands implementation by 
 | ------------------ | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
 | audit              | alt+ctrl+shift+a | Audit the project's dependencies for known security vulnerabilities.                                                |
 | build              | alt+ctrl+shift+b | Type-check, compile and minify for production. Output in '/dist' directory.                                         |
-| bumpVersion        |                  | Increment the version number.                                                                                       |
+| bumpVersion        |                  | Increment the version number. Referenced by 'syncWithGitHub'.                                                       |
 | check              | alt+ctrl+shift+c | List the dependencies in the project that are outdated.                                                             |
 | deploy             | alt+ctrl+shift+d | NOT implemented.                                                                                                    |
 | document           | alt+ctrl+shift+o | Identify the licenses of the project's dependencies.                                                                |
