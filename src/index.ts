@@ -90,6 +90,9 @@ const preview = (
 
             // Fetch chunk from start of file.
             const url = `${URL_PREFIX}application${connectionItemConfig.folderPath}${connectionItemConfig.name}${connectionItemConfig.extension ? `.${connectionItemConfig.extension}` : ''}`;
+
+            console.log('url', url);
+
             const headers: HeadersInit = { Range: `bytes=0-${settings.chunkSize || DEFAULT_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
