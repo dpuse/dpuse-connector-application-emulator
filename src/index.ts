@@ -91,18 +91,22 @@ const preview = (
             // Fetch chunk from start of file.
             const url = `${URL_PREFIX}application${connectionItemConfig.folderPath}${connectionItemConfig.name}${connectionItemConfig.extension ? `.${connectionItemConfig.extension}` : ''}`;
 
-            console.log('url', url);
+            console.log(1111, url);
 
             const headers: HeadersInit = { Range: `bytes=0-${settings.chunkSize || DEFAULT_PREVIEW_CHUNK_SIZE}` };
             fetch(encodeURI(url), { headers, signal })
                 .then(async (response) => {
                     try {
                         if (response.ok) {
+                            const yyyy = await response.arrayBuffer();
+                            console.log(2222, yyyy);
                             connector.abortController = null;
-                            resolve({ result: { data: new Uint8Array(await response.arrayBuffer()), typeId: 'uint8Array' } });
+                            resolve({ result: { data: new Uint8Array(yyyy), typeId: 'uint8Array' } });
                         } else {
+                            const xxxx = await response.text();
+                            console.log(3333, xxxx);
                             const message = `Connector preview failed to fetch '${connectionItemConfig.name}' table. Response status ${response.status}${response.statusText ? ` - ${response.statusText}` : ''} received.`;
-                            const error = new FetchError(message, 'preview.5', undefined, { body: await response.text() });
+                            const error = new FetchError(message, 'preview.5', undefined, { body: xxxx });
                             reject(constructErrorAndTidyUp(connector, ERROR_PREVIEW_FAILED, 'preview.4', error));
                         }
                     } catch (error) {
