@@ -25,7 +25,7 @@ const DEFAULT_READ_CHUNK_SIZE = 1000;
 const ERROR_LIST_ITEMS_FAILED = 'Connector list items failed.';
 const ERROR_PREVIEW_FAILED = 'Connector preview failed.';
 const ERROR_READ_FAILED = 'Connector read failed.';
-const URL_PREFIX = 'https://datapos-resources.netlify.app/';
+const URL_PREFIX = 'resources.datapositioning.app/';
 
 // Classes - Application Emulator Connector
 export default class ApplicationEmulatorConnector implements Connector {
