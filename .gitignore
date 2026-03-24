@@ -1,4 +1,10 @@
-dist
+# Common git ignore configuration for PUBLISHED Data Positioning projects.
+dependency-check-bin
+dist-scripts
 node_modules
-*.local
+rust/*/pkg
+rust/*/target
+rust/target
+.env
+.npmrc
 **/.DS_Store

@@ -2,12 +2,12 @@
 import type { CastingContext } from 'csv-parse';
 
 // Dependencies - Framework
-import { AbortError, ConnectorError, FetchError } from '@datapos/datapos-share-core';
-import type { ConnectionConfig, ConnectionItemConfig, Connector, ConnectorCallbackData, ConnectorConfig, DataViewPreviewConfig, ReadRecord } from '@datapos/datapos-share-core';
-import { convertMillisecondsToTimestamp, extractExtensionFromPath, extractNameFromPath, lookupMimeTypeForExtension } from '@datapos/datapos-share-core';
-import type { ListResult, ListSettings } from '@datapos/datapos-share-core';
-import type { PreviewInterface, PreviewResult, PreviewSettings } from '@datapos/datapos-share-core';
-import type { ReadInterface, ReadSettings } from '@datapos/datapos-share-core';
+import { AbortError, ConnectorError, FetchError } from '@dpuse/dpuse-shared/errors';
+import type { ConnectionConfig, ConnectionItemConfig, Connector, ConnectorCallbackData, ConnectorConfig, DataViewPreviewConfig, ReadRecord } from '@dpuse/dpuse-shared';
+import { convertMillisecondsToTimestamp, extractExtensionFromPath, extractNameFromPath, lookupMimeTypeForExtension } from '@dpuse/dpuse-shared';
+import type { ListResult, ListSettings } from '@dpuse/dpuse-shared';
+import type { PreviewInterface, PreviewResult, PreviewSettings } from '@dpuse/dpuse-shared';
+import type { ReadInterface, ReadSettings } from '@dpuse/dpuse-shared';
 
 // Dependencies - Data
 import applicationIndex from './applicationIndex.json';

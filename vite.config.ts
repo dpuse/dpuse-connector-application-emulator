@@ -7,7 +7,7 @@ export default defineConfig({
     build: {
         lib: {
             entry: resolve('src/index.ts'),
-            name: 'DataPosApplicationEmulatorConnector',
+            name: 'DPUseApplicationEmulatorConnector',
             formats: ['es'],
             fileName: (format) => `${config.id}-${format}.js`
         },

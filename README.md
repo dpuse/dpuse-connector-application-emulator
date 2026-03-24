@@ -1,22 +1,22 @@
-# DataPos - Application Emulator Connector
+# DPUse - Application Emulator Connector
 
-A TypeScript library that implements the Application Emulator connector. Emulates a hypothetical application such as SAP SuccessFactors or Salesforce for demonstration, evaluation and testing purposes. It adheres the DataPos Connector interface.
+A TypeScript library that implements the Application Emulator connector. Emulates a hypothetical application such as SAP SuccessFactors or Salesforce for demonstration, evaluation and testing purposes. It adheres the DPUse Connector interface.
 
 ## Installation
 
 Use the git clone command to create a local copy.
 
 ```
-git clone https://github.com/data-positioning/datapos-connector-application-emulator.git
+git clone https://github.com/data-positioning/dpuse-connector-application-emulator.git
 ```
 
 ## Uploading
 
-The DataPos Operations library contains helper functions to upload connectors to the DataPos hosting platform. A developer account is required to access this functionality. Once uploaded, the DataPos engine will automatically retrieve the connector associated with a given connection at runtime.
+The DPUse Operations library contains helper functions to upload connectors to the DPUse hosting platform. A developer account is required to access this functionality. Once uploaded, the DPUse engine will automatically retrieve the connector associated with a given connection at runtime.
 
 ## Repository Management Commands
 
-The following list details the repository management commands implementation by this project. The commands are drawn from a common list of commands across all DataPos projects. For more details, please refer to the scripts section of the 'package.json' file in this project.
+The following list details the repository management commands implementation by this project. The commands are drawn from a common list of commands across all DPUse projects. For more details, please refer to the scripts section of the 'package.json' file in this project.
 
 | Name               | Key Code Trigger | Notes                                                                                                                                        |
 | ------------------ | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |

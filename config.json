@@ -1,0 +1,12 @@
+{
+    "id": "dpuse-connector-application-emulator",
+    "label": {
+        "en-gb": "Application Emulator Connector"
+    },
+    "description": {
+        "en-gb": "..."
+    },
+    "statusId": "alpha",
+    "typeId": "connector",
+    "version": "0.1.443"
+}
