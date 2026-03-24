@@ -3,14 +3,14 @@
     "license": "MIT",
     "private": false,
     "type": "module",
-    "version": "0.1.449",
+    "version": "0.1.450",
     "prettier": "@dpuse/dpuse-development/prettierrc",
-    "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.595"
-    },
     "peerDependencies": {
         "csv-parse": "^6.2.1",
         "nanoid": "^5.0.7"
+    },
+    "dependencies": {
+        "@dpuse/dpuse-shared": "^0.3.595"
     },
     "devDependencies": {
         "@dpuse/dpuse-development": "^0.3.481",

@@ -1,5 +1,10 @@
 # DPUse - Application Emulator Connector
 
+<span><!-- OWASP_BADGES_START -->
+[![OWASP](https://img.shields.io/badge/OWASP-passed-4CAF50)](https://dpuse.github.io/@dpuse/dpuse-connector-application-emulator/dependency-check-reports/dependency-check-report.html)
+
+<!-- OWASP_BADGES_END --></span>
+
 A TypeScript library that implements the Application Emulator connector. Emulates a hypothetical application such as SAP SuccessFactors or Salesforce for demonstration, evaluation and testing purposes. It adheres the DPUse Connector interface.
 
 ## Installation
@@ -40,3 +45,13 @@ The following list details the repository management commands implementation by 
 | updateShareCore    |                  | Referenced by 'updateDependencies'.                                                                                                          |
 | uploadConnector    |                  | Referenced by 'release'.                                                                                                                     |
 | uploadPresentor    |                  | NOT implemented.                                                                                                                             |
+
+<!-- DEPENDENCY_LICENSES_START -->
+
+| Name                | Type | Installed | Latest  | Latest Released        | Deps | Document                                                                     |
+| :------------------ | :--- | :-------: | :-----: | :--------------------- | ---: | :--------------------------------------------------------------------------- |
+| @dpuse/dpuse-shared | MIT  |  0.3.595  | 0.3.595 | this month: 2026-03-23 |    0 | [LICENSE](https://raw.githubusercontent.com/dpuse/dpuse-shared/main/LICENSE) |
+| csv-parse           | MIT  |   6.2.1   |  6.2.1  | this month: 2026-03-20 |    0 | [LICENSE](https://raw.githubusercontent.com/adaltas/node-csv/master/LICENSE) |
+| nanoid              | MIT  |   5.1.7   |  5.1.7  | this month: 2026-03-15 |    0 | [LICENSE](https://raw.githubusercontent.com/ai/nanoid/main/LICENSE)          |
+
+<!-- DEPENDENCY_LICENSES_END -->
