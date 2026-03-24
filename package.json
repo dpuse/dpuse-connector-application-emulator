@@ -1,9 +1,9 @@
 {
     "name": "dpuse-connector-application-emulator",
     "license": "MIT",
-    "private": true,
+    "private": false,
     "type": "module",
-    "version": "0.1.444",
+    "version": "0.1.448",
     "prettier": "@dpuse/dpuse-development/prettierrc",
     "peerDependencies": {
         "csv-parse": "^6.2.1",
