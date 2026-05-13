@@ -33,9 +33,6 @@ import type { Tool as RustCsvCoreTool } from '@dpuse/dpuse-tool-rust-csv-core';
 import config from '~/config.json';
 import fileStoreFolderPathData from '@/fileStoreFolderPaths.json';
 
-// TODO
-import { addNumbersWithRust, checksumWithRust } from '@/rustBridge';
-
 /**
  * File store folder paths.
  */
@@ -139,12 +136,6 @@ export class Connector implements ConnectorInterface {
             if (response.body == null) {
                 throw new ConnectorError('Readable streams are not supported in this runtime.', 'dpuse-connector-file-store-emulator|Connector|getReadableStream.unsupported');
             }
-
-            // TODO: Remove after testing.
-            const xxx = await addNumbersWithRust(12, 56);
-            const sum = await checksumWithRust(this.config.version);
-            console.log('sum', sum, xxx);
-
             return await Promise.resolve(response.body);
         } catch (error) {
             throw normalizeToError(error);

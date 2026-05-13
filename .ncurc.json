@@ -1,1 +1,1 @@
-{ "reject": ["eslint", "eslint-plugin-unicorn", "typescript"] }
+{ "reject": [] }
