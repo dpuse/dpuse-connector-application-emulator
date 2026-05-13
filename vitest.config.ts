@@ -1,0 +1,21 @@
+/**
+ * Vitest configuration.
+ */
+
+// Dependencies - Vendor.
+import { defineConfig } from 'vitest/config';
+import { resolve } from 'node:path';
+
+// Exposures - Configuration.
+export default defineConfig({
+    resolve: {
+        alias: {
+            '@': resolve(__dirname, './src')
+        }
+    },
+    test: {
+        globals: true,
+        include: ['tests/**/*.test.ts'],
+        environment: 'node'
+    }
+});

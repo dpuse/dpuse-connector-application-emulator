@@ -1,0 +1,66 @@
+{
+    "name": "@dpuse/dpuse-connector-application-emulator",
+    "version": "0.0.6",
+    "license": "MIT",
+    "author": "Jonathan Terrell <terrell.jm@gmail.com>",
+    "private": false,
+    "type": "module",
+    "homepage": "https://www.dpuse.app",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/dpuse/dpuse-connector-application-emulator.git"
+    },
+    "bugs": {
+        "url": "https://github.com/dpuse/dpuse-connector-application-emulator/issues"
+    },
+    "module": "./dist/dpuse-connector-application-emulator.es.js",
+    "types": "./dist/types/src/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/dpuse-connector-application-emulator.es.js",
+            "types": "./dist/types/src/index.d.ts"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "prettier": "@dpuse/dpuse-development/prettierrc",
+    "dependencies": {
+        "@dpuse/dpuse-shared": "^0.3.636",
+        "@dpuse/dpuse-tool-csv-parse": "^0.0.142",
+        "@dpuse/dpuse-tool-file-operators": "^0.0.17",
+        "nanoid": "^5.1.9"
+    },
+    "devDependencies": {
+        "@dpuse/dpuse-development": "^0.3.491",
+        "@types/node": "^25.6.0",
+        "@typescript-eslint/eslint-plugin": "^8.58.2",
+        "@typescript-eslint/parser": "^8.58.2",
+        "jiti": "^2.6.1",
+        "license-downloader": "^1.3.3",
+        "license-report": "^6.8.2",
+        "license-report-check": "^1.0.0",
+        "license-report-recursive": "^6.8.4",
+        "npm-check-updates": "^21.0.2",
+        "owasp-dependency-check": "^1.0.1",
+        "prettier": "^3.8.3",
+        "rollup-plugin-visualizer": "^7.0.1",
+        "sonda": "^0.11.1",
+        "typescript": "^5.9.3",
+        "vite": "^8.0.9",
+        "vite-plugin-dts": "^4.5.4",
+        "vitest": "^4.1.4"
+    },
+    "scripts": {
+        "audit": "op run --env-file=.env -- node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
+        "build": "node -e \"import('@dpuse/dpuse-development').then(m => m.buildProject())\"",
+        "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkDependencies())\"",
+        "document": "op run --env-file=.env -- node -e \"import('@dpuse/dpuse-development').then(m => m.documentDependencies(['MIT']))\"",
+        "format": "node -e \"import('@dpuse/dpuse-development').then(m => m.formatCode())\"",
+        "lint": "node -e \"import('@dpuse/dpuse-development').then(m => m.lintCode())\"",
+        "release": "op run --env-file=.env -- node -e \"import('@dpuse/dpuse-development').then(m => m.releaseProject())\"",
+        "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\"",
+        "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\"",
+        "update": "node -e \"import('@dpuse/dpuse-development').then(m => m.updateDPUseDependencies(['development', 'eslint', 'shared']))\""
+    }
+}
