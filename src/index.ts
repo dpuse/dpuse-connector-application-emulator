@@ -3,12 +3,12 @@ import { nanoid } from 'nanoid';
 
 // DPUse Framework
 import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
-import type { EngineUtilities } from '@dpuse/dpuse-shared/engine';
 import type {
     AuditObjectContentOptions,
     AuditObjectContentResult,
     ConnectorConfig,
     ConnectorInterface,
+    ConnectorUtilities,
     FindObjectOptions,
     FindObjectResult,
     GetReadableStreamOptions,
@@ -30,37 +30,37 @@ import type { Tool as FileOperatorsTool } from '@dpuse/dpuse-tool-file-operators
 import type { Tool as RustCsvCoreTool } from '@dpuse/dpuse-tool-rust-csv-core';
 
 // Data
+import applicationFolderPathData from '@/applicationIndex.json';
 import config from '~/config.json';
-import fileStoreFolderPathData from '@/fileStoreFolderPaths.json';
 
 /**
  * File store folder paths.
  */
-type FileStoreFolderNode =
+type ApplicationFolderNode =
     | ({ typeId: 'folder'; childCount: number } & { name: string })
     | ({ typeId: 'object'; id: string; lastModifiedAt: number; size: number } & { name: string });
 
 /**
  * File store folder paths.
  */
-type FileStoreFolderPaths = Record<string, FileStoreFolderNode[]>;
+type ApplicationFolderPaths = Record<string, ApplicationFolderNode[]>;
 
 /**
  * Cloudflare R2 file store directory prefix.
  */
-const URL_PREFIX = 'https://sample-data-eu.dpuse.app/fileStore';
+const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
 
 // Connectors
 export class Connector implements ConnectorInterface {
     abortController: AbortController | undefined;
     readonly config: ConnectorConfig;
-    engineUtilities: EngineUtilities;
+    connectorUtilities: ConnectorUtilities;
     readonly toolConfigs;
 
-    constructor(engineUtilities: EngineUtilities, toolConfigs: ToolConfig[]) {
+    constructor(connectorUtilities: ConnectorUtilities, toolConfigs: ToolConfig[]) {
         this.abortController = undefined;
         this.config = config as ConnectorConfig;
-        this.engineUtilities = engineUtilities;
+        this.connectorUtilities = connectorUtilities;
         this.toolConfigs = toolConfigs;
     }
 
@@ -111,7 +111,7 @@ export class Connector implements ConnectorInterface {
 
     // Find the folder path containing the specified object node
     findObject(options: FindObjectOptions): Promise<FindObjectResult> {
-        const fileStoreFolderPaths = fileStoreFolderPathData as FileStoreFolderPaths;
+        const fileStoreFolderPaths = applicationFolderPathData as ApplicationFolderPaths;
         // Loop through the folder path data checking for an object entry with an identifier equal to the object name.
         for (const folderPath in fileStoreFolderPaths) {
             if (Object.hasOwn(fileStoreFolderPaths, folderPath)) {
@@ -146,7 +146,7 @@ export class Connector implements ConnectorInterface {
 
     // Lists all nodes (folders and objects) in the specified folder path
     listNodes(options: ListNodesOptions): Promise<ListNodesResult> {
-        const fileStoreFolderPaths = fileStoreFolderPathData as FileStoreFolderPaths;
+        const fileStoreFolderPaths = applicationFolderPathData as ApplicationFolderPaths;
         const folderNodes = fileStoreFolderPaths[options.folderPath] ?? [];
         const connectionNodeConfigs: ConnectionNodeConfig[] = [];
         for (const folderNode of folderNodes) {
@@ -179,7 +179,7 @@ export class Connector implements ConnectorInterface {
             const parseTextResult = await csvParseTool.parseText(filePreviewResult.text, ORDERED_VALUE_DELIMITER_IDS);
 
             // Infer and cast values for each parsed record.
-            const inferenceSummary = this.engineUtilities.inferDataTypes(parseTextResult.parsedRecords);
+            const inferenceSummary = this.connectorUtilities.inferDataTypes(parseTextResult.parsedRecords);
 
             return {
                 asAt,
@@ -196,7 +196,7 @@ export class Connector implements ConnectorInterface {
                 size: filePreviewResult.bytes.length,
                 text: filePreviewResult.text,
                 valueDelimiterId: parseTextResult.valueDelimiterId
-            } as PreviewConfig;
+            };
         } catch (error) {
             throw normalizeToError(error);
         } finally {
