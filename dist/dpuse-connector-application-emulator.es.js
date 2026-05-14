@@ -139,8 +139,8 @@ var h = [
 	}]
 }, _ = {
 	id: "dpuse-connector-application-emulator",
-	label: { en: "File Store Emulator" },
-	description: { en: "Imitates a cloud-based file storage solution. It hosts a read-only set of files for demonstration, evaluation and testing purposes and is freely available to all users." },
+	label: { en: "Application Emulator" },
+	description: { en: "Imitates a hypothetical application database. It provides a read-only set of tables for demonstration, evaluation and testing purposes and is freely available to all users." },
 	category: null,
 	categoryId: "fileStore",
 	firstCreatedAt: null,
@@ -168,7 +168,7 @@ var h = [
 	vendorAccountURL: null,
 	vendorDocumentationURL: null,
 	vendorHomeURL: null,
-	version: "0.0.8"
+	version: "0.0.9"
 }, v = "https://sample-data-eu.dpuse.app/application", y = class {
 	abortController;
 	config;

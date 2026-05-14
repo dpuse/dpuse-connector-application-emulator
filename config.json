@@ -1,10 +1,10 @@
 {
     "id": "dpuse-connector-application-emulator",
     "label": {
-        "en": "File Store Emulator"
+        "en": "Application Emulator"
     },
     "description": {
-        "en": "Imitates a cloud-based file storage solution. It hosts a read-only set of files for demonstration, evaluation and testing purposes and is freely available to all users."
+        "en": "Imitates a hypothetical application database. It provides a read-only set of tables for demonstration, evaluation and testing purposes and is freely available to all users."
     },
     "category": null,
     "categoryId": "fileStore",
@@ -35,5 +35,5 @@
     "vendorAccountURL": null,
     "vendorDocumentationURL": null,
     "vendorHomeURL": null,
-    "version": "0.0.8"
+    "version": "0.0.9"
 }
