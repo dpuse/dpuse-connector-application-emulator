@@ -140,7 +140,7 @@ var h = [
 }, _ = {
 	id: "dpuse-connector-application-emulator",
 	label: { en: "Application Emulator" },
-	description: { en: "This connector provides access to a sample set of read-only application data simulating a hypothetical application database. It is intended for demonstration, evaluation, and testing and is freely available to all users. Since no authentication is required, it supports only a single connection." },
+	description: { en: "Provides access to a sample set of read-only application data simulating a hypothetical application database. It is intended for demonstration, evaluation, and testing and is freely available to all users. Since no authentication is required, it supports only a single connection." },
 	category: null,
 	categoryId: "application",
 	firstCreatedAt: null,
@@ -168,7 +168,7 @@ var h = [
 	vendorAccountURL: null,
 	vendorDocumentationURL: null,
 	vendorHomeURL: null,
-	version: "0.0.11"
+	version: "0.0.12"
 }, v = "https://sample-data-eu.dpuse.app/application", y = class {
 	abortController;
 	config;
