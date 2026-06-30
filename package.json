@@ -1,17 +1,19 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "0.0.14",
+    "version": "0.0.16",
+    "private": false,
+    "description": "",
     "license": "MIT",
     "author": "Jonathan Terrell <terrell.jm@gmail.com>",
-    "private": false,
     "type": "module",
+    "sideEffects": false,
     "homepage": "https://www.dpuse.app",
+    "bugs": {
+        "url": "https://github.com/dpuse/dpuse-connector-application-emulator/issues"
+    },
     "repository": {
         "type": "git",
         "url": "git+https://github.com/dpuse/dpuse-connector-application-emulator.git"
-    },
-    "bugs": {
-        "url": "https://github.com/dpuse/dpuse-connector-application-emulator/issues"
     },
     "module": "./dist/dpuse-connector-application-emulator.es.js",
     "types": "./dist/types/src/index.d.ts",
@@ -24,52 +26,60 @@
     "files": [
         "dist"
     ],
-    "prettier": "@dpuse/dpuse-development/prettierrc",
-    "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.668",
-        "@dpuse/dpuse-tool-csv-parse": "^0.0.143",
-        "@dpuse/dpuse-tool-file-operators": "^0.0.24",
-        "@dpuse/dpuse-tool-rust-csv-core": "^0.1.21",
-        "nanoid": "^5.1.11"
+    "engines": {
+        "node": ">=22",
+        "npm": ">=11"
     },
-    "devDependencies": {
-        "@dpuse/dpuse-development": "^0.3.500",
-        "@dpuse/eslint-config-dpuse": "^1.0.69",
-        "@types/node": "^25.7.0",
-        "@typescript-eslint/eslint-plugin": "^8.59.3",
-        "@typescript-eslint/parser": "^8.59.3",
-        "eslint": "^10.3.0",
-        "eslint-import-resolver-typescript": "^4.4.4",
-        "eslint-plugin-import-x": "^4.16.2",
-        "eslint-plugin-security": "^4.0.0",
-        "eslint-plugin-sonarjs": "^4.0.3",
-        "eslint-plugin-unicorn": "^64.0.0",
-        "jiti": "^2.7.0",
-        "license-downloader": "^2.0.0",
-        "license-report": "^6.8.2",
-        "license-report-check": "^1.0.0",
-        "license-report-recursive": "^6.8.4",
-        "npm-check-updates": "^22.2.0",
-        "owasp-dependency-check": "^1.0.1",
-        "prettier": "^3.8.3",
-        "rollup-plugin-visualizer": "^7.0.1",
-        "sonda": "^0.11.1",
-        "typescript": "^6.0.3",
-        "vite": "^8.0.13",
-        "vite-plugin-dts": "^5.0.0",
-        "vitest": "^4.1.6",
-        "wrangler": "^4.103.0"
+    "prettier": "@dpuse/dpuse-development/prettierrc",
+    "allowScripts": {
+        "esbuild@0.28.1": true,
+        "fsevents@2.3.3": true,
+        "sharp@0.34.5": true,
+        "unrs-resolver@1.11.1": true,
+        "workerd@1.20260625.1": true
     },
     "scripts": {
-        "audit": "op run --env-file=.env -- node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
-        "build": "node -e \"import('@dpuse/dpuse-development').then(m => m.buildProject())\"",
+        "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
+        "build": "node -e \"import('@dpuse/dpuse-development').then(m => m.buildProject())\" && node -e \"import('@dpuse/dpuse-development').then(m => m.documentBundleSizes())\"",
         "check": "node -e \"import('@dpuse/dpuse-development').then(m => m.checkDependencies())\"",
-        "document": "op run --env-file=.env -- node -e \"import('@dpuse/dpuse-development').then(m => m.documentDependencies(['MIT']))\"",
+        "document": "node -e \"import('@dpuse/dpuse-development').then(m => m.documentDependencies(['MIT']))\"",
         "format": "node -e \"import('@dpuse/dpuse-development').then(m => m.formatCode())\"",
         "lint": "node -e \"import('@dpuse/dpuse-development').then(m => m.lintCode())\"",
         "release": "op run --env-file=.env -- node -e \"import('@dpuse/dpuse-development').then(m => m.releaseProject())\"",
         "sync": "node -e \"import('@dpuse/dpuse-development').then(m => m.syncProjectWithGitHub())\"",
-        "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\"",
-        "update": "node -e \"import('@dpuse/dpuse-development').then(m => m.updateDPUseDependencies(['development', 'eslint', 'shared']))\""
+        "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
+    },
+    "dependencies": {
+        "@dpuse/dpuse-shared": "^0.3.719",
+        "@dpuse/dpuse-tool-csv-parse": "^0.0.143",
+        "@dpuse/dpuse-tool-file-operators": "^0.0.24",
+        "@dpuse/dpuse-tool-rust-csv-core": "^0.1.21",
+        "nanoid": "^5.1.16"
+    },
+    "devDependencies": {
+        "@dpuse/dpuse-development": "^0.3.600",
+        "@eslint-community/eslint-plugin-eslint-comments": "^4.7.2",
+        "@types/eslint-plugin-security": "^3.0.1",
+        "@types/node": "^26.0.1",
+        "eslint": "^10.6.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-import-resolver-typescript": "^4.4.5",
+        "eslint-plugin-import-x": "^4.17.1",
+        "eslint-plugin-regexp": "^3.1.1",
+        "eslint-plugin-security": "^4.0.1",
+        "eslint-plugin-sonarjs": "^4.1.0",
+        "eslint-plugin-unicorn": "^69.0.0",
+        "jiti": "^2.7.0",
+        "license-checker-rseidelsohn": "^5.0.1",
+        "npm-check-updates": "^22.2.9",
+        "prettier": "^3.9.4",
+        "rollup-plugin-visualizer": "^7.0.1",
+        "sonda": "^0.13.1",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.62.1",
+        "vite": "^8.1.0",
+        "vite-plugin-dts": "^5.0.3",
+        "vitest": "^4.1.9",
+        "wrangler": "^4.105.0"
     }
 }
