@@ -15,7 +15,7 @@ import type {
     ListNodesOptions,
     ListNodesResult,
     PreviewObjectOptions,
-    RetrievalTypeId,
+    RecordRetrievalTypeId,
     RetrieveRecordsOptions,
     RetrieveRecordsSummary
 } from '@dpuse/dpuse-shared/component/module/connector';
@@ -36,6 +36,7 @@ import config from '~/config.json';
 /**
  * File store folder paths.
  */
+// eslint-disable-next-line unicorn/name-replacements -- Prefer ApplicationFolderNode to AppFolderNode
 type ApplicationFolderNode =
     | ({ typeId: 'folder'; childCount: number } & { name: string })
     | ({ typeId: 'object'; id: string; lastModifiedAt: number; size: number } & { name: string });
@@ -43,6 +44,7 @@ type ApplicationFolderNode =
 /**
  * File store folder paths.
  */
+// eslint-disable-next-line unicorn/name-replacements -- Prefer ApplicationFolderPath to AppFolderPath.
 type ApplicationFolderPaths = Record<string, ApplicationFolderNode[]>;
 
 /**
@@ -97,7 +99,9 @@ export class Connector implements ConnectorInterface {
             const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'csv-parse');
             const parseStreamOptions = { delimiter: options.valueDelimiterId, relax_column_count: true, relax_quotes: true };
             const url = `${URL_PREFIX}${options.path}`;
-            const summary = await csvParseTool.parseStream(options, parseStreamOptions, url, this.abortController, (parameter) => console.log(parameter));
+            const summary = await csvParseTool.parseStream(options, parseStreamOptions, url, this.abortController, (parameter) => {
+                console.log(parameter);
+            });
             console.log('summary', summary);
             // complete(summary);
 
@@ -114,11 +118,11 @@ export class Connector implements ConnectorInterface {
         const fileStoreFolderPaths = applicationFolderPathData as ApplicationFolderPaths;
         // Loop through the folder path data checking for an object entry with an identifier equal to the object name.
         for (const folderPath in fileStoreFolderPaths) {
-            if (Object.hasOwn(fileStoreFolderPaths, folderPath)) {
-                const folderPathNodes = fileStoreFolderPaths[folderPath];
-                const folderPathNode = folderPathNodes?.find((folderPathNode) => folderPathNode.typeId === 'object' && folderPathNode.id === options.nodeId);
-                if (folderPathNode) return Promise.resolve({ path: folderPath, object: undefined }); // Found, return folder path.
-            }
+            if (!Object.hasOwn(fileStoreFolderPaths, folderPath)) continue;
+
+            const folderPathNodes = fileStoreFolderPaths[folderPath];
+            const folderPathNode = folderPathNodes?.find((folderPathNode) => folderPathNode.typeId === 'object' && folderPathNode.id === options.nodeId);
+            if (folderPathNode) return Promise.resolve({ path: folderPath, object: undefined }); // Found, return folder path.
         }
         return Promise.reject(new Error('Not found.')); // Not found.
     }
@@ -206,7 +210,7 @@ export class Connector implements ConnectorInterface {
     // Retrieves all records from a CSV object node using streaming and chunked processing
     async retrieveRecords(
         options: RetrieveRecordsOptions,
-        chunk: (typeId: RetrievalTypeId, records: ParsingRecord[]) => void,
+        chunk: (typeId: RecordRetrievalTypeId, records: ParsingRecord[]) => void,
         complete: (result: RetrieveRecordsSummary) => void
     ): Promise<void> {
         this.abortController = new AbortController();

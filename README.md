@@ -52,6 +52,27 @@ The Bundle Analysis Report provides a detailed breakdown of the bundle's composi
 
 [View the Bundle Analysis Report](https://dpuse.github.io/dpuse-connector-application-emulator/stats/index.html)
 
+<!-- BUNDLE_START -->
+
+|Chunk/Module/File|Composition|
+|:------ |:-----------|
+| dpuse-connector-application-emulator.es.js | 11.4 kB · gz 3.7 kB · br 3.2 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;src | `███████████████░░░░░` 72.8% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.ts | `█████████░░░░░░░░░░░` 43.9% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;config.json | `█████░░░░░░░░░░░░░░░` 22.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;applicationIndex.json | `█░░░░░░░░░░░░░░░░░░░` 6.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared | `█████░░░░░░░░░░░░░░░` 24.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-errors.es.js | `██░░░░░░░░░░░░░░░░░░` 11.3% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-utilities.es.js | `█░░░░░░░░░░░░░░░░░░░` 5.0% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentDataView.es.js | `█░░░░░░░░░░░░░░░░░░░` 4.5% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleTool.es.js | `█░░░░░░░░░░░░░░░░░░░` 2.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-locale.es.js | `░░░░░░░░░░░░░░░░░░░░` 1.0% |
+| &nbsp;&nbsp;&nbsp;&nbsp;nanoid | `█░░░░░░░░░░░░░░░░░░░` 2.7% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.browser.js | `░░░░░░░░░░░░░░░░░░░░` 1.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;url-alphabet/index.js | `░░░░░░░░░░░░░░░░░░░░` 1.1% |
+
+<!-- BUNDLE_END -->
+
 ## Repository Management Commands
 
 The following list details the repository management commands implementation by this project. For more details, please refer to the scripts section of the 'package.json' file in this project.
