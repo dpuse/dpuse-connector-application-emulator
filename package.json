@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "0.0.20",
+    "version": "0.0.21",
     "private": false,
     "description": "",
     "license": "MIT",
@@ -50,17 +50,17 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.719",
+        "@dpuse/dpuse-shared": "^0.3.727",
         "@dpuse/dpuse-tool-csv-parse": "^0.0.143",
-        "@dpuse/dpuse-tool-file-operators": "^0.0.30",
+        "@dpuse/dpuse-tool-file-operators": "^0.0.33",
         "@dpuse/dpuse-tool-rust-csv-core": "^0.1.21",
         "nanoid": "^5.1.16"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^0.3.606",
+        "@dpuse/dpuse-development": "^0.3.625",
         "@eslint-community/eslint-plugin-eslint-comments": "^4.7.2",
         "@types/eslint-plugin-security": "^3.0.1",
-        "@types/node": "^26.0.1",
+        "@types/node": "^26.1.0",
         "eslint": "^10.6.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-import-resolver-typescript": "^4.4.5",
