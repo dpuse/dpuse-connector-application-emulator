@@ -170,7 +170,7 @@ var m = {
 	vendorAccountURL: null,
 	vendorDocumentationURL: null,
 	vendorHomeURL: null,
-	version: "0.0.19",
+	version: "0.0.22",
 	operations: [
 		"abortOperation",
 		"auditObjectContent",
