@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "0.0.25",
+    "version": "0.0.26",
     "private": false,
     "description": "",
     "license": "MIT",
@@ -57,7 +57,7 @@
         "nanoid": "^5.1.16"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^0.3.646",
+        "@dpuse/dpuse-development": "^0.3.647",
         "@dpuse/eslint-config-dpuse": "^1.0.95",
         "@types/node": "^26.1.0",
         "eslint": "^10.6.0",
