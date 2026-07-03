@@ -37,7 +37,7 @@
     "vendorAccountURL": null,
     "vendorDocumentationURL": null,
     "vendorHomeURL": null,
-    "version": "0.0.23",
+    "version": "0.0.24",
     "operations": [
         "abortOperation",
         "auditObjectContent",
