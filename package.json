@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "0.0.27",
+    "version": "0.0.28",
     "private": false,
     "description": "",
     "license": "MIT",
@@ -52,13 +52,13 @@
     "dependencies": {
         "@dpuse/dpuse-shared": "^0.3.729",
         "@dpuse/dpuse-tool-csv-parse": "^0.0.143",
-        "@dpuse/dpuse-tool-file-operators": "^0.0.41",
+        "@dpuse/dpuse-tool-file-operators": "^0.0.45",
         "@dpuse/dpuse-tool-rust-csv-core": "^0.1.21",
         "nanoid": "^5.1.16"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^0.3.647",
-        "@dpuse/eslint-config-dpuse": "^1.0.98",
+        "@dpuse/dpuse-development": "^0.3.652",
+        "@dpuse/eslint-config-dpuse": "^1.0.101",
         "@types/node": "^26.1.0",
         "eslint": "^10.6.0",
         "prettier": "^3.9.4",
