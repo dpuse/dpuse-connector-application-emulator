@@ -5,8 +5,7 @@
     },
     "description": {
         "en": [
-            "Provides access to a sample set of read-only application data simulating a hypothetical application. It is intended for demonstration, evaluation, and testing and is freely available to all users.",
-            "It emulates services such as Google Drive, Dropbox, and Microsoft OneDrive."
+            "The Application Emulator Connector is a read-only connector that provides access to a sample dataset simulating a hypothetical application such as Salesforce or SAP. It is intended for demonstration, evaluation, and testing, and is freely available to all users."
         ]
     },
     "actionNames": [
@@ -36,5 +35,5 @@
     "vendorAccountURL": null,
     "vendorDocumentationURL": null,
     "vendorHomeURL": null,
-    "version": "0.0.31"
+    "version": "0.0.32"
 }

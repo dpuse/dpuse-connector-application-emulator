@@ -1,10 +1,10 @@
 {
-  "version": "0.0.19",
+  "version": "0.0.31",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-shared": {
-      "version": "0.3.719",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-0.3.719.tgz",
+      "version": "0.3.737",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-0.3.737.tgz",
       "overridden": false
     },
     "@dpuse/dpuse-tool-csv-parse": {
@@ -13,7 +13,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "0.3.719"
+          "version": "0.3.737"
         },
         "csv-parse": {
           "version": "6.2.1",
@@ -23,12 +23,12 @@
       }
     },
     "@dpuse/dpuse-tool-file-operators": {
-      "version": "0.0.30",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-operators/-/dpuse-tool-file-operators-0.0.30.tgz",
+      "version": "0.0.45",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-operators/-/dpuse-tool-file-operators-0.0.45.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "0.3.719"
+          "version": "0.3.737"
         },
         "chardet": {
           "version": "2.2.0",
@@ -109,7 +109,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "0.3.719"
+          "version": "0.3.737"
         }
       }
     },
