@@ -1,7 +1,7 @@
-// External Dependencies
+// ── External Dependencies
 import { nanoid } from 'nanoid';
 
-// DPUse Framework
+// ── DPUse Framework
 import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import type {
     AuditObjectContentOptions,
@@ -24,12 +24,12 @@ import { extractExtensionFromPath, extractNameFromPath, lookupMimeTypeForExtensi
 import { loadTool, type ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
 import { ORDERED_VALUE_DELIMITER_IDS, type ParsingRecord, type PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
 
-// DPUse Tools
+// ── DPUse Tools
 import type { Tool as CSVParseTool } from '@dpuse/dpuse-tool-csv-parse';
 import type { Tool as FileOperatorsTool } from '@dpuse/dpuse-tool-file-operators';
 import type { Tool as RustCsvCoreTool } from '@dpuse/dpuse-tool-rust-csv-core';
 
-// Data
+// ── Data
 import applicationFolderPathData from '@/applicationIndex.json';
 import config from '~/config.json';
 
@@ -38,8 +38,7 @@ import config from '~/config.json';
  */
 // eslint-disable-next-line unicorn/name-replacements -- Prefer ApplicationFolderNode to AppFolderNode
 type ApplicationFolderNode =
-    | ({ typeId: 'folder'; childCount: number } & { name: string })
-    | ({ typeId: 'object'; id: string; lastModifiedAt: number; size: number } & { name: string });
+    ({ typeId: 'folder'; childCount: number } & { name: string }) | ({ typeId: 'object'; id: string; lastModifiedAt: number; size: number } & { name: string });
 
 /**
  * File store folder paths.
@@ -66,7 +65,7 @@ export class Connector implements ConnectorInterface {
         this.toolConfigs = toolConfigs;
     }
 
-    // Operations ──────────────────────────────────────────────────────────────────────────────────────────────────────
+    // ── Operations ───────────────────────────────────────────────────────────────────────────────────────────────────
 
     // Abort the currently running operation
     abortOperation(): void {
@@ -228,7 +227,7 @@ export class Connector implements ConnectorInterface {
     }
 }
 
-// Helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Construct folder node configuration.
 function constructFolderNodeConfig(folderPath: string, name: string, childCount: number): ConnectionNodeConfig {
