@@ -32,8 +32,10 @@
     "status": null,
     "statusId": "beta",
     "typeId": "connector",
+    "usage": null,
+    "usageId": "source",
     "vendorAccountURL": null,
     "vendorDocumentationURL": null,
     "vendorHomeURL": null,
-    "version": "0.0.38"
+    "version": "0.0.39"
 }
