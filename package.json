@@ -64,7 +64,7 @@
         "nanoid": "^5.1.16"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^0.3.684",
+        "@dpuse/dpuse-development": "^0.3.690",
         "@dpuse/eslint-config-dpuse": "^1.0.108",
         "@types/node": "^26.1.1",
         "eslint": "^10.6.0",
