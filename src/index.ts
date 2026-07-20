@@ -29,7 +29,7 @@ import type { Tool as CSVParseTool } from '@dpuse/dpuse-tool-csv-parse';
 import type { Tool as FileOperatorsTool } from '@dpuse/dpuse-tool-file-operators';
 import type { Tool as RustCsvCoreTool } from '@dpuse/dpuse-tool-rust-csv-core';
 
-// ── Data
+// ── Data˘
 import applicationFolderPathData from '@/applicationIndex.json';
 import config from '~/config.json';
 

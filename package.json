@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "0.0.41",
+    "version": "0.0.42",
     "private": false,
     "description": "Provides read-only sample data simulating an application such as Salesforce or SAP.",
     "license": "MIT",
@@ -36,7 +36,7 @@
         "fsevents@2.3.3": true,
         "sharp@0.34.5": true,
         "unrs-resolver@1.11.1": true,
-        "workerd@1.20260706.1": true
+        "workerd@1.20260714.1": true
     },
     "scripts": {
         "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
@@ -57,23 +57,23 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.737",
-        "@dpuse/dpuse-tool-csv-parse": "^0.0.143",
-        "@dpuse/dpuse-tool-file-operators": "^0.0.45",
-        "@dpuse/dpuse-tool-rust-csv-core": "^0.1.21",
-        "nanoid": "^5.1.16"
+        "@dpuse/dpuse-shared": "^0.3.747",
+        "@dpuse/dpuse-tool-csv-parse": "^0.0.148",
+        "@dpuse/dpuse-tool-file-operators": "^0.0.53",
+        "@dpuse/dpuse-tool-rust-csv-core": "^0.1.26",
+        "nanoid": "^6.0.0"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^0.3.684",
-        "@dpuse/eslint-config-dpuse": "^1.0.108",
+        "@dpuse/dpuse-development": "^0.3.690",
+        "@dpuse/eslint-config-dpuse": "^1.0.113",
         "@types/node": "^26.1.1",
-        "eslint": "^10.6.0",
-        "prettier": "^3.9.4",
+        "eslint": "^10.7.0",
+        "prettier": "^3.9.5",
         "sonda": "^0.14.0",
-        "typescript": "^6.0.3",
-        "vite": "^8.1.3",
+        "typescript": "^7.0.2",
+        "vite": "^8.1.5",
         "vite-plugin-dts": "^5.0.3",
         "vitest": "^4.1.10",
-        "wrangler": "^4.108.0"
+        "wrangler": "^4.112.0"
     }
 }
