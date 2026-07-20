@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "0.0.43",
+    "version": "0.0.44",
     "private": false,
     "description": "Provides read-only sample data simulating an application such as Salesforce or SAP.",
     "license": "MIT",
@@ -70,7 +70,7 @@
         "eslint": "^10.7.0",
         "prettier": "^3.9.5",
         "sonda": "^0.14.0",
-        "typescript": "^7.0.2",
+        "typescript": "^6.0.3",
         "vite": "^8.1.5",
         "vite-plugin-dts": "^5.0.3",
         "vitest": "^4.1.10",
