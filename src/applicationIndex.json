@@ -1,12 +1,10 @@
 {
     "": [
-        { "childCount": 1, "name": "humanResources", "typeId": "folder" },
-        { "id": "GGxX3yzmdW8_7G_MSwyi5", "lastModifiedAt": 1774197102385.2441, "name": "organisations.csv", "size": 72, "typeId": "object" },
-        { "id": "14xGczulW60Z5vLEVVyZy", "lastModifiedAt": 1774197102385.3625, "name": "people.csv", "size": 72320, "typeId": "object" }
+        { "childCount": 1, "name": "hr", "typeId": "folder" },
+        { "id": "1aQFl9vnAFyw-alk9PzQo", "lastModifiedAt": 1784710155746.4736, "name": "locations.csv", "size": 778, "typeId": "object" },
+        { "id": "NDj4FOOntnZxHCaz0b4nh", "lastModifiedAt": 1784709377538.4497, "name": "organisations.csv", "size": 61, "typeId": "object" },
+        { "id": "Z0BWvSy-BT7AJCXMrufMg", "lastModifiedAt": 1784710155744.9368, "name": "people.csv", "size": 1941943, "typeId": "object" }
     ],
-    "/humanResources": [{ "childCount": 2, "name": "workforce", "typeId": "folder" }],
-    "/humanResources/workforce": [
-        { "id": "XJgBt7TVnPf8l7-vArbui", "lastModifiedAt": 1774197102385.1426, "name": "empty.csv", "size": 0, "typeId": "object" },
-        { "id": "_d5Au6rZg-0KlXPhkU0qj", "lastModifiedAt": 1774197102385.1821, "name": "engagements.csv", "size": 0, "typeId": "object" }
-    ]
+    "/hr": [{ "childCount": 1, "name": "workforce", "typeId": "folder" }],
+    "/hr/workforce": [{ "id": "khIHY0fayGnfj1aieZT0g", "lastModifiedAt": 1784710155746.209, "name": "engagements.csv", "size": 1358065, "typeId": "object" }]
 }
