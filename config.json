@@ -1,7 +1,7 @@
 {
     "id": "dpuse-connector-application-emulator",
     "label": {
-        "en": "DPUse Application Emulator"
+        "en": "Application Emulator"
     },
     "description": {
         "en": [
@@ -37,5 +37,5 @@
     "vendorAccountURL": null,
     "vendorDocumentationURL": null,
     "vendorHomeURL": null,
-    "version": "0.0.47"
+    "version": "0.0.48"
 }
