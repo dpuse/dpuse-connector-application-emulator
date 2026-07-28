@@ -57,7 +57,7 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^0.3.748",
+        "@dpuse/dpuse-shared": "^0.3.758",
         "@dpuse/dpuse-tool-csv-parse": "^0.0.151",
         "@dpuse/dpuse-tool-file-operators": "^0.0.56",
         "@dpuse/dpuse-tool-rust-csv-core": "^0.1.36",
