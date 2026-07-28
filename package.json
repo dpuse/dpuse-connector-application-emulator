@@ -74,6 +74,6 @@
         "vite": "^8.1.5",
         "vite-plugin-dts": "^5.0.3",
         "vitest": "^4.1.10",
-        "wrangler": "^4.113.0"
+        "wrangler": "^4.114.0"
     }
 }
