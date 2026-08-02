@@ -26,7 +26,7 @@ import { ORDERED_VALUE_DELIMITER_IDS, type ParsingRecord, type PreviewConfig } f
 
 // ── DPUse Tools
 import type { Tool as CSVParseTool } from '@dpuse/dpuse-tool-adaltas-csv-parser';
-import type { Tool as FileOperatorsTool } from '@dpuse/dpuse-tool-file-operators';
+import type { Tool as FileOperatorsTool } from '@dpuse/dpuse-tool-file-previewer';
 import type { Tool as RustCsvCoreTool } from '@dpuse/dpuse-tool-rust-csv-core';
 
 // ── Data˘

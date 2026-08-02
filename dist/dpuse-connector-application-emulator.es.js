@@ -172,7 +172,7 @@ var m = {
 	vendorAccountURL: null,
 	vendorDocumentationURL: null,
 	vendorHomeURL: null,
-	version: "0.0.50"
+	version: "0.0.54"
 }, g = "https://sample-data-eu.dpuse.app/application", _ = class {
 	abortController;
 	config;
