@@ -28,22 +28,23 @@ Connectors conform to a unified interface contract by implementing a specific su
 
 This connector is a Source connector that supports only read actions. Connectors can also function as a Destination (write-only) or Bidirectional (read/write), depending on the actions they support. The table below lists all connector actions and highlights those supported by this connector.
 
-| Action               | Supported |
-| :------------------- | :-------: |
-| Abort Operation      |     ✓     |
-| Audit Object Content |     ✓     |
-| Create Object        |           |
-| Describe Connection  |           |
-| Drop Object          |           |
-| Find Object          |     ✓     |
-| Get Readable Stream  |     ✓     |
-| Get Record           |           |
-| List Nodes           |     ✓     |
-| Preview Object       |     ✓     |
-| Remove Records       |           |
-| Retrieve Chunks      |           |
-| Retrieve Records     |     ✓     |
-| Upsert Records       |           |
+|Action|Supported|
+|:----|:-------:|
+| Abort Operation | ✓ |
+| Audit Object Content | ✓ |
+| Create Object |  |
+| Describe Connection |  |
+| Drop Object |  |
+| Find Object | ✓ |
+| Get Info |  |
+| Get Readable Stream | ✓ |
+| Get Record |  |
+| List Nodes | ✓ |
+| Preview Object | ✓ |
+| Remove Records |  |
+| Retrieve Chunks |  |
+| Retrieve Records | ✓ |
+| Upsert Records |  |
 
 <!-- CONNECTOR_ACTIONS_END -->
 
@@ -61,7 +62,7 @@ cd dpuse-connector-application-emulator
 npm install
 ```
 
-_Requires [Node.js](https://nodejs.org/) 22 or later, [npm](https://www.npmjs.com/) 11 or later, and [TypeScript](https://www.typescriptlang.org/) 6 or later._
+_Requires [Node.js](https://nodejs.org/) 23.11 or later, [npm](https://www.npmjs.com/) 11 or later, and [TypeScript](https://www.typescriptlang.org/) 6.0.3 or later._
 
 <!-- USAGE_END -->
 
@@ -71,25 +72,25 @@ _Requires [Node.js](https://nodejs.org/) 22 or later, [npm](https://www.npmjs.co
 
 License data is collected automatically on each release using [license-checker](https://github.com/RSeidelsohn/license-checker-rseidelsohn). The following table lists all production dependencies. These dependencies (including transitive ones) have been checked and confirmed to use BSD-3-Clause or MIT — all permissive, commercially-friendly licenses. Users of the uploaded library are covered by these checks; developers cloning this repository should independently verify development dependencies.
 
-| Dependency                                                                             | Version | License(s)   | Document                                                                          |
-| :------------------------------------------------------------------------------------- | :-----: | :----------- | :-------------------------------------------------------------------------------- |
-| [@borewit/text-codec](https://github.com/Borewit/text-codec)                           |  0.2.2  | MIT          | [LICENSE](licenses/downloads/@borewit/text-codec@0.2.2-LICENSE.txt)               |
-| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)                           | 0.3.737 | MIT          | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@0.3.737-LICENSE.txt)             |
-| [@dpuse/dpuse-tool-csv-parse](https://github.com/dpuse/dpuse-tool-csv-parse)           | 0.0.143 | MIT          | [LICENSE](licenses/downloads/@dpuse/dpuse-tool-csv-parse@0.0.143-LICENSE.txt)     |
-| [@dpuse/dpuse-tool-file-operators](https://github.com/dpuse/dpuse-tool-file-operators) | 0.0.45  | MIT          | [LICENSE](licenses/downloads/@dpuse/dpuse-tool-file-operators@0.0.45-LICENSE.txt) |
-| [@dpuse/dpuse-tool-rust-csv-core](https://github.com/dpuse/dpuse-tool-rust-csv-core)   | 0.1.21  | MIT          | [LICENSE](licenses/downloads/@dpuse/dpuse-tool-rust-csv-core@0.1.21-LICENSE.txt)  |
-| [@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)                     |  0.4.1  | MIT          | [LICENSE](licenses/downloads/@tokenizer/inflate@0.4.1-LICENSE.txt)                |
-| [@tokenizer/token](https://github.com/Borewit/tokenizer-token)                         |  0.3.0  | MIT          | [LICENSE](licenses/downloads/@tokenizer/token@0.3.0-LICENSE.txt)                  |
-| [chardet](https://github.com/runk/node-chardet)                                        |  2.2.0  | MIT          | [LICENSE](licenses/downloads/chardet@2.2.0-LICENSE.txt)                           |
-| [csv-parse](https://github.com/adaltas/node-csv)                                       |  6.2.1  | MIT          | [LICENSE](licenses/downloads/csv-parse@6.2.1-LICENSE.txt)                         |
-| [debug](https://github.com/debug-js/debug)                                             |  4.4.3  | MIT          | [LICENSE](licenses/downloads/debug@4.4.3-LICENSE.txt)                             |
-| [file-type](https://github.com/sindresorhus/file-type)                                 | 22.0.1  | MIT          | [LICENSE](licenses/downloads/file-type@22.0.1-LICENSE.txt)                        |
-| [ieee754](https://github.com/feross/ieee754)                                           |  1.2.1  | BSD-3-Clause | [LICENSE](licenses/downloads/ieee754@1.2.1-LICENSE.txt)                           |
-| [ms](https://github.com/vercel/ms)                                                     |  2.1.3  | MIT          | [LICENSE](licenses/downloads/ms@2.1.3-LICENSE.txt)                                |
-| [nanoid](https://github.com/ai/nanoid)                                                 | 5.1.16  | MIT          | [LICENSE](licenses/downloads/nanoid@5.1.16-LICENSE.txt)                           |
-| [strtok3](https://github.com/Borewit/strtok3)                                          | 10.3.5  | MIT          | [LICENSE](licenses/downloads/strtok3@10.3.5-LICENSE.txt)                          |
-| [token-types](https://github.com/Borewit/token-types)                                  |  6.1.2  | MIT          | [LICENSE](licenses/downloads/token-types@6.1.2-LICENSE.txt)                       |
-| [uint8array-extras](https://github.com/sindresorhus/uint8array-extras)                 |  1.5.0  | MIT          | [LICENSE](licenses/downloads/uint8array-extras@1.5.0-LICENSE.txt)                 |
+|Dependency|Version|License(s)|Document|
+|:-|:-:|:-|:-|
+|[@borewit/text-codec](https://github.com/Borewit/text-codec)|0.2.2|MIT|[LICENSE](licenses/downloads/@borewit/text-codec@0.2.2-LICENSE.txt)|
+|[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)|0.3.760|MIT|[LICENSE](licenses/downloads/@dpuse/dpuse-shared@0.3.760-LICENSE.txt)|
+|[@dpuse/dpuse-tool-adaltas-csv-parser](https://github.com/dpuse/dpuse-tool-adaltas-csv-parser)|0.0.153|MIT|[LICENSE](licenses/downloads/@dpuse/dpuse-tool-adaltas-csv-parser@0.0.153-LICENSE.txt)|
+|[@dpuse/dpuse-tool-file-operators](https://github.com/dpuse/dpuse-tool-file-operators)|0.0.57|MIT|[LICENSE](licenses/downloads/@dpuse/dpuse-tool-file-operators@0.0.57-LICENSE.txt)|
+|[@dpuse/dpuse-tool-rust-csv-core](https://github.com/dpuse/dpuse-tool-rust-csv-core)|0.1.37|MIT|[LICENSE](licenses/downloads/@dpuse/dpuse-tool-rust-csv-core@0.1.37-LICENSE.txt)|
+|[@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)|0.4.1|MIT|[LICENSE](licenses/downloads/@tokenizer/inflate@0.4.1-LICENSE.txt)|
+|[@tokenizer/token](https://github.com/Borewit/tokenizer-token)|0.3.0|MIT|[LICENSE](licenses/downloads/@tokenizer/token@0.3.0-LICENSE.txt)|
+|[chardet](https://github.com/runk/node-chardet)|2.2.0|MIT|[LICENSE](licenses/downloads/chardet@2.2.0-LICENSE.txt)|
+|[csv-parse](https://github.com/adaltas/node-csv)|7.0.1|MIT|[LICENSE](licenses/downloads/csv-parse@7.0.1-LICENSE.txt)|
+|[debug](https://github.com/debug-js/debug)|4.4.3|MIT|[LICENSE](licenses/downloads/debug@4.4.3-LICENSE.txt)|
+|[file-type](https://github.com/sindresorhus/file-type)|22.0.1|MIT|[LICENSE](licenses/downloads/file-type@22.0.1-LICENSE.txt)|
+|[ieee754](https://github.com/feross/ieee754)|1.2.1|BSD-3-Clause|[LICENSE](licenses/downloads/ieee754@1.2.1-LICENSE.txt)|
+|[ms](https://github.com/vercel/ms)|2.1.3|MIT|[LICENSE](licenses/downloads/ms@2.1.3-LICENSE.txt)|
+|[nanoid](https://github.com/ai/nanoid)|6.0.0|MIT|[LICENSE](licenses/downloads/nanoid@6.0.0-LICENSE.txt)|
+|[strtok3](https://github.com/Borewit/strtok3)|10.3.5|MIT|[LICENSE](licenses/downloads/strtok3@10.3.5-LICENSE.txt)|
+|[token-types](https://github.com/Borewit/token-types)|6.1.2|MIT|[LICENSE](licenses/downloads/token-types@6.1.2-LICENSE.txt)|
+|[uint8array-extras](https://github.com/sindresorhus/uint8array-extras)|1.5.0|MIT|[LICENSE](licenses/downloads/uint8array-extras@1.5.0-LICENSE.txt)|
 
 <!-- DEPENDENCY_LICENSES_END -->
 
@@ -99,28 +100,28 @@ License data is collected automatically on each release using [license-checker](
 
 The dependency tree below lists every package in this project — direct and transitive — along with its installed version, release date, and update status. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are simply mature and stable, requiring no active development.
 
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.737 — this month: 2026-07-07
-- **[@dpuse/dpuse-tool-csv-parse](https://github.com/dpuse/dpuse-tool-csv-parse)** 0.0.143 — 2 months ago: 2026-04-21
-    - **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.737 — this month: 2026-07-07
-    - **[csv-parse](https://github.com/adaltas/node-csv)** 6.2.1 — 3 months ago: 2026-03-20 → **latest**: 7.0.1 — this month: 2026-07-02 ❗
-- **[@dpuse/dpuse-tool-file-operators](https://github.com/dpuse/dpuse-tool-file-operators)** 0.0.45 — this month: 2026-07-04
-    - **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.737 — this month: 2026-07-07
-    - **[chardet](https://github.com/runk/node-chardet)** 2.2.0 — this month: 2026-06-20
-    - **[file-type](https://github.com/sindresorhus/file-type)** 22.0.1 — 2 months ago: 2026-04-09
-        - **[@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)** 0.4.1 — 7 months ago: 2025-11-18 ⚠️
-            - **[debug](https://github.com/debug-js/debug)** 4.4.3 — 9 months ago: 2025-09-13 ⚠️
-                - **[ms](https://github.com/vercel/ms)** 2.1.3 — 66 months ago: 2020-12-08 ⚠️
-            - **[token-types](https://github.com/Borewit/token-types)** 6.1.2 — 6 months ago: 2026-01-01
-        - **[strtok3](https://github.com/Borewit/strtok3)** 10.3.5 — 3 months ago: 2026-03-21
-            - **[@tokenizer/token](https://github.com/Borewit/tokenizer-token)** 0.3.0 — 59 months ago: 2021-07-12 ⚠️
-        - **[token-types](https://github.com/Borewit/token-types)** 6.1.2 — 6 months ago: 2026-01-01
-            - **[@borewit/text-codec](https://github.com/Borewit/text-codec)** 0.2.2 — 3 months ago: 2026-03-11
-            - **[@tokenizer/token](https://github.com/Borewit/tokenizer-token)** 0.3.0 — 59 months ago: 2021-07-12 ⚠️
-            - **[ieee754](https://github.com/feross/ieee754)** 1.2.1 — 68 months ago: 2020-10-27 ⚠️
-        - **[uint8array-extras](https://github.com/sindresorhus/uint8array-extras)** 1.5.0 — 10 months ago: 2025-08-22 ⚠️
-- **[@dpuse/dpuse-tool-rust-csv-core](https://github.com/dpuse/dpuse-tool-rust-csv-core)** 0.1.21 — 2 months ago: 2026-04-21
-    - **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.737 — this month: 2026-07-07
-- **[nanoid](https://github.com/ai/nanoid)** 5.1.16 — this month: 2026-06-24
+- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.760 — this month: 2026-08-02
+- **[@dpuse/dpuse-tool-adaltas-csv-parser](https://github.com/dpuse/dpuse-tool-adaltas-csv-parser)** 0.0.153 — this month: 2026-08-02 → **latest**: 0.0.155 — this month: 2026-08-02 ❗
+  - **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.760 — this month: 2026-08-02
+  - **[csv-parse](https://github.com/adaltas/node-csv)** 7.0.1 — **1 month** ago: 2026-07-02
+- **[@dpuse/dpuse-tool-file-operators](https://github.com/dpuse/dpuse-tool-file-operators)** 0.0.57 — this month: 2026-07-23
+  - **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.760 — this month: 2026-08-02
+  - **[chardet](https://github.com/runk/node-chardet)** 2.2.0 — **1 month** ago: 2026-06-20
+  - **[file-type](https://github.com/sindresorhus/file-type)** 22.0.1 — **3 months** ago: 2026-04-09
+    - **[@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)** 0.4.1 — **8 months** ago: 2025-11-18 ⚠️
+      - **[debug](https://github.com/debug-js/debug)** 4.4.3 — **10 months** ago: 2025-09-13 ⚠️
+        - **[ms](https://github.com/vercel/ms)** 2.1.3 — **67 months** ago: 2020-12-08 ⚠️
+      - **[token-types](https://github.com/Borewit/token-types)** 6.1.2 — **7 months** ago: 2026-01-01 ⚠️
+    - **[strtok3](https://github.com/Borewit/strtok3)** 10.3.5 — **4 months** ago: 2026-03-21
+      - **[@tokenizer/token](https://github.com/Borewit/tokenizer-token)** 0.3.0 — **60 months** ago: 2021-07-12 ⚠️
+    - **[token-types](https://github.com/Borewit/token-types)** 6.1.2 — **7 months** ago: 2026-01-01 ⚠️
+      - **[@borewit/text-codec](https://github.com/Borewit/text-codec)** 0.2.2 — **4 months** ago: 2026-03-11
+      - **[@tokenizer/token](https://github.com/Borewit/tokenizer-token)** 0.3.0 — **60 months** ago: 2021-07-12 ⚠️
+      - **[ieee754](https://github.com/feross/ieee754)** 1.2.1 — **69 months** ago: 2020-10-27 ⚠️
+    - **[uint8array-extras](https://github.com/sindresorhus/uint8array-extras)** 1.5.0 — **11 months** ago: 2025-08-22 ⚠️
+- **[@dpuse/dpuse-tool-rust-csv-core](https://github.com/dpuse/dpuse-tool-rust-csv-core)** 0.1.37 — this month: 2026-08-02
+  - **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.760 — this month: 2026-08-02
+- **[nanoid](https://github.com/ai/nanoid)** 6.0.0 — this month: 2026-07-12
 
 <!-- DEPENDENCY_TREE_END -->
 
