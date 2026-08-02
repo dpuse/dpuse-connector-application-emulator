@@ -40,7 +40,7 @@ function o(e) {
 	return /* @__PURE__ */ Error("Unknown error");
 }
 function s(e) {
-	if (!(e == null || e === "")) return e.length > t ? `${e.slice(0, t)}... [truncated]` : e;
+	if (e != null && e !== "") return e.length > t ? `${e.slice(0, t)}... [truncated]` : e;
 }
 //#endregion
 //#region node_modules/@dpuse/dpuse-shared/dist/dpuse-shared-utilities.es.js
@@ -104,46 +104,47 @@ var m = {
 	"": [
 		{
 			childCount: 1,
-			name: "humanResources",
+			name: "hr",
 			typeId: "folder"
 		},
 		{
-			id: "GGxX3yzmdW8_7G_MSwyi5",
-			lastModifiedAt: 1774197102385.2441,
-			name: "organisations.csv",
-			size: 72,
+			id: "1aQFl9vnAFyw-alk9PzQo",
+			lastModifiedAt: 1784710155746.4736,
+			name: "locations.csv",
+			size: 778,
 			typeId: "object"
 		},
 		{
-			id: "14xGczulW60Z5vLEVVyZy",
-			lastModifiedAt: 1774197102385.3625,
+			id: "NDj4FOOntnZxHCaz0b4nh",
+			lastModifiedAt: 1784709377538.4497,
+			name: "organisations.csv",
+			size: 61,
+			typeId: "object"
+		},
+		{
+			id: "Z0BWvSy-BT7AJCXMrufMg",
+			lastModifiedAt: 1784710155744.9368,
 			name: "people.csv",
-			size: 72320,
+			size: 1941943,
 			typeId: "object"
 		}
 	],
-	"/humanResources": [{
-		childCount: 2,
+	"/hr": [{
+		childCount: 1,
 		name: "workforce",
 		typeId: "folder"
 	}],
-	"/humanResources/workforce": [{
-		id: "XJgBt7TVnPf8l7-vArbui",
-		lastModifiedAt: 1774197102385.1426,
-		name: "empty.csv",
-		size: 0,
-		typeId: "object"
-	}, {
-		id: "_d5Au6rZg-0KlXPhkU0qj",
-		lastModifiedAt: 1774197102385.1821,
+	"/hr/workforce": [{
+		id: "khIHY0fayGnfj1aieZT0g",
+		lastModifiedAt: 1784710155746.209,
 		name: "engagements.csv",
-		size: 0,
+		size: 1358065,
 		typeId: "object"
 	}]
 }, h = {
 	id: "dpuse-connector-application-emulator",
-	label: { en: "DPUse Application Emulator" },
-	description: { en: ["Provides access to a sample set of read-only application data simulating a hypothetical application. It is intended for demonstration, evaluation, and testing and is freely available to all users.", "It emulates services such as Google Drive, Dropbox, and Microsoft OneDrive."] },
+	label: { en: "Application Emulator" },
+	description: { en: "The Application Emulator Connector is a read-only connector that provides access to a sample dataset simulating a hypothetical application such as Salesforce or SAP. It is intended for demonstration, evaluation, and testing, and is freely available to all users." },
 	actionNames: [
 		"abortOperation",
 		"auditObjectContent",
@@ -160,16 +161,18 @@ var m = {
 		authMethodId: "none",
 		maxConnectionCount: 1
 	} },
-	icon: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#71717a\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 17v4\"/><path d=\"m14.305 7.53.923-.382\"/><path d=\"m15.228 4.852-.923-.383\"/><path d=\"m16.852 3.228-.383-.924\"/><path d=\"m16.852 8.772-.383.923\"/><path d=\"m19.148 3.228.383-.924\"/><path d=\"m19.53 9.696-.382-.924\"/><path d=\"m20.772 4.852.924-.383\"/><path d=\"m20.772 7.148.924.383\"/><path d=\"M22 13v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7\"/><path d=\"M8 21h8\"/><circle cx=\"18\" cy=\"6\" r=\"3\"/></svg>",
-	iconDark: "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#a1a1aa\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 17v4\"/><path d=\"m14.305 7.53.923-.382\"/><path d=\"m15.228 4.852-.923-.383\"/><path d=\"m16.852 3.228-.383-.924\"/><path d=\"m16.852 8.772-.383.923\"/><path d=\"m19.148 3.228.383-.924\"/><path d=\"m19.53 9.696-.382-.924\"/><path d=\"m20.772 4.852.924-.383\"/><path d=\"m20.772 7.148.924.383\"/><path d=\"M22 13v2a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7\"/><path d=\"M8 21h8\"/><circle cx=\"18\" cy=\"6\" r=\"3\"/></svg>",
+	icon: "<svg viewBox=\"0 0 333 263\"><path fill=\"#3b82f6\" d=\"M128.947 122.88c6.104 0 11.053 4.949 11.053 11.053v117.894c0 6.105-4.949 11.053-11.053 11.053H70c-38.66 0-70-31.339-70-70 0-38.659 31.34-70 70-70z\" transform-origin=\"70px 192.88px\"/><rect width=\"39.121\" height=\"145.706\" x=\"100.844\" fill=\"#3b82f6\" paint-order=\"fill\" rx=\"7.057\" ry=\"7.057\"/><path fill=\"#ca8a04\" d=\"M171.053 140.001c-6.104 0-11.053-4.949-11.053-11.053V11.054C160 4.949 164.949.001 171.053.001H230c38.66 0 70 31.34 70 70s-31.34 70-70 70z\" transform-origin=\"230px 70.001px\"/><rect width=\"39.121\" height=\"145.706\" x=\"-199.16\" y=\"-262.88\" fill=\"#ca8a04\" paint-order=\"fill\" rx=\"7.057\" ry=\"7.057\" transform=\"scale(-1)\"/><path fill=\"#0d9488\" d=\"M276 263c-31.481 0-57-25.52-57-57v-49.046a7.953 7.953 0 0 1 7.952-7.954h98.095a7.954 7.954 0 0 1 7.953 7.954V206c0 31.48-25.521 57-57 57\" transform-origin=\"276px 206px\"/></svg>",
+	iconDark: null,
 	lastUpdatedAt: null,
 	status: null,
 	statusId: "beta",
 	typeId: "connector",
+	usage: null,
+	usageId: "source",
 	vendorAccountURL: null,
 	vendorDocumentationURL: null,
 	vendorHomeURL: null,
-	version: "0.0.31"
+	version: "0.0.50"
 }, g = "https://sample-data-eu.dpuse.app/application", _ = class {
 	abortController;
 	config;

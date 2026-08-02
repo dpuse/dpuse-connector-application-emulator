@@ -4,9 +4,7 @@
         "en": "Application Emulator"
     },
     "description": {
-        "en": [
-            "The Application Emulator Connector is a read-only connector that provides access to a sample dataset simulating a hypothetical application such as Salesforce or SAP. It is intended for demonstration, evaluation, and testing, and is freely available to all users."
-        ]
+        "en": "The Application Emulator Connector is a read-only connector that provides access to a sample dataset simulating a hypothetical application such as Salesforce or SAP. It is intended for demonstration, evaluation, and testing, and is freely available to all users."
     },
     "actionNames": [
         "abortOperation",
@@ -37,5 +35,5 @@
     "vendorAccountURL": null,
     "vendorDocumentationURL": null,
     "vendorHomeURL": null,
-    "version": "0.0.50"
+    "version": "0.0.52"
 }
