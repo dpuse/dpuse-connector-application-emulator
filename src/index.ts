@@ -84,7 +84,7 @@ export class Connector implements ConnectorInterface {
                 const stream = await this.getReadableStream({ id: '', path: options.path });
 
                 // Load the Rust CSV core tool
-                const rustCsvTool = await loadTool<RustCsvCoreTool>(this.toolConfigs, 'rust-csv-core');
+                const rustCsvTool = await loadTool<RustCsvCoreTool>(this.toolConfigs, 'rust-csv-core-parser');
 
                 // Choose processing mode based on browser capability
                 const options2 = { delimiter: ',', hasHeaders: true };
@@ -95,7 +95,7 @@ export class Connector implements ConnectorInterface {
                 return { processedRowCount: result.processedRowCount, durationMs: result.durationMs ?? 0 };
             }
 
-            const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'csv-parse');
+            const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
             const parseStreamOptions = { delimiter: options.valueDelimiterId, relax_column_count: true, relax_quotes: true };
             const url = `${URL_PREFIX}${options.path}`;
             const summary = await csvParseTool.parseStream(options, parseStreamOptions, url, this.abortController, (parameter) => {
@@ -172,13 +172,13 @@ export class Connector implements ConnectorInterface {
             const startedAt = performance.now();
 
             // Preview file to determine file format and decode text.
-            const fileOperatorsTool = await loadTool<FileOperatorsTool>(this.toolConfigs, 'file-operators');
+            const fileOperatorsTool = await loadTool<FileOperatorsTool>(this.toolConfigs, 'file-previewer');
             const filePreviewResult = await fileOperatorsTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize);
             if (filePreviewResult.dataFormatId == null) throw new Error(`File '${options.path}' has unknown type.`);
             if (filePreviewResult.text == null) throw new Error(`File '${options.path}' is empty.`);
 
             // Parse text, identify delimiters, and produce string value records.
-            const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'csv-parse');
+            const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
             const parseTextResult = await csvParseTool.parseText(filePreviewResult.text, ORDERED_VALUE_DELIMITER_IDS);
 
             // Infer and cast values for each parsed record.
@@ -214,7 +214,7 @@ export class Connector implements ConnectorInterface {
     ): Promise<void> {
         this.abortController = new AbortController();
         try {
-            const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'csv-parse');
+            const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
             const parseStreamOptions = { delimiter: options.valueDelimiterId, info: true, relax_column_count: true, relax_quotes: true };
             const url = `${URL_PREFIX}${options.path}`;
             const summary = await csvParseTool.parseStream(options, parseStreamOptions, url, this.abortController, chunk);
