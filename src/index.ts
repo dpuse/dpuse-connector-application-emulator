@@ -27,7 +27,7 @@ import { ORDERED_VALUE_DELIMITER_IDS, type ParsingRecord, type PreviewConfig } f
 // ── DPUse Tools
 import type { Tool as CSVParseTool } from '@dpuse/dpuse-tool-adaltas-csv-parser';
 import type { Tool as FileOperatorsTool } from '@dpuse/dpuse-tool-file-previewer';
-import type { Tool as RustCsvCoreTool } from '@dpuse/dpuse-tool-rust-csv-core';
+import type { Tool as RustCsvCoreTool } from '@dpuse/dpuse-tool-rust-csv-core-parser';
 
 // ── Data˘
 import applicationFolderPathData from '@/applicationIndex.json';
@@ -139,7 +139,7 @@ export class Connector implements ConnectorInterface {
             if (response.body == null) {
                 throw new ConnectorError('Readable streams are not supported in this runtime.', 'dpuse-connector-file-store-emulator|Connector|getReadableStream.unsupported');
             }
-            return await Promise.resolve(response.body);
+            return response.body;
         } catch (error) {
             throw normalizeToError(error);
         } finally {
@@ -234,9 +234,12 @@ function constructFolderNodeConfig(folderPath: string, name: string, childCount:
     return {
         childCount,
         childNodes: [],
+        description: '',
         extension: undefined,
         folderPath,
         handle: undefined,
+        icon: null,
+        iconDark: null,
         id: nanoid(),
         label: name,
         lastModifiedAt: undefined,
@@ -256,9 +259,12 @@ function constructObjectNodeConfig(folderPath: string, id: string, fullName: str
     return {
         childCount: undefined,
         childNodes: [],
+        description: '',
         extension,
         folderPath,
         handle: undefined,
+        icon: null,
+        iconDark: null,
         id,
         label: fullName,
         lastModifiedAt: lastModifiedAtTimestamp,

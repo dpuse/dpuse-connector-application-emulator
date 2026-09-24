@@ -135,17 +135,17 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 |Chunk/Module/File|Composition|
 |:------ |:-----------|
-| dist/dpuse-connector-application-emulator.es.js | 10.4 kB · brotli 3.4 kB |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts | `████████░░░░░░░░░░░░` 39.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `███████░░░░░░░░░░░░░` 34.3% |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared | `█████░░░░░░░░░░░░░░░` 24.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-errors.es.js | `██░░░░░░░░░░░░░░░░░░` 10.9% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-utilities.es.js | `█░░░░░░░░░░░░░░░░░░░` 5.6% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentDataView.es.js | `█░░░░░░░░░░░░░░░░░░░` 5.1% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleTool.es.js | `░░░░░░░░░░░░░░░░░░░░` 2.4% |
+| dist/dpuse-connector-application-emulator.es.js | 10.9 kB · brotli 3.5 kB |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts | `████████░░░░░░░░░░░░` 38.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;(unassigned) → [unassigned] | `███████░░░░░░░░░░░░░` 32.6% |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared | `█████░░░░░░░░░░░░░░░` 27.2% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-errors.es.js | `██░░░░░░░░░░░░░░░░░░` 11.3% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-utilities.es.js | `█░░░░░░░░░░░░░░░░░░░` 5.4% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentModuleTool.es.js | `█░░░░░░░░░░░░░░░░░░░` 5.1% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-componentDataView.es.js | `█░░░░░░░░░░░░░░░░░░░` 4.9% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dist/dpuse-shared-locale.es.js | `░░░░░░░░░░░░░░░░░░░░` 0.5% |
 | &nbsp;&nbsp;&nbsp;&nbsp;nanoid | `░░░░░░░░░░░░░░░░░░░░` 1.8% |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.browser.js | `░░░░░░░░░░░░░░░░░░░░` 1.8% |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;index.browser.js | `░░░░░░░░░░░░░░░░░░░░` 1.7% |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;url-alphabet/index.js | `░░░░░░░░░░░░░░░░░░░░` 0.0% |
 
 (unassigned) = bytes Sonda can't trace to a specific source line (whitespace, stray keywords, bundler-injected region markers) — not actual missing/unknown code.
