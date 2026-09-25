@@ -79,7 +79,7 @@ export class Connector implements ConnectorInterface {
         this.abortController = new AbortController();
 
         try {
-            if (options.parsingToolName === 'dpuse-tool-rust-csv-core') {
+            if (options.parsingToolName === 'dpuse-tool-rust-csv-core-parser') {
                 // Get the readable stream
                 const stream = await this.getReadableStream({ id: '', path: options.path });
 
