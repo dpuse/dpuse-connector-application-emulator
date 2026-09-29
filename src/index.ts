@@ -2,10 +2,10 @@
 import { nanoid } from 'nanoid';
 
 // ── DPUse Framework
-import type { ConnectionNodeConfig } from '@dpuse/dpuse-shared/component/connection';
 import type {
     AuditObjectContentOptions,
     AuditObjectContentResult,
+    ConnectionNodeConfig,
     ConnectorConfig,
     ConnectorInterface,
     ConnectorUtilities,
@@ -14,15 +14,24 @@ import type {
     GetReadableStreamOptions,
     ListNodesOptions,
     ListNodesResult,
+    ParsingRecord,
+    PreviewConfig,
     PreviewObjectOptions,
     RecordRetrievalTypeId,
     RetrieveRecordsOptions,
-    RetrieveRecordsSummary
-} from '@dpuse/dpuse-shared/component/module/connector';
-import { buildFetchError, ConnectorError, normalizeToError } from '@dpuse/dpuse-shared/errors';
-import { extractExtensionFromPath, extractNameFromPath, lookupMimeTypeForExtension } from '@dpuse/dpuse-shared/utilities';
-import { loadTool, type ToolConfig } from '@dpuse/dpuse-shared/component/module/tool';
-import { ORDERED_VALUE_DELIMITER_IDS, type ParsingRecord, type PreviewConfig } from '@dpuse/dpuse-shared/component/dataView';
+    RetrieveRecordsSummary,
+    ToolConfig
+} from '@dpuse/dpuse-shared';
+import {
+    buildFetchError,
+    ConnectorError,
+    extractExtensionFromPath,
+    extractNameFromPath,
+    loadTool,
+    lookupMimeTypeForExtension,
+    normalizeToError,
+    ORDERED_VALUE_DELIMITER_IDS
+} from '@dpuse/dpuse-shared';
 
 // ── DPUse Tools
 import type { Tool as CSVParseTool } from '@dpuse/dpuse-tool-adaltas-csv-parser';
