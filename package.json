@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "0.0.65",
+    "version": "0.0.66",
     "private": false,
     "description": "Provides read-only sample data simulating an application such as Salesforce or SAP.",
     "license": "MIT",
@@ -69,7 +69,7 @@
         "nanoid": "^6.0.1"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^0.3.792",
+        "@dpuse/dpuse-development": "^0.3.793",
         "@dpuse/eslint-config-dpuse": "^1.0.123",
         "@types/node": "^26.6.3",
         "eslint": "^10.11.0",
