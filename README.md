@@ -86,13 +86,13 @@ License data is updated each time `npm run document` is run, using [license-chec
 | :------------------------------------------------------------------------------------------------- | :-----: | :----------- | :-------------------------------------------------------------------------------------- |
 | [@borewit/text-codec](https://github.com/Borewit/text-codec)                                       |  0.2.2  | MIT          | [LICENSE](licenses/downloads/@borewit/text-codec@0.2.2-LICENSE.txt)                     |
 | [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)                                       | 0.3.865 | MIT          | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@0.3.865-LICENSE.txt)                   |
-| [@dpuse/dpuse-tool-adaltas-csv-parser](https://github.com/dpuse/dpuse-tool-adaltas-csv-parser)     | 0.0.158 | MIT          | [LICENSE](licenses/downloads/@dpuse/dpuse-tool-adaltas-csv-parser@0.0.158-LICENSE.txt)  |
-| [@dpuse/dpuse-tool-file-previewer](https://github.com/dpuse/dpuse-tool-file-previewer)             | 0.0.62  | MIT          | [LICENSE](licenses/downloads/@dpuse/dpuse-tool-file-previewer@0.0.62-LICENSE.txt)       |
+| [@dpuse/dpuse-tool-adaltas-csv-parser](https://github.com/dpuse/dpuse-tool-adaltas-csv-parser)     | 0.0.161 | MIT          | [LICENSE](licenses/downloads/@dpuse/dpuse-tool-adaltas-csv-parser@0.0.161-LICENSE.txt)  |
+| [@dpuse/dpuse-tool-file-previewer](https://github.com/dpuse/dpuse-tool-file-previewer)             | 0.0.63  | MIT          | [LICENSE](licenses/downloads/@dpuse/dpuse-tool-file-previewer@0.0.63-LICENSE.txt)       |
 | [@dpuse/dpuse-tool-rust-csv-core-parser](https://github.com/dpuse/dpuse-tool-rust-csv-core-parser) | 0.1.46  | MIT          | [LICENSE](licenses/downloads/@dpuse/dpuse-tool-rust-csv-core-parser@0.1.46-LICENSE.txt) |
 | [@tokenizer/inflate](https://github.com/Borewit/tokenizer-inflate)                                 |  0.4.1  | MIT          | [LICENSE](licenses/downloads/@tokenizer/inflate@0.4.1-LICENSE.txt)                      |
 | [@tokenizer/token](https://github.com/Borewit/tokenizer-token)                                     |  0.3.0  | MIT          | [LICENSE](licenses/downloads/@tokenizer/token@0.3.0-LICENSE.txt)                        |
 | [chardet](https://github.com/runk/node-chardet)                                                    |  2.2.0  | MIT          | [LICENSE](licenses/downloads/chardet@2.2.0-LICENSE.txt)                                 |
-| [csv-parse](https://github.com/adaltas/node-csv)                                                   |  7.0.2  | MIT          | [LICENSE](licenses/downloads/csv-parse@7.0.2-LICENSE.txt)                               |
+| [csv-parse](https://github.com/adaltas/node-csv)                                                   |  7.0.3  | MIT          | [LICENSE](licenses/downloads/csv-parse@7.0.3-LICENSE.txt)                               |
 | [debug](https://github.com/debug-js/debug)                                                         |  4.4.3  | MIT          | [LICENSE](licenses/downloads/debug@4.4.3-LICENSE.txt)                                   |
 | [file-type](https://github.com/sindresorhus/file-type)                                             | 22.1.1  | MIT          | [LICENSE](licenses/downloads/file-type@22.1.1-LICENSE.txt)                              |
 | [ieee754](https://github.com/feross/ieee754)                                                       |  1.2.1  | BSD-3-Clause | [LICENSE](licenses/downloads/ieee754@1.2.1-LICENSE.txt)                                 |
@@ -121,10 +121,10 @@ The dependency tree below lists every package in this project — direct and tra
             - **[ieee754](https://github.com/feross/ieee754)** 1.2.1 — **71 months** ago: 2020-10-27 ⚠️
         - **[uint8array-extras](https://github.com/sindresorhus/uint8array-extras)** 1.5.0 — **13 months** ago: 2025-08-22 ⚠️ → **latest**: 1.6.0 — this month: 2026-09-26 ❗
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — this month: 2026-09-09
-- **[@dpuse/dpuse-tool-adaltas-csv-parser](https://github.com/dpuse/dpuse-tool-adaltas-csv-parser)** 0.0.158 — this month: 2026-09-22
+- **[@dpuse/dpuse-tool-adaltas-csv-parser](https://github.com/dpuse/dpuse-tool-adaltas-csv-parser)** 0.0.161 — this month: 2026-09-29
     - **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.865 — this month: 2026-09-29
-    - **[csv-parse](https://github.com/adaltas/node-csv)** 7.0.2 — **1 month** ago: 2026-08-02 → **latest**: 7.0.3 — this month: 2026-09-25 ❗
-- **[@dpuse/dpuse-tool-file-previewer](https://github.com/dpuse/dpuse-tool-file-previewer)** 0.0.62 — this month: 2026-09-25
+    - **[csv-parse](https://github.com/adaltas/node-csv)** 7.0.3 — this month: 2026-09-25
+- **[@dpuse/dpuse-tool-file-previewer](https://github.com/dpuse/dpuse-tool-file-previewer)** 0.0.63 — this month: 2026-09-29
     - **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.865 — this month: 2026-09-29
     - **[chardet](https://github.com/runk/node-chardet)** 2.2.0 — **3 months** ago: 2026-06-20
     - **[file-type](https://github.com/sindresorhus/file-type)** 22.1.1 — this month: 2026-09-17
@@ -164,17 +164,17 @@ This section is updated each time `npm run document` is run. Settings come from 
 
 ### Testing
 
-| Check                | Status | What it does                                                                                                                                                                                 |
-| :------------------- | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit tests           | ✅ On  | [Vitest](https://vitest.dev) runs the unit tests. Part of the [CI workflow](https://github.com/dpuse/dpuse-connector-application-emulator/actions/workflows/ci.yml) on every push to `main`. |
-| Property-based tests | ❌ Off | [fast-check](https://fast-check.dev) runs many random inputs per test to find edge cases, alongside the unit tests.                                                                          |
+| Check                | Status | What it does                                                                                                                                                                                                  |
+| :------------------- | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Unit tests           | ✅ On  | [Vitest](https://vitest.dev) runs the unit tests. Part of the [CI workflow](https://github.com/dpuse/dpuse-connector-application-emulator/actions/workflows/ci.yml) on every push and pull request to `main`. |
+| Property-based tests | ❌ Off | [fast-check](https://fast-check.dev) runs many random inputs per test to find edge cases, alongside the unit tests.                                                                                           |
 
 ### Code Quality
 
-| Check         | Status | What it does                                                                                                                                                                                                           |
-| :------------ | :----- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Code analysis | ❌ Off | [SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.                                                                                                                       |
-| Linting       | ✅ On  | [ESLint](https://eslint.org) checks the code for errors and style problems. Part of the [CI workflow](https://github.com/dpuse/dpuse-connector-application-emulator/actions/workflows/ci.yml) on every push to `main`. |
+| Check         | Status | What it does                                                                                                                                                                                                                            |
+| :------------ | :----- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Code analysis | ❌ Off | [SonarCloud](https://sonarcloud.io) checks every push for bugs, code smells and vulnerabilities.                                                                                                                                        |
+| Linting       | ✅ On  | [ESLint](https://eslint.org) checks the code for errors and style problems. Part of the [CI workflow](https://github.com/dpuse/dpuse-connector-application-emulator/actions/workflows/ci.yml) on every push and pull request to `main`. |
 
 ### Security Analysis
 
@@ -186,13 +186,13 @@ This section is updated each time `npm run document` is run. Settings come from 
 
 ### Dependencies
 
-| Check               | Status | What it does                                                                                                                                                                                                                                               |
-| :------------------ | :----- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Vulnerability audit | ✅ On  | [npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when any dependency has a known vulnerability. Part of the [CI workflow](https://github.com/dpuse/dpuse-connector-application-emulator/actions/workflows/ci.yml) on every push to `main`. |
-| Supply chain risk   | ✅ On  | [Socket](https://socket.dev) flags malicious packages, typosquatting and suspicious behaviour that may not yet have a CVE.                                                                                                                                 |
-| Security alerts     | ✅ On  | [Dependabot](https://docs.github.com/en/code-security/dependabot) alerts when a dependency has a known vulnerability, using the GitHub Advisory Database.                                                                                                  |
-| Security updates    | ❌ Off | [Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests that update vulnerable dependencies. These are handled manually.                                                                                                     |
-| Version updates     | ❌ Off | [Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests for new dependency versions. These are handled manually.                                                                                                             |
+| Check               | Status | What it does                                                                                                                                                                                                                                                                                                                                |
+| :------------------ | :----- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Vulnerability audit | ✅ On  | [npm audit](https://docs.npmjs.com/cli/commands/npm-audit) fails when a shipped dependency has any known vulnerability, or a development dependency has a high or critical one. Part of the [CI workflow](https://github.com/dpuse/dpuse-connector-application-emulator/actions/workflows/ci.yml) on every push and pull request to `main`. |
+| Supply chain risk   | ✅ On  | [Socket](https://socket.dev) flags malicious packages, typosquatting and suspicious behaviour that may not yet have a CVE.                                                                                                                                                                                                                  |
+| Security alerts     | ✅ On  | [Dependabot](https://docs.github.com/en/code-security/dependabot) alerts when a dependency has a known vulnerability, using the GitHub Advisory Database.                                                                                                                                                                                   |
+| Security updates    | ❌ Off | [Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests that update vulnerable dependencies. These are handled manually.                                                                                                                                                                                      |
+| Version updates     | ❌ Off | [Dependabot](https://docs.github.com/en/code-security/dependabot) opens pull requests for new dependency versions. These are handled manually.                                                                                                                                                                                              |
 
 ### OpenSSF 🚧
 

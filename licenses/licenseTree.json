@@ -1,5 +1,5 @@
 {
-  "version": "0.0.62",
+  "version": "0.0.63",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-shared": {
@@ -88,23 +88,23 @@
       }
     },
     "@dpuse/dpuse-tool-adaltas-csv-parser": {
-      "version": "0.0.158",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-0.0.158.tgz",
+      "version": "0.0.161",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-0.0.161.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
           "version": "0.3.865"
         },
         "csv-parse": {
-          "version": "7.0.2",
-          "resolved": "https://registry.npmjs.org/csv-parse/-/csv-parse-7.0.2.tgz",
+          "version": "7.0.3",
+          "resolved": "https://registry.npmjs.org/csv-parse/-/csv-parse-7.0.3.tgz",
           "overridden": false
         }
       }
     },
     "@dpuse/dpuse-tool-file-previewer": {
-      "version": "0.0.62",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-0.0.62.tgz",
+      "version": "0.0.63",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-0.0.63.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
