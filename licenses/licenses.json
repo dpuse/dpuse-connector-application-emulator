@@ -14,30 +14,6 @@
         "path": "node_modules/@dpuse/dpuse-shared",
         "licenseFile": "downloads/@dpuse/dpuse-shared@0.3.865-LICENSE.txt"
     },
-    "@dpuse/dpuse-tool-adaltas-csv-parser@0.0.166": {
-        "licenses": "MIT",
-        "repository": "https://github.com/dpuse/dpuse-tool-adaltas-csv-parser",
-        "publisher": "Jonathan Terrell",
-        "email": "terrell.jm@gmail.com",
-        "path": "node_modules/@dpuse/dpuse-tool-adaltas-csv-parser",
-        "licenseFile": "downloads/@dpuse/dpuse-tool-adaltas-csv-parser@0.0.166-LICENSE.txt"
-    },
-    "@dpuse/dpuse-tool-file-previewer@0.0.66": {
-        "licenses": "MIT",
-        "repository": "https://github.com/dpuse/dpuse-tool-file-previewer",
-        "publisher": "Jonathan Terrell",
-        "email": "terrell.jm@gmail.com",
-        "path": "node_modules/@dpuse/dpuse-tool-file-previewer",
-        "licenseFile": "downloads/@dpuse/dpuse-tool-file-previewer@0.0.66-LICENSE.txt"
-    },
-    "@dpuse/dpuse-tool-rust-csv-core-parser@0.1.46": {
-        "licenses": "MIT",
-        "repository": "https://github.com/dpuse/dpuse-tool-rust-csv-core-parser",
-        "publisher": "Jonathan Terrell",
-        "email": "terrell.jm@gmail.com",
-        "path": "node_modules/@dpuse/dpuse-tool-rust-csv-core-parser",
-        "licenseFile": "downloads/@dpuse/dpuse-tool-rust-csv-core-parser@0.1.46-LICENSE.txt"
-    },
     "@tokenizer/inflate@0.4.1": {
         "licenses": "MIT",
         "repository": "https://github.com/Borewit/tokenizer-inflate",
@@ -51,22 +27,6 @@
         "publisher": "Borewit",
         "path": "node_modules/@tokenizer/token",
         "licenseFile": "downloads/@tokenizer/token@0.3.0-LICENSE.txt"
-    },
-    "chardet@2.2.0": {
-        "licenses": "MIT",
-        "repository": "https://github.com/runk/node-chardet",
-        "publisher": "Dmitry Shirokov",
-        "email": "deadrunk@gmail.com",
-        "path": "node_modules/chardet",
-        "licenseFile": "downloads/chardet@2.2.0-LICENSE.txt"
-    },
-    "csv-parse@7.0.3": {
-        "licenses": "MIT",
-        "repository": "https://github.com/adaltas/node-csv",
-        "publisher": "David Worms",
-        "email": "david@adaltas.com",
-        "path": "node_modules/csv-parse",
-        "licenseFile": "downloads/csv-parse@7.0.3-LICENSE.txt"
     },
     "debug@4.4.3": {
         "licenses": "MIT",
