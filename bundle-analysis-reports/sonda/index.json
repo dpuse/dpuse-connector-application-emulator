@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-10-01T09:57:47.843Z",
+    "generatedAt": "2026-10-02T10:27:36.891Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -38,7 +38,7 @@
       "name": "dist/dpuse-connector-application-emulator.es.js",
       "type": "script",
       "uncompressed": 19356,
-      "gzip": 6201,
+      "gzip": 6202,
       "brotli": 0
     },
     {
@@ -54,7 +54,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 10386,
-      "gzip": 3178,
+      "gzip": 3179,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     },
@@ -112,7 +112,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 4306,
-      "gzip": 1439,
+      "gzip": 1440,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     }
