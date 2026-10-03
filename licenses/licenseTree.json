@@ -1,5 +1,5 @@
 {
-  "version": "0.0.73",
+  "version": "0.0.74",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
@@ -8,7 +8,17 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "0.3.869"
+          "version": "0.3.869",
+          "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-0.3.869.tgz",
+          "overridden": false,
+          "dependencies": {
+            "file-type": {
+              "version": "22.1.1"
+            },
+            "valibot": {
+              "version": "1.5.0"
+            }
+          }
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1201,8 +1211,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "0.3.869",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-0.3.869.tgz",
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.2.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1268,12 +1278,12 @@
       }
     },
     "@dpuse/dpuse-tool-adaltas-csv-parser": {
-      "version": "0.0.167",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-0.0.167.tgz",
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.2.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "0.3.869"
+          "version": "1.0.2"
         },
         "csv-parse": {
           "version": "7.0.3",
@@ -1283,12 +1293,12 @@
       }
     },
     "@dpuse/dpuse-tool-file-previewer": {
-      "version": "0.0.67",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-0.0.67.tgz",
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.2.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "0.3.869"
+          "version": "1.0.2"
         },
         "chardet": {
           "version": "2.2.0",
@@ -1301,12 +1311,12 @@
       }
     },
     "@dpuse/dpuse-tool-rust-csv-core-parser": {
-      "version": "0.1.50",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-rust-csv-core-parser/-/dpuse-tool-rust-csv-core-parser-0.1.50.tgz",
+      "version": "1.0.2",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-rust-csv-core-parser/-/dpuse-tool-rust-csv-core-parser-1.0.2.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "0.3.869"
+          "version": "1.0.2"
         }
       }
     },
