@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-10-03T14:42:18.013Z",
+    "generatedAt": "2026-10-03T14:43:31.081Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -22,7 +22,7 @@
       "type": "other",
       "format": "other",
       "uncompressed": 4468,
-      "gzip": 1373,
+      "gzip": 1372,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     },
