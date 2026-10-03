@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "private": false,
     "description": "Provides read-only sample data simulating an application such as Salesforce or SAP.",
     "license": "MIT",
