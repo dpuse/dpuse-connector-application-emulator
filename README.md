@@ -94,7 +94,7 @@ The dependency tree below shows how each package in the table above is reached �
 
 - **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 0.3.869 — this month: 2026-10-02
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — this month: 2026-09-09
-- **[nanoid](https://github.com/ai/nanoid)** 6.0.1 — **1 month** ago: 2026-08-03
+- **[nanoid](https://github.com/ai/nanoid)** 6.0.1 — **2 months** ago: 2026-08-03
 
 <!-- DEPENDENCY_LICENSES_END -->
 

@@ -1,10 +1,10 @@
 {
-  "version": "0.0.69",
+  "version": "0.0.71",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
-      "version": "0.3.816",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-0.3.816.tgz",
+      "version": "0.3.817",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-0.3.817.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
