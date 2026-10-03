@@ -1,10 +1,10 @@
 {
-  "version": "0.0.72",
+  "version": "0.0.73",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
-      "version": "0.3.819",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-0.3.819.tgz",
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.3.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
@@ -1311,8 +1311,8 @@
       }
     },
     "@dpuse/eslint-config-dpuse": {
-      "version": "1.0.126",
-      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.126.tgz",
+      "version": "1.0.131",
+      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.131.tgz",
       "overridden": false,
       "dependencies": {
         "@eslint-community/eslint-plugin-eslint-comments": {
@@ -1519,8 +1519,8 @@
           }
         },
         "eslint-plugin-n": {
-          "version": "18.4.0",
-          "resolved": "https://registry.npmjs.org/eslint-plugin-n/-/eslint-plugin-n-18.4.0.tgz",
+          "version": "18.4.1",
+          "resolved": "https://registry.npmjs.org/eslint-plugin-n/-/eslint-plugin-n-18.4.1.tgz",
           "overridden": false,
           "dependencies": {
             "@eslint-community/eslint-utils": {
@@ -1778,8 +1778,8 @@
           }
         },
         "eslint-plugin-unicorn": {
-          "version": "76.0.0",
-          "resolved": "https://registry.npmjs.org/eslint-plugin-unicorn/-/eslint-plugin-unicorn-76.0.0.tgz",
+          "version": "77.0.0",
+          "resolved": "https://registry.npmjs.org/eslint-plugin-unicorn/-/eslint-plugin-unicorn-77.0.0.tgz",
           "overridden": false,
           "dependencies": {
             "@eslint-community/eslint-utils": {
@@ -1801,23 +1801,23 @@
               }
             },
             "browserslist": {
-              "version": "4.29.0",
-              "resolved": "https://registry.npmjs.org/browserslist/-/browserslist-4.29.0.tgz",
+              "version": "4.29.3",
+              "resolved": "https://registry.npmjs.org/browserslist/-/browserslist-4.29.3.tgz",
               "overridden": false,
               "dependencies": {
                 "baseline-browser-mapping": {
-                  "version": "2.11.25",
-                  "resolved": "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.11.25.tgz",
+                  "version": "2.11.27",
+                  "resolved": "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.11.27.tgz",
                   "overridden": false
                 },
                 "caniuse-lite": {
-                  "version": "1.0.30001812",
-                  "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001812.tgz",
+                  "version": "1.0.30001814",
+                  "resolved": "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001814.tgz",
                   "overridden": false
                 },
                 "electron-to-chromium": {
-                  "version": "1.5.438",
-                  "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.438.tgz",
+                  "version": "1.5.444",
+                  "resolved": "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.444.tgz",
                   "overridden": false
                 },
                 "node-releases": {
@@ -1831,7 +1831,7 @@
                   "overridden": false,
                   "dependencies": {
                     "browserslist": {
-                      "version": "4.29.0"
+                      "version": "4.29.3"
                     },
                     "escalade": {
                       "version": "3.2.0",
@@ -1861,7 +1861,7 @@
               "overridden": false,
               "dependencies": {
                 "browserslist": {
-                  "version": "4.29.0"
+                  "version": "4.29.3"
                 }
               }
             },
@@ -1884,8 +1884,8 @@
               "overridden": false
             },
             "globals": {
-              "version": "17.12.0",
-              "resolved": "https://registry.npmjs.org/globals/-/globals-17.12.0.tgz",
+              "version": "17.13.0",
+              "resolved": "https://registry.npmjs.org/globals/-/globals-17.13.0.tgz",
               "overridden": false
             },
             "identifier-regex": {
