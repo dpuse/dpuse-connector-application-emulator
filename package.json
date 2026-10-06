@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "1.0.104",
+    "version": "1.0.105",
     "private": false,
     "description": "Provides read-only sample data simulating an application such as Salesforce or SAP.",
     "license": "MIT",
@@ -65,7 +65,7 @@
         "nanoid": "^6.0.2"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^1.0.112",
+        "@dpuse/dpuse-development": "^1.0.113",
         "@dpuse/dpuse-tool-adaltas-csv-parser": "^1.0.2",
         "@dpuse/dpuse-tool-file-previewer": "^1.0.105",
         "@dpuse/dpuse-tool-rust-csv-core-parser": "^1.0.106",
