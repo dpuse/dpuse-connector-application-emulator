@@ -1,24 +1,14 @@
 {
-  "version": "1.0.001",
+  "version": "1.0.103",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
-      "version": "1.0.3",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.3.tgz",
+      "version": "1.0.112",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.112.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "0.3.869",
-          "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-0.3.869.tgz",
-          "overridden": false,
-          "dependencies": {
-            "file-type": {
-              "version": "22.1.1"
-            },
-            "valibot": {
-              "version": "1.5.0"
-            }
-          }
+          "version": "1.0.113"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -562,8 +552,8 @@
                           "version": "20.0.4"
                         },
                         "http-cache-semantics": {
-                          "version": "4.2.0",
-                          "resolved": "https://registry.npmjs.org/http-cache-semantics/-/http-cache-semantics-4.2.0.tgz",
+                          "version": "4.3.0",
+                          "resolved": "https://registry.npmjs.org/http-cache-semantics/-/http-cache-semantics-4.3.0.tgz",
                           "overridden": false
                         },
                         "minipass-fetch": {
@@ -1211,8 +1201,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.2",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.2.tgz",
+      "version": "1.0.113",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.113.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1283,7 +1273,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.2"
+          "version": "1.0.113"
         },
         "csv-parse": {
           "version": "7.0.3",
@@ -1293,36 +1283,36 @@
       }
     },
     "@dpuse/dpuse-tool-file-previewer": {
-      "version": "1.0.2",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.2.tgz",
+      "version": "1.0.105",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.105.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.2"
-        },
-        "chardet": {
-          "version": "2.2.0",
-          "resolved": "https://registry.npmjs.org/chardet/-/chardet-2.2.0.tgz",
-          "overridden": false
+          "version": "1.0.113"
         },
         "file-type": {
           "version": "22.1.1"
+        },
+        "jschardet": {
+          "version": "4.0.0",
+          "resolved": "https://registry.npmjs.org/jschardet/-/jschardet-4.0.0.tgz",
+          "overridden": false
         }
       }
     },
     "@dpuse/dpuse-tool-rust-csv-core-parser": {
-      "version": "1.0.2",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-rust-csv-core-parser/-/dpuse-tool-rust-csv-core-parser-1.0.2.tgz",
+      "version": "1.0.106",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-rust-csv-core-parser/-/dpuse-tool-rust-csv-core-parser-1.0.106.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.2"
+          "version": "1.0.113"
         }
       }
     },
     "@dpuse/eslint-config-dpuse": {
-      "version": "1.0.131",
-      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.131.tgz",
+      "version": "1.0.132",
+      "resolved": "https://registry.npmjs.org/@dpuse/eslint-config-dpuse/-/eslint-config-dpuse-1.0.132.tgz",
       "overridden": false,
       "dependencies": {
         "@eslint-community/eslint-plugin-eslint-comments": {
@@ -1806,7 +1796,7 @@
                   "overridden": false
                 },
                 "source-map-js": {
-                  "version": "1.2.1"
+                  "version": "1.2.2"
                 }
               }
             },
@@ -2711,8 +2701,8 @@
       }
     },
     "nanoid": {
-      "version": "6.0.1",
-      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-6.0.1.tgz",
+      "version": "6.0.2",
+      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-6.0.2.tgz",
       "overridden": false
     },
     "prettier": {
@@ -2963,19 +2953,19 @@
               }
             },
             "vite": {
-              "version": "8.3.2"
+              "version": "8.3.3"
             },
             "webpack": {}
           }
         },
         "vite": {
-          "version": "8.3.2"
+          "version": "8.3.3"
         }
       }
     },
     "vite": {
-      "version": "8.3.2",
-      "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.2.tgz",
+      "version": "8.3.3",
+      "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.3.tgz",
       "overridden": false,
       "dependencies": {
         "@types/node": {
@@ -3074,8 +3064,8 @@
               "overridden": false
             },
             "source-map-js": {
-              "version": "1.2.1",
-              "resolved": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.1.tgz",
+              "version": "1.2.2",
+              "resolved": "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.2.tgz",
               "overridden": false
             }
           }
@@ -3216,7 +3206,7 @@
             },
             "msw": {},
             "vite": {
-              "version": "8.3.2"
+              "version": "8.3.3"
             }
           }
         },
@@ -3277,7 +3267,7 @@
           "version": "0.2.17"
         },
         "vite": {
-          "version": "8.3.2"
+          "version": "8.3.3"
         },
         "why-is-node-running": {
           "version": "3.2.1",

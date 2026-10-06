@@ -15,8 +15,26 @@ vi.mock('@dpuse/dpuse-shared', async (importOriginal) => ({
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
+const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json';
 const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
 const OBJECT_PATH = '/hr/workforce/locations.csv';
+
+// A small stand-in for the published application index.
+const APPLICATION_INDEX = {
+    '': [
+        { childCount: 1, name: 'hr', typeId: 'folder' },
+        { id: 'locationsId', lastModifiedAt: 1_700_000_000_000, name: 'locations.csv', size: 778, typeId: 'object' }
+    ],
+    '/hr': [{ childCount: 1, name: 'workforce', typeId: 'folder' }],
+    '/hr/workforce': [{ id: 'engagementsId', lastModifiedAt: 1_700_000_000_000, name: 'engagements.csv', size: 1000, typeId: 'object' }]
+};
+
+// Serves the index, and rejects any other request.
+function stubIndexFetch(): ReturnType<typeof vi.fn> {
+    const fetchMock = vi.fn((url: string) => (url === INDEX_URL ? Promise.resolve(Response.json(APPLICATION_INDEX)) : Promise.reject(new Error('Unexpected fetch.'))));
+    vi.stubGlobal('fetch', fetchMock);
+    return fetchMock;
+}
 
 function createConnector(): Connector {
     const connectorUtilities = { inferDataTypes: () => ({ columnConfigs: [{ id: 'a' }], hasHeaderRow: true, typedRecords: [['typed']] }) };
@@ -49,18 +67,44 @@ describe('Connector', () => {
     });
 
     describe('listNodes', () => {
-        it('lists the folders and files at the root', async () => {
+        it('lists the folders and files at the root, from the published index', async () => {
+            const fetchMock = stubIndexFetch();
+
             const result = await createConnector().listNodes({ folderPath: '' });
 
+            expect(fetchMock).toHaveBeenCalledWith(INDEX_URL);
             expect(result.connectionNodeConfigs).toContainEqual(expect.objectContaining({ name: 'hr', label: 'hr', typeId: 'folder', childCount: 1, folderPath: '' }));
             expect(result.connectionNodeConfigs).toContainEqual(
-                expect.objectContaining({ id: '1aQFl9vnAFyw-alk9PzQo', label: 'locations.csv', extension: 'csv', mimeType: 'text/csv', size: 778, typeId: 'object' })
+                expect.objectContaining({ id: 'locationsId', label: 'locations.csv', extension: 'csv', mimeType: 'text/csv', size: 778, typeId: 'object' })
             );
             expect(result.totalCount).toBe(result.connectionNodeConfigs.length);
             expect(result.isMore).toBe(false);
         });
 
+        it('loads the index once for a connector, however many folders it lists', async () => {
+            const fetchMock = stubIndexFetch();
+            const connector = createConnector();
+
+            await connector.listNodes({ folderPath: '' });
+            await connector.listNodes({ folderPath: '/hr' });
+
+            expect(fetchMock).toHaveBeenCalledTimes(1);
+        });
+
+        it('fails clearly when the index cannot be fetched, and tries again on the next call', async () => {
+            const notFound = { ok: false, status: 404, statusText: 'Not Found', text: () => Promise.resolve(''), headers: new Headers() };
+            const indexResponse = Response.json(APPLICATION_INDEX);
+            vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(notFound).mockResolvedValue(indexResponse));
+            const connector = createConnector();
+
+            await expect(connector.listNodes({ folderPath: '' })).rejects.toThrow('Failed to fetch the application index.');
+            const retryResult = await connector.listNodes({ folderPath: '' });
+            expect(retryResult.totalCount).toBe(2);
+        });
+
         it('lists nothing for a folder that does not exist', async () => {
+            stubIndexFetch();
+
             const result = await createConnector().listNodes({ folderPath: '/missing' });
 
             expect(result.connectionNodeConfigs).toEqual([]);
@@ -70,10 +114,14 @@ describe('Connector', () => {
 
     describe('findObject', () => {
         it('returns the folder holding an object', async () => {
-            expect(await createConnector().findObject({ nodeId: '1aQFl9vnAFyw-alk9PzQo' } as never)).toEqual({ path: '', object: undefined });
+            stubIndexFetch();
+
+            expect(await createConnector().findObject({ nodeId: 'engagementsId' } as never)).toEqual({ path: '/hr/workforce' });
         });
 
         it('rejects an object that does not exist', async () => {
+            stubIndexFetch();
+
             await expect(createConnector().findObject({ nodeId: 'missing' } as never)).rejects.toThrow('Not found.');
         });
     });

@@ -38,8 +38,7 @@ import type { Tool as CSVParseTool } from '@dpuse/dpuse-tool-adaltas-csv-parser'
 import type { Tool as FileOperatorsTool } from '@dpuse/dpuse-tool-file-previewer';
 import type { Tool as RustCsvCoreTool } from '@dpuse/dpuse-tool-rust-csv-core-parser';
 
-// ── Data˘
-import applicationFolderPathData from '@/applicationIndex.json';
+// ── Data
 import config from '~/config.json';
 
 /**
@@ -60,8 +59,12 @@ type ApplicationFolderPaths = Record<string, ApplicationFolderNode[]>;
  */
 const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
 
+// Lists the application folder's folders and files, published with them.
+const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json';
+
 // Connectors
 export class Connector implements ConnectorInterface {
+    #applicationFolderPaths: Promise<ApplicationFolderPaths> | undefined; // The application index, loaded on first use.
     abortController: AbortController | undefined;
     readonly config: ConnectorConfig;
     connectorUtilities: ConnectorUtilities;
@@ -122,17 +125,17 @@ export class Connector implements ConnectorInterface {
     }
 
     // Find the folder path containing the specified object node
-    findObject(options: FindObjectOptions): Promise<FindObjectResult> {
-        const fileStoreFolderPaths = applicationFolderPathData as ApplicationFolderPaths;
+    async findObject(options: FindObjectOptions): Promise<FindObjectResult> {
+        const fileStoreFolderPaths = await this.loadApplicationFolderPaths();
         // Loop through the folder path data checking for an object entry with an identifier equal to the object name.
         for (const folderPath in fileStoreFolderPaths) {
             if (!Object.hasOwn(fileStoreFolderPaths, folderPath)) continue;
 
             const folderPathNodes = fileStoreFolderPaths[folderPath];
             const folderPathNode = folderPathNodes?.find((folderPathNode) => folderPathNode.typeId === 'object' && folderPathNode.id === options.nodeId);
-            if (folderPathNode) return Promise.resolve({ path: folderPath, object: undefined }); // Found, return folder path.
+            if (folderPathNode) return { path: folderPath }; // Found, return folder path.
         }
-        return Promise.reject(new Error('Not found.')); // Not found.
+        throw new Error('Not found.'); // Not found.
     }
 
     // Get a readable stream for the specified object node path
@@ -143,10 +146,10 @@ export class Connector implements ConnectorInterface {
         try {
             const response = await fetch(`${URL_PREFIX}${options.path}`, { signal });
             if (!response.ok) {
-                throw await buildFetchError(response, `Failed to fetch '${options.path}' file.`, 'dpuse-connector-file-store-emulator|Connector|getReadableStream');
+                throw await buildFetchError(response, `Failed to fetch '${options.path}' file.`, 'dpuse-connector-application-emulator|Connector|getReadableStream');
             }
             if (response.body == null) {
-                throw new ConnectorError('Readable streams are not supported in this runtime.', 'dpuse-connector-file-store-emulator|Connector|getReadableStream.unsupported');
+                throw new ConnectorError('Readable streams are not supported in this runtime.', 'dpuse-connector-application-emulator|Connector|getReadableStream.unsupported');
             }
             return response.body;
         } catch (error) {
@@ -157,8 +160,8 @@ export class Connector implements ConnectorInterface {
     }
 
     // Lists all nodes (folders and objects) in the specified folder path
-    listNodes(options: ListNodesOptions): Promise<ListNodesResult> {
-        const fileStoreFolderPaths = applicationFolderPathData as ApplicationFolderPaths;
+    async listNodes(options: ListNodesOptions): Promise<ListNodesResult> {
+        const fileStoreFolderPaths = await this.loadApplicationFolderPaths();
         const folderNodes = fileStoreFolderPaths[options.folderPath] ?? [];
         const connectionNodeConfigs: ConnectionNodeConfig[] = [];
         for (const folderNode of folderNodes) {
@@ -168,7 +171,7 @@ export class Connector implements ConnectorInterface {
                 connectionNodeConfigs.push(constructObjectNodeConfig(options.folderPath, folderNode.id, folderNode.name, folderNode.lastModifiedAt, folderNode.size));
             }
         }
-        return Promise.resolve({ cursor: undefined, isMore: false, connectionNodeConfigs, totalCount: connectionNodeConfigs.length });
+        return { cursor: undefined, isMore: false, connectionNodeConfigs, totalCount: connectionNodeConfigs.length };
     }
 
     // Preview the contents of the object node with the specified path
@@ -232,6 +235,27 @@ export class Connector implements ConnectorInterface {
             throw normalizeToError(error);
         } finally {
             this.abortController = undefined;
+        }
+    }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────
+
+    // Loads the application index once, from beside the files it lists, so it always matches them.
+    private loadApplicationFolderPaths(): Promise<ApplicationFolderPaths> {
+        this.#applicationFolderPaths ??= this.fetchApplicationFolderPaths();
+        return this.#applicationFolderPaths;
+    }
+
+    // A failed fetch is not kept, so the next call tries again.
+    private async fetchApplicationFolderPaths(): Promise<ApplicationFolderPaths> {
+        try {
+            const response = await fetch(INDEX_URL);
+            if (!response.ok)
+                throw await buildFetchError(response, 'Failed to fetch the application index.', 'dpuse-connector-application-emulator|Connector|fetchApplicationFolderPaths');
+            return (await response.json()) as ApplicationFolderPaths;
+        } catch (error) {
+            this.#applicationFolderPaths = undefined;
+            throw normalizeToError(error);
         }
     }
 }
