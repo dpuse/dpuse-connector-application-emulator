@@ -3,7 +3,7 @@
 <!-- OPENING_START -->
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
-[![DPUse version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.dpuse.app%2Fconfigs%2Fdpuse-connector-application-emulator&query=%24.data.version&prefix=v&label=DPUse&color=f6821f)](https://github.com/dpuse/dpuse-connector-application-emulator/releases/latest)
+[![DPUse version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.dpuse.app%2Fconfigs%2Fdpuse-connector-application-emulator&query=%24.data.version&prefix=v&label=DPUse&color=blue)](https://github.com/dpuse/dpuse-connector-application-emulator/releases/latest)
 [![CI](https://github.com/dpuse/dpuse-connector-application-emulator/actions/workflows/ci.yml/badge.svg)](https://github.com/dpuse/dpuse-connector-application-emulator/actions/workflows/ci.yml)
 
 Provides read-only sample data simulating an application such as Salesforce or SAP.
@@ -84,7 +84,7 @@ License data is updated each time `npm run document` is run, using [license-chec
 
 | Dependency                                                   | Version | License(s) | Document                                                              |
 | :----------------------------------------------------------- | :-----: | :--------- | :-------------------------------------------------------------------- |
-| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared) | 1.0.113 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.113-LICENSE.txt) |
+| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared) | 1.0.118 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.118-LICENSE.txt) |
 | [nanoid](https://github.com/ai/nanoid)                       |  6.0.2  | MIT        | [LICENSE](licenses/downloads/nanoid@6.0.2-LICENSE.txt)                |
 | [valibot](https://github.com/open-circle/valibot)            |  1.5.0  | MIT        | [LICENSE](licenses/downloads/valibot@1.5.0-LICENSE.txt)               |
 
@@ -92,7 +92,7 @@ License data is updated each time `npm run document` is run, using [license-chec
 
 The dependency tree below shows how each package in the table above is reached — direct and transitive — along with its installed version, release date, and update status. A package that does not ship itself, such as one whose parts are bundled separately, is left out and what ships beneath it is shown in its place. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.
 
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.113 — this month: 2026-10-05 → latest: 1.0.118 — this month: 2026-10-11 ❗
+- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.118 — this month: 2026-10-11
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — 1 mth ago: 2026-09-09
 - **[nanoid](https://github.com/ai/nanoid)** 6.0.2 — this month: 2026-10-05
 
@@ -106,16 +106,18 @@ This report is updated with each release, from the bundle the release builds, us
 
 _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not generate source maps for CSS._
 
-| Chunk/Module/File                                                     | Composition                                 |
-| :-------------------------------------------------------------------- | :------------------------------------------ |
-| **dist/dpuse-connector-application-emulator.es.js**                   | 18.6 kB · gzip 5.9 kB · 100.0% of the build |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `███████████░░░░░░░░░` 54.4% · 10.1 kB      |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `█████░░░░░░░░░░░░░░░` 25.0% · 4.7 kB       |
-| &nbsp;&nbsp;&nbsp;&nbsp;nanoid                                        | `░░░░░░░░░░░░░░░░░░░░` 1.0% · 194 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 2 smaller files     | `░░░░░░░░░░░░░░░░░░░░` 1.0% · 194 B         |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `████░░░░░░░░░░░░░░░░` 19.6% · 3.7 kB       |
+| Chunk/Module/File                                                     | Composition                                                                                   |
+| :-------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- |
+| **dist/dpuse-connector-application-emulator.es.js**                   | 18.6&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;5.9&nbsp;kB&nbsp;·&nbsp;100.0%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `███████████░░░░░░░░░`&nbsp;54.4%&nbsp;·&nbsp;10.1&nbsp;kB                                    |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `█████░░░░░░░░░░░░░░░`&nbsp;25.0%&nbsp;·&nbsp;4.7&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;nanoid → index.browser.js + 1 more            | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.0%&nbsp;·&nbsp;194&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 2 smaller files     | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.0%&nbsp;·&nbsp;194&nbsp;B                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `████░░░░░░░░░░░░░░░░`&nbsp;19.6%&nbsp;·&nbsp;3.7&nbsp;kB                                     |
 
 Bars show each row's share of its output file. ↳ rows are part of the row above.
+
+- n more = the row also holds n more files from the same package or folder, each no larger than the one named. A package can appear under several output files, each holding different files, never the same file twice.
 
 (bundler output, whitespace & JSON) = bytes Sonda can't trace to a source file: whitespace (indentation and line breaks), code the bundler generates (region comments, the combined import/export lines, its small runtime helper and wrappers), and imported JSON such as `config.json`, which the bundler doesn't map. The JSON and the generated code are real bytes that ship; the whitespace mostly disappears once compressed.
 
