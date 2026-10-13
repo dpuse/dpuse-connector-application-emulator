@@ -84,7 +84,7 @@ License data is updated each time `npm run document` is run, using [license-chec
 
 | Dependency                                                   | Version | License(s) | Document                                                              |
 | :----------------------------------------------------------- | :-----: | :--------- | :-------------------------------------------------------------------- |
-| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared) | 1.0.118 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.118-LICENSE.txt) |
+| [@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared) | 1.0.119 | MIT        | [LICENSE](licenses/downloads/@dpuse/dpuse-shared@1.0.119-LICENSE.txt) |
 | [nanoid](https://github.com/ai/nanoid)                       |  6.0.2  | MIT        | [LICENSE](licenses/downloads/nanoid@6.0.2-LICENSE.txt)                |
 | [valibot](https://github.com/open-circle/valibot)            |  1.5.0  | MIT        | [LICENSE](licenses/downloads/valibot@1.5.0-LICENSE.txt)               |
 
@@ -92,7 +92,7 @@ License data is updated each time `npm run document` is run, using [license-chec
 
 The dependency tree below shows how each package in the table above is reached — direct and transitive — along with its installed version, release date, and update status. A package that does not ship itself, such as one whose parts are bundled separately, is left out and what ships beneath it is shown in its place. Packages flagged ❗ have a newer version available; ⚠️ indicates a package that hasn't been updated in the last 6 months or longer. Neither flag necessarily indicates a problem: we let new releases stabilise before upgrading, and some packages are mature and stable (have limited or no dependencies), so they require no active development.
 
-- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.118 — this month: 2026-10-11
+- **[@dpuse/dpuse-shared](https://github.com/dpuse/dpuse-shared)** 1.0.119 — this month: 2026-10-13
     - **[valibot](https://github.com/open-circle/valibot)** 1.5.0 — 1 mth ago: 2026-09-09
 - **[nanoid](https://github.com/ai/nanoid)** 6.0.2 — this month: 2026-10-05
 
@@ -113,7 +113,7 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 | &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `█████░░░░░░░░░░░░░░░`&nbsp;25.0%&nbsp;·&nbsp;4.7&nbsp;kB                                     |
 | &nbsp;&nbsp;&nbsp;&nbsp;nanoid → index.browser.js + 1 more            | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.0%&nbsp;·&nbsp;194&nbsp;B                                       |
 | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↳ 2 smaller files     | `░░░░░░░░░░░░░░░░░░░░`&nbsp;1.0%&nbsp;·&nbsp;194&nbsp;B                                       |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `████░░░░░░░░░░░░░░░░`&nbsp;19.6%&nbsp;·&nbsp;3.7&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `████░░░░░░░░░░░░░░░░`&nbsp;19.6%&nbsp;·&nbsp;3.6&nbsp;kB                                     |
 
 Bars show each row's share of its output file. ↳ rows are part of the row above.
 
