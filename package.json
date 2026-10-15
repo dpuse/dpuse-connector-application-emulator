@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "1.0.112",
+    "version": "1.0.113",
     "private": false,
     "description": "Provides read-only sample data simulating an application such as Salesforce or SAP.",
     "license": "MIT",
@@ -71,6 +71,7 @@
         "@dpuse/dpuse-tool-rust-csv-core-parser": "^1.0.109",
         "@dpuse/eslint-config-dpuse": "^1.0.139",
         "@types/node": "^26.6.5",
+        "@vitest/coverage-v8": "^5.0.4",
         "eslint": "^10.12.0",
         "prettier": "^3.9.10",
         "sonda": "^0.14.0",
