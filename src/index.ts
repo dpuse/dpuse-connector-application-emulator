@@ -163,14 +163,11 @@ export class Connector implements ConnectorInterface {
     async listNodes(options: ListNodesOptions): Promise<ListNodesResult> {
         const fileStoreFolderPaths = await this.loadApplicationFolderPaths();
         const folderNodes = fileStoreFolderPaths[options.folderPath] ?? [];
-        const connectionNodeConfigs: ConnectionNodeConfig[] = [];
-        for (const folderNode of folderNodes) {
-            if (folderNode.typeId === 'folder') {
-                connectionNodeConfigs.push(constructFolderNodeConfig(options.folderPath, folderNode.name, folderNode.childCount));
-            } else {
-                connectionNodeConfigs.push(constructObjectNodeConfig(options.folderPath, folderNode.id, folderNode.name, folderNode.lastModifiedAt, folderNode.size));
-            }
-        }
+        const connectionNodeConfigs: ConnectionNodeConfig[] = folderNodes.map((folderNode) =>
+            folderNode.typeId === 'folder'
+                ? constructFolderNodeConfig(options.folderPath, folderNode.name, folderNode.childCount)
+                : constructObjectNodeConfig(options.folderPath, folderNode.id, folderNode.name, folderNode.lastModifiedAt, folderNode.size)
+        );
         return { cursor: undefined, isMore: false, connectionNodeConfigs, totalCount: connectionNodeConfigs.length };
     }
 
