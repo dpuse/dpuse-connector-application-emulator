@@ -183,8 +183,26 @@ export class Connector implements ConnectorInterface {
             // Preview file to determine file format and decode text.
             const fileOperatorsTool = await loadTool<FileOperatorsTool>(this.toolConfigs, 'file-previewer');
             const filePreviewResult = await fileOperatorsTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize);
-            if (filePreviewResult.dataFormatId == null) throw new Error(`File '${options.path}' has unknown type.`);
-            if (filePreviewResult.text == null) throw new Error(`File '${options.path}' is empty.`);
+            // A file with no text to parse, such as a binary format or an empty file, comes back as an 'unknown' preview
+            // rather than an error, so the picker can say the file is not supported.
+            if (filePreviewResult.dataFormatId == null || filePreviewResult.text == null) {
+                return {
+                    asAt,
+                    columnConfigs: [],
+                    dataFormatId: 'unknown',
+                    duration: performance.now() - startedAt,
+                    encodingId: undefined,
+                    encodingConfidenceLevel: undefined,
+                    fileType: filePreviewResult.fileTypeConfig,
+                    hasHeaders: undefined,
+                    recordDelimiterId: undefined,
+                    parsedRecords: [],
+                    inferenceRecords: [],
+                    size: filePreviewResult.bytes.length,
+                    text: undefined,
+                    valueDelimiterId: undefined
+                };
+            }
 
             // Parse text, identify delimiters, and produce string value records.
             const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');

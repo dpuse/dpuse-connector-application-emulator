@@ -185,13 +185,19 @@ describe('Connector', () => {
             );
         });
 
-        it('fails for a file of unknown type or with no text', async () => {
-            const previewFile = vi.fn().mockResolvedValueOnce({ dataFormatId: undefined }).mockResolvedValueOnce({ dataFormatId: 'dtv', text: undefined });
+        it('reports a file of unknown type or with no text as an unknown preview', async () => {
+            const fileTypeConfig = { ext: 'pdf', mime: 'application/pdf' };
+            const previewFile = vi
+                .fn()
+                .mockResolvedValueOnce({ bytes: new Uint8Array(9), dataFormatId: undefined, fileTypeConfig, text: undefined })
+                .mockResolvedValueOnce({ bytes: new Uint8Array(0), dataFormatId: undefined, fileTypeConfig: undefined, text: undefined });
             tools.byName['file-previewer'] = { previewFile };
             const connector = createConnector();
 
-            await expect(connector.previewObject({ path: OBJECT_PATH } as never)).rejects.toThrow(`File '${OBJECT_PATH}' has unknown type.`);
-            await expect(connector.previewObject({ path: OBJECT_PATH } as never)).rejects.toThrow(`File '${OBJECT_PATH}' is empty.`);
+            expect(await connector.previewObject({ path: OBJECT_PATH } as never)).toEqual(
+                expect.objectContaining({ dataFormatId: 'unknown', fileType: fileTypeConfig, parsedRecords: [], size: 9, text: undefined })
+            );
+            expect(await connector.previewObject({ path: OBJECT_PATH } as never)).toEqual(expect.objectContaining({ dataFormatId: 'unknown', size: 0 }));
             expect(connector.abortController).toBeUndefined();
         });
     });
