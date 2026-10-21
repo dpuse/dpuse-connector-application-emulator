@@ -22,11 +22,14 @@ const OBJECT_PATH = '/hr/workforce/locations.csv';
 // A small stand-in for the published application index.
 const APPLICATION_INDEX = {
     '': [
-        { childCount: 1, name: 'hr', typeId: 'folder' },
-        { id: 'locationsId', lastModifiedAt: 1_700_000_000_000, name: 'locations.csv', size: 778, typeId: 'object' }
+        { childCount: 1, label: 'HR', name: 'hr', typeId: 'folder' },
+        { id: 'locationsId', label: 'Locations', lastModifiedAt: 1_700_000_000_000, name: 'locations.csv', size: 778, typeId: 'object' }
     ],
     '/hr': [{ childCount: 1, name: 'workforce', typeId: 'folder' }],
-    '/hr/workforce': [{ id: 'engagementsId', lastModifiedAt: 1_700_000_000_000, name: 'engagements.csv', size: 1000, typeId: 'object' }]
+    '/hr/workforce': [
+        { id: 'engagementsId', lastModifiedAt: 1_700_000_000_000, name: 'engagements.csv', size: 1000, typeId: 'object' },
+        { id: 'readmeId', label: 'Read Me', lastModifiedAt: 1_700_000_000_000, mimeType: 'text/markdown', name: 'README.md', size: 100, typeId: 'object' }
+    ]
 };
 
 // Serves the index, and rejects any other request.
@@ -73,12 +76,32 @@ describe('Connector', () => {
             const result = await createConnector().listNodes({ folderPath: '' });
 
             expect(fetchMock).toHaveBeenCalledWith(INDEX_URL);
-            expect(result.connectionNodeConfigs).toContainEqual(expect.objectContaining({ name: 'hr', label: 'hr', typeId: 'folder', childCount: 1, folderPath: '' }));
+            expect(result.connectionNodeConfigs).toContainEqual(expect.objectContaining({ name: 'hr', label: 'HR', typeId: 'folder', childCount: 1, folderPath: '' }));
             expect(result.connectionNodeConfigs).toContainEqual(
-                expect.objectContaining({ id: 'locationsId', label: 'locations.csv', extension: 'csv', mimeType: 'text/csv', size: 778, typeId: 'object' })
+                expect.objectContaining({ id: 'locationsId', label: 'Locations', name: 'locations', extension: 'csv', mimeType: 'text/csv', size: 778, typeId: 'object' })
             );
             expect(result.totalCount).toBe(result.connectionNodeConfigs.length);
             expect(result.isMore).toBe(false);
+        });
+
+        it('falls back to the name for an entry the index gives no label', async () => {
+            stubIndexFetch();
+            const connector = createConnector();
+
+            const folderResult = await connector.listNodes({ folderPath: '/hr' });
+            const objectResult = await connector.listNodes({ folderPath: '/hr/workforce' });
+
+            expect(folderResult.connectionNodeConfigs).toContainEqual(expect.objectContaining({ name: 'workforce', label: 'workforce', typeId: 'folder' }));
+            expect(objectResult.connectionNodeConfigs).toContainEqual(expect.objectContaining({ id: 'engagementsId', label: 'engagements.csv', typeId: 'object' }));
+        });
+
+        it("takes a file's MIME type from the index, and from its extension only when the index has none", async () => {
+            stubIndexFetch();
+
+            const result = await createConnector().listNodes({ folderPath: '/hr/workforce' });
+
+            expect(result.connectionNodeConfigs).toContainEqual(expect.objectContaining({ id: 'engagementsId', mimeType: 'text/csv' }));
+            expect(result.connectionNodeConfigs).toContainEqual(expect.objectContaining({ id: 'readmeId', extension: 'md', mimeType: 'text/markdown' }));
         });
 
         it('loads the index once for a connector, however many folders it lists', async () => {

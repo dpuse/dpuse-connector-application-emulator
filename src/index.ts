@@ -46,7 +46,8 @@ import config from '~/config.json';
  */
 // eslint-disable-next-line unicorn/name-replacements -- Prefer ApplicationFolderNode to AppFolderNode
 type ApplicationFolderNode =
-    ({ typeId: 'folder'; childCount: number } & { name: string }) | ({ typeId: 'object'; id: string; lastModifiedAt: number; size: number } & { name: string });
+    | ({ typeId: 'folder'; childCount: number } & { label?: string; name: string })
+    | ({ typeId: 'object'; id: string; lastModifiedAt: number; mimeType?: string; size: number } & { label?: string; name: string });
 
 /**
  * File store folder paths.
@@ -165,8 +166,8 @@ export class Connector implements ConnectorInterface {
         const folderNodes = fileStoreFolderPaths[options.folderPath] ?? [];
         const connectionNodeConfigs: ConnectionNodeConfig[] = folderNodes.map((folderNode) =>
             folderNode.typeId === 'folder'
-                ? constructFolderNodeConfig(options.folderPath, folderNode.name, folderNode.childCount)
-                : constructObjectNodeConfig(options.folderPath, folderNode.id, folderNode.name, folderNode.lastModifiedAt, folderNode.size)
+                ? constructFolderNodeConfig(options.folderPath, folderNode.name, folderNode.childCount, folderNode.label)
+                : constructObjectNodeConfig(options.folderPath, folderNode.id, folderNode.name, folderNode.lastModifiedAt, folderNode.size, folderNode.mimeType, folderNode.label)
         );
         return { cursor: undefined, isMore: false, connectionNodeConfigs, totalCount: connectionNodeConfigs.length };
     }
@@ -277,8 +278,8 @@ export class Connector implements ConnectorInterface {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Construct folder node configuration.
-function constructFolderNodeConfig(folderPath: string, name: string, childCount: number): ConnectionNodeConfig {
+// Construct folder node configuration. The index's label, when it has one, shows the folder as a group of tables.
+function constructFolderNodeConfig(folderPath: string, name: string, childCount: number, label = name): ConnectionNodeConfig {
     return {
         childCount,
         childNodes: [],
@@ -289,7 +290,7 @@ function constructFolderNodeConfig(folderPath: string, name: string, childCount:
         icon: null,
         iconDark: null,
         id: nanoid(),
-        label: name,
+        label,
         lastModifiedAt: undefined,
         mimeType: undefined,
         name,
@@ -298,12 +299,19 @@ function constructFolderNodeConfig(folderPath: string, name: string, childCount:
     };
 }
 
-// Construct object (file) node configuration.
-function constructObjectNodeConfig(folderPath: string, id: string, fullName: string, lastModifiedAt: number, size: number): ConnectionNodeConfig {
+// Construct object (file) node configuration. The index's label, when it has one, shows the file as a table.
+function constructObjectNodeConfig(
+    folderPath: string,
+    id: string,
+    fullName: string,
+    lastModifiedAt: number,
+    size: number,
+    mimeType: string | undefined,
+    label = fullName
+): ConnectionNodeConfig {
     const name = extractPathWithoutExtension(fullName) ?? '';
     const extension = extractExtensionFromPath(fullName);
     const lastModifiedAtTimestamp = lastModifiedAt;
-    const mimeType = lookupMimeTypeForExtension(extension);
     return {
         childCount: undefined,
         childNodes: [],
@@ -314,9 +322,9 @@ function constructObjectNodeConfig(folderPath: string, id: string, fullName: str
         icon: null,
         iconDark: null,
         id,
-        label: fullName,
+        label,
         lastModifiedAt: lastModifiedAtTimestamp,
-        mimeType,
+        mimeType: mimeType ?? lookupMimeTypeForExtension(extension), // The index's type, which matches what the bucket serves.
         name,
         size,
         typeId: 'object'

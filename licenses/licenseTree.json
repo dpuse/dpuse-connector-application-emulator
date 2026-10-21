@@ -1,14 +1,14 @@
 {
-  "version": "1.0.114",
+  "version": "1.0.115",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
-      "version": "1.0.127",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.127.tgz",
+      "version": "1.0.129",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.129.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.129"
+          "version": "1.0.130"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1201,8 +1201,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.129",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.129.tgz",
+      "version": "1.0.130",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.130.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1273,7 +1273,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.129"
+          "version": "1.0.130"
         },
         "csv-parse": {
           "version": "7.0.3",
@@ -1283,12 +1283,12 @@
       }
     },
     "@dpuse/dpuse-tool-file-previewer": {
-      "version": "1.0.108",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.108.tgz",
+      "version": "1.0.112",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.112.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.129"
+          "version": "1.0.130"
         },
         "file-type": {
           "version": "22.2.0"
@@ -1306,7 +1306,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.129"
+          "version": "1.0.130"
         }
       }
     },
@@ -4096,7 +4096,7 @@
               }
             },
             "rolldown": {
-              "version": "1.2.12"
+              "version": "1.2.15"
             },
             "rollup": {},
             "typescript": {
@@ -4124,19 +4124,19 @@
               }
             },
             "vite": {
-              "version": "8.3.4"
+              "version": "8.3.5"
             },
             "webpack": {}
           }
         },
         "vite": {
-          "version": "8.3.4"
+          "version": "8.3.5"
         }
       }
     },
     "vite": {
-      "version": "8.3.4",
-      "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.4.tgz",
+      "version": "8.3.5",
+      "resolved": "https://registry.npmjs.org/vite/-/vite-8.3.5.tgz",
       "overridden": false,
       "dependencies": {
         "@types/node": {
@@ -4220,8 +4220,8 @@
           "overridden": false
         },
         "postcss": {
-          "version": "8.5.29",
-          "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.29.tgz",
+          "version": "8.5.31",
+          "resolved": "https://registry.npmjs.org/postcss/-/postcss-8.5.31.tgz",
           "overridden": false,
           "dependencies": {
             "nanoid": {
@@ -4240,20 +4240,20 @@
           }
         },
         "rolldown": {
-          "version": "1.2.12",
-          "resolved": "https://registry.npmjs.org/rolldown/-/rolldown-1.2.12.tgz",
+          "version": "1.2.15",
+          "resolved": "https://registry.npmjs.org/rolldown/-/rolldown-1.2.15.tgz",
           "overridden": false,
           "dependencies": {
             "@oxc-project/types": {
-              "version": "0.152.0",
-              "resolved": "https://registry.npmjs.org/@oxc-project/types/-/types-0.152.0.tgz",
+              "version": "0.155.0",
+              "resolved": "https://registry.npmjs.org/@oxc-project/types/-/types-0.155.0.tgz",
               "overridden": false
             },
             "@rolldown/binding-android-arm-eabi": {},
             "@rolldown/binding-android-arm64": {},
             "@rolldown/binding-darwin-arm64": {
-              "version": "1.2.12",
-              "resolved": "https://registry.npmjs.org/@rolldown/binding-darwin-arm64/-/binding-darwin-arm64-1.2.12.tgz",
+              "version": "1.2.15",
+              "resolved": "https://registry.npmjs.org/@rolldown/binding-darwin-arm64/-/binding-darwin-arm64-1.2.15.tgz",
               "overridden": false
             },
             "@rolldown/binding-darwin-x64": {},
@@ -4377,7 +4377,7 @@
             },
             "msw": {},
             "vite": {
-              "version": "8.3.4"
+              "version": "8.3.5"
             }
           }
         },
@@ -4434,7 +4434,7 @@
           "version": "0.2.17"
         },
         "vite": {
-          "version": "8.3.4"
+          "version": "8.3.5"
         },
         "why-is-node-running": {
           "version": "3.2.1",
