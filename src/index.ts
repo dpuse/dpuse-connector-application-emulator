@@ -184,23 +184,24 @@ export class Connector implements ConnectorInterface {
             // Preview file to determine file format and decode text.
             const fileOperatorsTool = await loadTool<FileOperatorsTool>(this.toolConfigs, 'file-previewer');
             const filePreviewResult = await fileOperatorsTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize);
-            // A file with no text to parse, such as a binary format or an empty file, comes back as an 'unknown' preview
-            // rather than an error, so the picker can say the file is not supported.
+            // A file with no format to parse comes back as an 'unknown' preview rather than an error, so the picker can say
+            // the file is not supported. Its text, if it has any, such as an XML file's, is kept so the picker can still
+            // show it. A binary format or an empty file has none.
             if (filePreviewResult.dataFormatId == null || filePreviewResult.text == null) {
                 return {
                     asAt,
                     columnConfigs: [],
                     dataFormatId: 'unknown',
                     duration: performance.now() - startedAt,
-                    encodingId: undefined,
-                    encodingConfidenceLevel: undefined,
+                    encodingId: filePreviewResult.encodingId,
+                    encodingConfidenceLevel: filePreviewResult.encodingConfidenceLevel,
                     fileType: filePreviewResult.fileTypeConfig,
                     hasHeaders: undefined,
                     recordDelimiterId: undefined,
                     parsedRecords: [],
                     inferenceRecords: [],
                     size: filePreviewResult.bytes.length,
-                    text: undefined,
+                    text: filePreviewResult.text,
                     valueDelimiterId: undefined
                 };
             }
@@ -212,10 +213,13 @@ export class Connector implements ConnectorInterface {
             // Infer and cast values for each parsed record.
             const inferenceSummary = this.connectorUtilities.inferDataTypes(parseTextResult.parsedRecords);
 
+            // The previewer takes any text it cannot place as delimited. Parsing finds no delimiter in plain text.
+            const dataFormatId = filePreviewResult.dataFormatId === 'dtv' && parseTextResult.valueDelimiterId == null ? 'text' : filePreviewResult.dataFormatId;
+
             return {
                 asAt,
                 columnConfigs: inferenceSummary.columnConfigs,
-                dataFormatId: filePreviewResult.dataFormatId,
+                dataFormatId,
                 duration: performance.now() - startedAt,
                 encodingId: filePreviewResult.encodingId,
                 encodingConfidenceLevel: filePreviewResult.encodingConfidenceLevel,

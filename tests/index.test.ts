@@ -208,6 +208,22 @@ describe('Connector', () => {
             );
         });
 
+        it('reports text the parser finds no delimiter in as plain text', async () => {
+            const text = 'Some words.\nMore words.';
+            tools.byName['file-previewer'] = {
+                previewFile: vi
+                    .fn()
+                    .mockResolvedValue({ bytes: new Uint8Array(23), dataFormatId: 'dtv', encodingConfidenceLevel: 1, encodingId: 'utf-8', fileTypeConfig: undefined, text })
+            };
+            tools.byName['adaltas-csv-parser'] = {
+                parseText: vi.fn().mockResolvedValue({ parsedRecords: [['Some words.'], ['More words.']], recordDelimiterId: '\n', valueDelimiterId: undefined })
+            };
+
+            const preview = await createConnector().previewObject({ path: OBJECT_PATH } as never);
+
+            expect(preview).toEqual(expect.objectContaining({ dataFormatId: 'text', text, valueDelimiterId: undefined }));
+        });
+
         it('reports a file of unknown type or with no text as an unknown preview', async () => {
             const fileTypeConfig = { ext: 'pdf', mime: 'application/pdf' };
             const previewFile = vi
@@ -222,6 +238,19 @@ describe('Connector', () => {
             );
             expect(await connector.previewObject({ path: OBJECT_PATH } as never)).toEqual(expect.objectContaining({ dataFormatId: 'unknown', size: 0 }));
             expect(connector.abortController).toBeUndefined();
+        });
+
+        it('keeps the text of an unsupported text format, such as XML', async () => {
+            const fileTypeConfig = { ext: 'xml', mime: 'application/xml' };
+            const text = '<?xml version="1.0"?>\n<name>Ada</name>';
+            const previewFile = vi
+                .fn()
+                .mockResolvedValue({ bytes: new Uint8Array(40), dataFormatId: undefined, encodingId: 'utf-8', encodingConfidenceLevel: 1, fileTypeConfig, text });
+            tools.byName['file-previewer'] = { previewFile };
+
+            expect(await createConnector().previewObject({ path: OBJECT_PATH } as never)).toEqual(
+                expect.objectContaining({ dataFormatId: 'unknown', encodingId: 'utf-8', encodingConfidenceLevel: 1, fileType: fileTypeConfig, parsedRecords: [], text })
+            );
         });
     });
 
