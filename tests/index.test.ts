@@ -213,14 +213,22 @@ describe('Connector', () => {
             tools.byName['file-previewer'] = {
                 previewFile: vi
                     .fn()
-                    .mockResolvedValue({ bytes: new Uint8Array(23), dataFormatId: 'dtv', encodingConfidenceLevel: 1, encodingId: 'utf-8', fileTypeConfig: undefined, text })
+                    .mockResolvedValue({
+                        bytes: new Uint8Array(23),
+                        dataFormatId: 'dtv',
+                        encodingConfidenceLevel: 1,
+                        encodingId: 'utf-8',
+                        fileTypeConfig: undefined,
+                        isComplete: true,
+                        text
+                    })
             };
             const parseText = vi.fn().mockResolvedValue({ parsedRecords: [['Some words.'], ['More words.']], recordDelimiterId: '\n', valueDelimiterId: undefined });
             tools.byName['adaltas-csv-parser'] = { parseText };
 
             const preview = await createConnector().previewObject({ path: OBJECT_PATH } as never);
 
-            expect(parseText).toHaveBeenLastCalledWith(text, [',']);
+            expect(parseText).toHaveBeenLastCalledWith(text, [','], true);
             expect(preview).toEqual(expect.objectContaining({ dataFormatId: 'dtv', text, valueDelimiterId: ',' }));
         });
 

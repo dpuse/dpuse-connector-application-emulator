@@ -1,5 +1,5 @@
 {
-  "version": "1.0.119",
+  "version": "1.0.120",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
@@ -1268,8 +1268,8 @@
       }
     },
     "@dpuse/dpuse-tool-adaltas-csv-parser": {
-      "version": "1.0.110",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.110.tgz",
+      "version": "1.0.113",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.113.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
@@ -1283,8 +1283,8 @@
       }
     },
     "@dpuse/dpuse-tool-file-previewer": {
-      "version": "1.0.116",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.116.tgz",
+      "version": "1.0.119",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.119.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {

@@ -232,11 +232,14 @@ export class Connector implements ConnectorInterface {
             }
 
             // Parse text, identify delimiters, and produce string value records. With no delimiter found, the text is parsed
-            // again with the default, so the records match the delimiter reported.
+            // again with the default, so the records match the delimiter reported. Whether the preview holds the whole file
+            // decides if a quote left open at its end is an error, or a value the preview cut off.
             const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
-            const detectedParseTextResult = await csvParseTool.parseText(filePreviewResult.text, ORDERED_VALUE_DELIMITER_IDS);
+            const detectedParseTextResult = await csvParseTool.parseText(filePreviewResult.text, ORDERED_VALUE_DELIMITER_IDS, filePreviewResult.isComplete);
             const parseTextResult =
-                detectedParseTextResult.valueDelimiterId == null ? await csvParseTool.parseText(filePreviewResult.text, [DEFAULT_VALUE_DELIMITER_ID]) : detectedParseTextResult;
+                detectedParseTextResult.valueDelimiterId == null
+                    ? await csvParseTool.parseText(filePreviewResult.text, [DEFAULT_VALUE_DELIMITER_ID], filePreviewResult.isComplete)
+                    : detectedParseTextResult;
 
             // Infer and cast values for each parsed record.
             const inferenceSummary = this.connectorUtilities.inferDataTypes(parseTextResult.parsedRecords);
