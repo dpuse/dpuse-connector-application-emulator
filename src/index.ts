@@ -190,7 +190,7 @@ export class Connector implements ConnectorInterface {
 
             // Preview file to determine file format and decode text.
             const fileOperatorsTool = await loadTool<FileOperatorsTool>(this.toolConfigs, 'file-previewer');
-            const filePreviewResult = await fileOperatorsTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize);
+            const filePreviewResult = await fileOperatorsTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType);
             // An empty file is a table with no rows.
             if (filePreviewResult.bytes.length === 0) {
                 return {
@@ -211,12 +211,13 @@ export class Connector implements ConnectorInterface {
                 };
             }
             // A file with no format to parse, a type the app cannot read yet, comes back as an 'unknown' preview rather than
-            // an error, so the picker can say the file is not supported. Its text is kept so the picker can still show it.
-            if (filePreviewResult.dataFormatId == null || filePreviewResult.text == null) {
+            // an error, so the picker can say the file is not supported. Markdown is a document, not data, so it is not
+            // parsed either and comes back as itself with no records. The text is kept so the picker can still show it.
+            if (filePreviewResult.dataFormatId == null || filePreviewResult.dataFormatId === 'markdown' || filePreviewResult.text == null) {
                 return {
                     asAt,
                     columnConfigs: [],
-                    dataFormatId: 'unknown',
+                    dataFormatId: filePreviewResult.dataFormatId === 'markdown' ? 'markdown' : 'unknown',
                     duration: performance.now() - startedAt,
                     encodingId: filePreviewResult.encodingId,
                     encodingConfidenceLevel: filePreviewResult.encodingConfidenceLevel,

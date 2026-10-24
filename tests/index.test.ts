@@ -253,6 +253,32 @@ describe('Connector', () => {
             );
         });
 
+        it('passes the MIME type from the listing to the previewer', async () => {
+            const previewFile = vi.fn().mockResolvedValue({ bytes: new Uint8Array(0), dataFormatId: undefined, fileTypeConfig: undefined, text: undefined });
+            tools.byName['file-previewer'] = { previewFile };
+
+            await createConnector().previewObject({ chunkSize: undefined, extension: undefined, mimeType: 'text/markdown', path: OBJECT_PATH });
+
+            expect(previewFile).toHaveBeenCalledWith(expect.stringContaining(OBJECT_PATH), expect.any(AbortSignal), undefined, 'text/markdown');
+        });
+
+        // A markdown table with a quote inside a cell is not valid delimited text under any delimiter, so parsing it threw.
+        it('keeps the text of markdown without parsing it', async () => {
+            const text = '| File | Tests |\n| --- | --- |\n| `people.xml` | XML stating `encoding="ISO-8859-1"` |';
+            tools.byName['file-previewer'] = {
+                previewFile: vi
+                    .fn()
+                    .mockResolvedValue({ bytes: new Uint8Array(80), dataFormatId: 'markdown', encodingId: 'utf-8', encodingConfidenceLevel: 1, fileTypeConfig: undefined, text })
+            };
+            const parseText = vi.fn();
+            tools.byName['adaltas-csv-parser'] = { parseText };
+
+            expect(await createConnector().previewObject({ path: OBJECT_PATH } as never)).toEqual(
+                expect.objectContaining({ dataFormatId: 'markdown', encodingId: 'utf-8', parsedRecords: [], text, valueDelimiterId: undefined })
+            );
+            expect(parseText).not.toHaveBeenCalled();
+        });
+
         it('keeps the text of an unsupported text format, such as XML', async () => {
             const fileTypeConfig = { ext: 'xml', mime: 'application/xml' };
             const text = '<?xml version="1.0"?>\n<name>Ada</name>';
