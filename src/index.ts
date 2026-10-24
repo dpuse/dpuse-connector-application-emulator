@@ -210,14 +210,14 @@ export class Connector implements ConnectorInterface {
                     valueDelimiterId: DEFAULT_VALUE_DELIMITER_ID
                 };
             }
-            // A file with no format to parse, a type the app cannot read yet, comes back as an 'unknown' preview rather than
-            // an error, so the picker can say the file is not supported. Markdown is a document, not data, so it is not
-            // parsed either and comes back as itself with no records. The text is kept so the picker can still show it.
-            if (filePreviewResult.dataFormatId == null || filePreviewResult.dataFormatId === 'markdown' || filePreviewResult.text == null) {
+            // Only delimited text is parsed. Any other format comes back as itself with no records, rather than as an error:
+            // markdown, which is a document, JSON and JSON Lines, which have no reader yet, and a type the app cannot read,
+            // which comes back as 'unknown'. The text is kept so the picker can still show it.
+            if (filePreviewResult.dataFormatId !== 'dtv' || filePreviewResult.text == null) {
                 return {
                     asAt,
                     columnConfigs: [],
-                    dataFormatId: filePreviewResult.dataFormatId === 'markdown' ? 'markdown' : 'unknown',
+                    dataFormatId: filePreviewResult.dataFormatId ?? 'unknown',
                     duration: performance.now() - startedAt,
                     encodingId: filePreviewResult.encodingId,
                     encodingConfidenceLevel: filePreviewResult.encodingConfidenceLevel,

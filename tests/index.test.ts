@@ -211,17 +211,15 @@ describe('Connector', () => {
         it('reads text with no delimiter found as comma-delimited, parsing it again with the comma', async () => {
             const text = 'Some words.\nMore words.';
             tools.byName['file-previewer'] = {
-                previewFile: vi
-                    .fn()
-                    .mockResolvedValue({
-                        bytes: new Uint8Array(23),
-                        dataFormatId: 'dtv',
-                        encodingConfidenceLevel: 1,
-                        encodingId: 'utf-8',
-                        fileTypeConfig: undefined,
-                        isComplete: true,
-                        text
-                    })
+                previewFile: vi.fn().mockResolvedValue({
+                    bytes: new Uint8Array(23),
+                    dataFormatId: 'dtv',
+                    encodingConfidenceLevel: 1,
+                    encodingId: 'utf-8',
+                    fileTypeConfig: undefined,
+                    isComplete: true,
+                    text
+                })
             };
             const parseText = vi.fn().mockResolvedValue({ parsedRecords: [['Some words.'], ['More words.']], recordDelimiterId: '\n', valueDelimiterId: undefined });
             tools.byName['adaltas-csv-parser'] = { parseText };
@@ -263,6 +261,32 @@ describe('Connector', () => {
         });
 
         // A markdown table with a quote inside a cell is not valid delimited text under any delimiter, so parsing it threw.
+        it.each([
+            ['json', '[{"name": "Ada"}]'],
+            ['jsonl', '{"name": "Ada"}\n{"name": "Grace"}']
+        ])('keeps the text of %s without parsing it', async (dataFormatId, text) => {
+            tools.byName['file-previewer'] = {
+                previewFile: vi
+                    .fn()
+                    .mockResolvedValue({
+                        bytes: new Uint8Array(40),
+                        dataFormatId,
+                        encodingId: 'utf-8',
+                        encodingConfidenceLevel: 1,
+                        fileTypeConfig: undefined,
+                        isComplete: true,
+                        text
+                    })
+            };
+            const parseText = vi.fn();
+            tools.byName['adaltas-csv-parser'] = { parseText };
+
+            expect(await createConnector().previewObject({ path: OBJECT_PATH } as never)).toEqual(
+                expect.objectContaining({ dataFormatId, parsedRecords: [], text, valueDelimiterId: undefined })
+            );
+            expect(parseText).not.toHaveBeenCalled();
+        });
+
         it('keeps the text of markdown without parsing it', async () => {
             const text = '| File | Tests |\n| --- | --- |\n| `people.xml` | XML stating `encoding="ISO-8859-1"` |';
             tools.byName['file-previewer'] = {

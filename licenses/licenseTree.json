@@ -1,5 +1,5 @@
 {
-  "version": "1.0.121",
+  "version": "1.0.122",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
@@ -1283,8 +1283,8 @@
       }
     },
     "@dpuse/dpuse-tool-file-previewer": {
-      "version": "1.0.119",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.119.tgz",
+      "version": "1.0.120",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.120.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
