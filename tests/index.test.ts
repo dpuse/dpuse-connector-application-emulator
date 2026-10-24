@@ -208,36 +208,41 @@ describe('Connector', () => {
             );
         });
 
-        it('reports text the parser finds no delimiter in as plain text', async () => {
+        it('reads text with no delimiter found as comma-delimited, parsing it again with the comma', async () => {
             const text = 'Some words.\nMore words.';
             tools.byName['file-previewer'] = {
                 previewFile: vi
                     .fn()
                     .mockResolvedValue({ bytes: new Uint8Array(23), dataFormatId: 'dtv', encodingConfidenceLevel: 1, encodingId: 'utf-8', fileTypeConfig: undefined, text })
             };
-            tools.byName['adaltas-csv-parser'] = {
-                parseText: vi.fn().mockResolvedValue({ parsedRecords: [['Some words.'], ['More words.']], recordDelimiterId: '\n', valueDelimiterId: undefined })
-            };
+            const parseText = vi.fn().mockResolvedValue({ parsedRecords: [['Some words.'], ['More words.']], recordDelimiterId: '\n', valueDelimiterId: undefined });
+            tools.byName['adaltas-csv-parser'] = { parseText };
 
             const preview = await createConnector().previewObject({ path: OBJECT_PATH } as never);
 
-            expect(preview).toEqual(expect.objectContaining({ dataFormatId: 'text', text, valueDelimiterId: undefined }));
+            expect(parseText).toHaveBeenLastCalledWith(text, [',']);
+            expect(preview).toEqual(expect.objectContaining({ dataFormatId: 'dtv', text, valueDelimiterId: ',' }));
         });
 
-        it('reports a file of unknown type or with no text as an unknown preview', async () => {
+        it('reports a file of a type it cannot read yet as an unknown preview', async () => {
             const fileTypeConfig = { ext: 'pdf', mime: 'application/pdf' };
-            const previewFile = vi
-                .fn()
-                .mockResolvedValueOnce({ bytes: new Uint8Array(9), dataFormatId: undefined, fileTypeConfig, text: undefined })
-                .mockResolvedValueOnce({ bytes: new Uint8Array(0), dataFormatId: undefined, fileTypeConfig: undefined, text: undefined });
-            tools.byName['file-previewer'] = { previewFile };
+            tools.byName['file-previewer'] = { previewFile: vi.fn().mockResolvedValue({ bytes: new Uint8Array(9), dataFormatId: undefined, fileTypeConfig, text: '%PDF-1.7\n' }) };
             const connector = createConnector();
 
             expect(await connector.previewObject({ path: OBJECT_PATH } as never)).toEqual(
-                expect.objectContaining({ dataFormatId: 'unknown', fileType: fileTypeConfig, parsedRecords: [], size: 9, text: undefined })
+                expect.objectContaining({ dataFormatId: 'unknown', fileType: fileTypeConfig, parsedRecords: [], size: 9, text: '%PDF-1.7\n' })
             );
-            expect(await connector.previewObject({ path: OBJECT_PATH } as never)).toEqual(expect.objectContaining({ dataFormatId: 'unknown', size: 0 }));
             expect(connector.abortController).toBeUndefined();
+        });
+
+        it('reports an empty file as delimited text with no rows, read with the defaults', async () => {
+            tools.byName['file-previewer'] = {
+                previewFile: vi.fn().mockResolvedValue({ bytes: new Uint8Array(0), dataFormatId: undefined, fileTypeConfig: undefined, text: undefined })
+            };
+
+            expect(await createConnector().previewObject({ path: OBJECT_PATH } as never)).toEqual(
+                expect.objectContaining({ dataFormatId: 'dtv', hasHeaders: false, parsedRecords: [], recordDelimiterId: '\n', size: 0, text: undefined, valueDelimiterId: ',' })
+            );
         });
 
         it('keeps the text of an unsupported text format, such as XML', async () => {

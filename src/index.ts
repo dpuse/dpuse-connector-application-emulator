@@ -17,10 +17,12 @@ import type {
     ParsingRecord,
     PreviewConfig,
     PreviewObjectOptions,
+    RecordDelimiterId,
     RecordRetrievalTypeId,
     RetrieveRecordsOptions,
     RetrieveRecordsSummary,
-    ToolConfig
+    ToolConfig,
+    ValueDelimiterId
 } from '@dpuse/dpuse-shared';
 import {
     buildFetchError,
@@ -62,6 +64,11 @@ const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
 
 // Lists the application folder's folders and files, published with them.
 const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json';
+
+// Text the previewer takes as delimited is read as delimited even when no delimiter is found, such as a single column
+// or rows that split unevenly. It is then read with these, the most common ones. An empty file is read with them too.
+const DEFAULT_RECORD_DELIMITER_ID: RecordDelimiterId = '\n';
+const DEFAULT_VALUE_DELIMITER_ID: ValueDelimiterId = ',';
 
 // Connectors
 export class Connector implements ConnectorInterface {
@@ -109,7 +116,7 @@ export class Connector implements ConnectorInterface {
             }
 
             const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
-            const parseStreamOptions = { delimiter: options.valueDelimiterId, relax_column_count: true, relax_quotes: true };
+            const parseStreamOptions = { delimiter: options.valueDelimiterId, relax_column_count: true };
             const url = `${URL_PREFIX}${options.path}`;
             const summary = await csvParseTool.parseStream(options, parseStreamOptions, url, this.abortController, (parameter) => {
                 console.log(parameter);
@@ -184,9 +191,27 @@ export class Connector implements ConnectorInterface {
             // Preview file to determine file format and decode text.
             const fileOperatorsTool = await loadTool<FileOperatorsTool>(this.toolConfigs, 'file-previewer');
             const filePreviewResult = await fileOperatorsTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize);
-            // A file with no format to parse comes back as an 'unknown' preview rather than an error, so the picker can say
-            // the file is not supported. Its text, if it has any, such as an XML file's, is kept so the picker can still
-            // show it. A binary format or an empty file has none.
+            // An empty file is a table with no rows.
+            if (filePreviewResult.bytes.length === 0) {
+                return {
+                    asAt,
+                    columnConfigs: [],
+                    dataFormatId: 'dtv',
+                    duration: performance.now() - startedAt,
+                    encodingId: undefined,
+                    encodingConfidenceLevel: undefined,
+                    fileType: undefined,
+                    hasHeaders: false,
+                    recordDelimiterId: DEFAULT_RECORD_DELIMITER_ID,
+                    parsedRecords: [],
+                    inferenceRecords: [],
+                    size: 0,
+                    text: undefined,
+                    valueDelimiterId: DEFAULT_VALUE_DELIMITER_ID
+                };
+            }
+            // A file with no format to parse, a type the app cannot read yet, comes back as an 'unknown' preview rather than
+            // an error, so the picker can say the file is not supported. Its text is kept so the picker can still show it.
             if (filePreviewResult.dataFormatId == null || filePreviewResult.text == null) {
                 return {
                     asAt,
@@ -206,20 +231,20 @@ export class Connector implements ConnectorInterface {
                 };
             }
 
-            // Parse text, identify delimiters, and produce string value records.
+            // Parse text, identify delimiters, and produce string value records. With no delimiter found, the text is parsed
+            // again with the default, so the records match the delimiter reported.
             const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
-            const parseTextResult = await csvParseTool.parseText(filePreviewResult.text, ORDERED_VALUE_DELIMITER_IDS);
+            const detectedParseTextResult = await csvParseTool.parseText(filePreviewResult.text, ORDERED_VALUE_DELIMITER_IDS);
+            const parseTextResult =
+                detectedParseTextResult.valueDelimiterId == null ? await csvParseTool.parseText(filePreviewResult.text, [DEFAULT_VALUE_DELIMITER_ID]) : detectedParseTextResult;
 
             // Infer and cast values for each parsed record.
             const inferenceSummary = this.connectorUtilities.inferDataTypes(parseTextResult.parsedRecords);
 
-            // The previewer takes any text it cannot place as delimited. Parsing finds no delimiter in plain text.
-            const dataFormatId = filePreviewResult.dataFormatId === 'dtv' && parseTextResult.valueDelimiterId == null ? 'text' : filePreviewResult.dataFormatId;
-
             return {
                 asAt,
                 columnConfigs: inferenceSummary.columnConfigs,
-                dataFormatId,
+                dataFormatId: filePreviewResult.dataFormatId,
                 duration: performance.now() - startedAt,
                 encodingId: filePreviewResult.encodingId,
                 encodingConfidenceLevel: filePreviewResult.encodingConfidenceLevel,
@@ -230,7 +255,7 @@ export class Connector implements ConnectorInterface {
                 inferenceRecords: inferenceSummary.typedRecords,
                 size: filePreviewResult.bytes.length,
                 text: filePreviewResult.text,
-                valueDelimiterId: parseTextResult.valueDelimiterId
+                valueDelimiterId: parseTextResult.valueDelimiterId ?? DEFAULT_VALUE_DELIMITER_ID
             };
         } catch (error) {
             throw normalizeToError(error);
@@ -247,7 +272,7 @@ export class Connector implements ConnectorInterface {
         this.abortController = new AbortController();
         try {
             const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
-            const parseStreamOptions = { delimiter: options.valueDelimiterId, info: true, relax_column_count: true, relax_quotes: true };
+            const parseStreamOptions = { delimiter: options.valueDelimiterId, info: true, relax_column_count: true };
             const url = `${URL_PREFIX}${options.path}`;
             const summary = await csvParseTool.parseStream(options, parseStreamOptions, url, this.abortController, chunk);
             complete(summary);

@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-10-23T13:29:53.908Z",
+    "generatedAt": "2026-10-24T10:02:09.501Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,8 +21,8 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 3649,
-      "gzip": 991,
+      "uncompressed": 3569,
+      "gzip": 988,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     },
@@ -37,8 +37,8 @@
       "kind": "asset",
       "name": "dist/dpuse-connector-application-emulator.es.js",
       "type": "script",
-      "uncompressed": 20195,
-      "gzip": 6291,
+      "uncompressed": 20330,
+      "gzip": 6170,
       "brotli": 0
     },
     {
@@ -46,15 +46,15 @@
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 38198
+      "uncompressed": 37775
     },
     {
       "kind": "chunk",
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 11330,
-      "gzip": 3551,
+      "uncompressed": 11145,
+      "gzip": 3382,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     },
@@ -71,7 +71,7 @@
       "type": "script",
       "format": "esm",
       "uncompressed": 190,
-      "gzip": 187,
+      "gzip": 186,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     },
@@ -97,15 +97,15 @@
       "name": "src/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 8307
+      "uncompressed": 9119
     },
     {
       "kind": "chunk",
       "name": "src/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 5022,
-      "gzip": 1539,
+      "uncompressed": 5422,
+      "gzip": 1590,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     }
