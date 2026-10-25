@@ -257,7 +257,10 @@ describe('Connector', () => {
 
             await createConnector().previewObject({ chunkSize: undefined, extension: undefined, mimeType: 'text/markdown', path: OBJECT_PATH });
 
-            expect(previewFile).toHaveBeenCalledWith(expect.stringContaining(OBJECT_PATH), expect.any(AbortSignal), undefined, 'text/markdown');
+            expect(previewFile).toHaveBeenCalledWith(expect.stringContaining(OBJECT_PATH), expect.any(AbortSignal), undefined, 'text/markdown', undefined, {
+                dataFormatId: undefined,
+                encodingId: undefined
+            });
         });
 
         // A markdown table with a quote inside a cell is not valid delimited text under any delimiter, so parsing it threw.
@@ -303,16 +306,25 @@ describe('Connector', () => {
             expect(parseText).not.toHaveBeenCalled();
         });
 
-        it('keeps the text of an unsupported text format, such as XML', async () => {
+        it("passes the user's format and encoding choices to the previewer", async () => {
+            const previewFile = vi.fn().mockResolvedValue({ bytes: new Uint8Array(0), dataFormatId: undefined, fileTypeConfig: undefined, text: undefined });
+            tools.byName['file-previewer'] = { previewFile };
+
+            await createConnector().previewObject({ dataFormatId: 'dtv', encodingId: 'MacRoman', path: OBJECT_PATH } as never);
+
+            expect(previewFile).toHaveBeenCalledWith(expect.any(String), expect.any(AbortSignal), undefined, undefined, undefined, { dataFormatId: 'dtv', encodingId: 'MacRoman' });
+        });
+
+        it('keeps the text of a detected format with no reader yet, such as XML', async () => {
             const fileTypeConfig = { ext: 'xml', mime: 'application/xml' };
             const text = '<?xml version="1.0"?>\n<name>Ada</name>';
             const previewFile = vi
                 .fn()
-                .mockResolvedValue({ bytes: new Uint8Array(40), dataFormatId: undefined, encodingId: 'utf-8', encodingConfidenceLevel: 1, fileTypeConfig, text });
+                .mockResolvedValue({ bytes: new Uint8Array(40), dataFormatId: 'xml', encodingId: 'utf-8', encodingConfidenceLevel: 1, fileTypeConfig, text });
             tools.byName['file-previewer'] = { previewFile };
 
             expect(await createConnector().previewObject({ path: OBJECT_PATH } as never)).toEqual(
-                expect.objectContaining({ dataFormatId: 'unknown', encodingId: 'utf-8', encodingConfidenceLevel: 1, fileType: fileTypeConfig, parsedRecords: [], text })
+                expect.objectContaining({ dataFormatId: 'xml', encodingId: 'utf-8', encodingConfidenceLevel: 1, fileType: fileTypeConfig, parsedRecords: [], text })
             );
         });
     });

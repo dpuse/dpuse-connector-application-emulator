@@ -190,7 +190,10 @@ export class Connector implements ConnectorInterface {
 
             // Preview file to determine file format and decode text.
             const fileOperatorsTool = await loadTool<FileOperatorsTool>(this.toolConfigs, 'file-previewer');
-            const filePreviewResult = await fileOperatorsTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType);
+            const filePreviewResult = await fileOperatorsTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, undefined, {
+                dataFormatId: options.dataFormatId,
+                encodingId: options.encodingId
+            }); // The user's choices, when made, replace what detection would find.
             // An empty file is a table with no rows.
             if (filePreviewResult.bytes.length === 0) {
                 return {
