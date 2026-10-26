@@ -1,5 +1,5 @@
 {
-  "version": "1.0.123",
+  "version": "1.0.124",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
@@ -8,7 +8,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.136"
+          "version": "1.0.142"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1201,8 +1201,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.136",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.136.tgz",
+      "version": "1.0.142",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.142.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1268,12 +1268,12 @@
       }
     },
     "@dpuse/dpuse-tool-adaltas-csv-parser": {
-      "version": "1.0.113",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.113.tgz",
+      "version": "1.0.114",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.114.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.136"
+          "version": "1.0.142"
         },
         "csv-parse": {
           "version": "7.0.3",
@@ -1283,12 +1283,12 @@
       }
     },
     "@dpuse/dpuse-tool-file-previewer": {
-      "version": "1.0.122",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.122.tgz",
+      "version": "1.0.123",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.123.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.136"
+          "version": "1.0.142"
         },
         "file-type": {
           "version": "22.2.0"
@@ -1306,7 +1306,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.136"
+          "version": "1.0.142"
         }
       }
     },
@@ -3343,11 +3343,6 @@
           }
         }
       }
-    },
-    "nanoid": {
-      "version": "6.0.2",
-      "resolved": "https://registry.npmjs.org/nanoid/-/nanoid-6.0.2.tgz",
-      "overridden": false
     },
     "prettier": {
       "version": "3.9.10",

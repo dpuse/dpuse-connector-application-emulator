@@ -22,10 +22,10 @@ const OBJECT_PATH = '/hr/workforce/locations.csv';
 // A small stand-in for the published application index.
 const APPLICATION_INDEX = {
     '': [
-        { childCount: 1, label: 'HR', name: 'hr', typeId: 'folder' },
+        { childCount: 1, id: 'hrId', label: 'HR', name: 'hr', typeId: 'folder' },
         { id: 'locationsId', label: 'Locations', lastModifiedAt: 1_700_000_000_000, name: 'locations.csv', size: 778, typeId: 'object' }
     ],
-    '/hr': [{ childCount: 1, name: 'workforce', typeId: 'folder' }],
+    '/hr': [{ childCount: 1, id: 'workforceId', name: 'workforce', typeId: 'folder' }],
     '/hr/workforce': [
         { id: 'engagementsId', lastModifiedAt: 1_700_000_000_000, name: 'engagements.csv', size: 1000, typeId: 'object' },
         { id: 'readmeId', label: 'Read Me', lastModifiedAt: 1_700_000_000_000, mimeType: 'text/markdown', name: 'README.md', size: 100, typeId: 'object' }
@@ -76,7 +76,7 @@ describe('Connector', () => {
             const result = await createConnector().listNodes({ folderPath: '' });
 
             expect(fetchMock).toHaveBeenCalledWith(INDEX_URL);
-            expect(result.connectionNodeConfigs).toContainEqual(expect.objectContaining({ name: 'hr', label: 'HR', typeId: 'folder', childCount: 1, folderPath: '' }));
+            expect(result.connectionNodeConfigs).toContainEqual(expect.objectContaining({ id: 'hrId', name: 'hr', label: 'HR', typeId: 'folder', childCount: 1, folderPath: '' }));
             expect(result.connectionNodeConfigs).toContainEqual(
                 expect.objectContaining({ id: 'locationsId', label: 'Locations', name: 'locations', extension: 'csv', mimeType: 'text/csv', size: 778, typeId: 'object' })
             );

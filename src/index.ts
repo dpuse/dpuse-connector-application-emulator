@@ -1,6 +1,3 @@
-// ── External Dependencies
-import { nanoid } from 'nanoid';
-
 // ── DPUse Framework
 import type {
     AuditObjectContentOptions,
@@ -48,7 +45,7 @@ import config from '~/config.json';
  */
 // eslint-disable-next-line unicorn/name-replacements -- Prefer ApplicationFolderNode to AppFolderNode
 type ApplicationFolderNode =
-    | ({ typeId: 'folder'; childCount: number } & { label?: string; name: string })
+    | ({ typeId: 'folder'; childCount: number; id: string } & { label?: string; name: string })
     | ({ typeId: 'object'; id: string; lastModifiedAt: number; mimeType?: string; size: number } & { label?: string; name: string });
 
 /**
@@ -173,7 +170,7 @@ export class Connector implements ConnectorInterface {
         const folderNodes = fileStoreFolderPaths[options.folderPath] ?? [];
         const connectionNodeConfigs: ConnectionNodeConfig[] = folderNodes.map((folderNode) =>
             folderNode.typeId === 'folder'
-                ? constructFolderNodeConfig(options.folderPath, folderNode.name, folderNode.childCount, folderNode.label)
+                ? constructFolderNodeConfig(options.folderPath, folderNode.id, folderNode.name, folderNode.childCount, folderNode.label)
                 : constructObjectNodeConfig(options.folderPath, folderNode.id, folderNode.name, folderNode.lastModifiedAt, folderNode.size, folderNode.mimeType, folderNode.label)
         );
         return { cursor: undefined, isMore: false, connectionNodeConfigs, totalCount: connectionNodeConfigs.length };
@@ -315,7 +312,7 @@ export class Connector implements ConnectorInterface {
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 // Construct folder node configuration. The index's label, when it has one, shows the folder as a group of tables.
-function constructFolderNodeConfig(folderPath: string, name: string, childCount: number, label = name): ConnectionNodeConfig {
+function constructFolderNodeConfig(folderPath: string, id: string, name: string, childCount: number, label = name): ConnectionNodeConfig {
     return {
         childCount,
         childNodes: [],
@@ -325,7 +322,7 @@ function constructFolderNodeConfig(folderPath: string, name: string, childCount:
         handle: undefined,
         icon: null,
         iconDark: null,
-        id: nanoid(),
+        id,
         label,
         lastModifiedAt: undefined,
         mimeType: undefined,

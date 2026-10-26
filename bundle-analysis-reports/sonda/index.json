@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-10-25T10:50:21.218Z",
+    "generatedAt": "2026-10-26T09:06:03.608Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,8 +21,8 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 3579,
-      "gzip": 988,
+      "uncompressed": 3532,
+      "gzip": 977,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     },
@@ -37,8 +37,8 @@
       "kind": "asset",
       "name": "dist/dpuse-connector-application-emulator.es.js",
       "type": "script",
-      "uncompressed": 20591,
-      "gzip": 6241,
+      "uncompressed": 20312,
+      "gzip": 6080,
       "brotli": 0
     },
     {
@@ -46,49 +46,15 @@
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 37897
+      "uncompressed": 53743
     },
     {
       "kind": "chunk",
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 11268,
-      "gzip": 3419,
-      "brotli": 0,
-      "parent": "dist/dpuse-connector-application-emulator.es.js"
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/nanoid/index.browser.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 1337
-    },
-    {
-      "kind": "chunk",
-      "name": "node_modules/nanoid/index.browser.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 190,
-      "gzip": 187,
-      "brotli": 0,
-      "parent": "dist/dpuse-connector-application-emulator.es.js"
-    },
-    {
-      "kind": "filesystem",
-      "name": "node_modules/nanoid/url-alphabet/index.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 94
-    },
-    {
-      "kind": "chunk",
-      "name": "node_modules/nanoid/url-alphabet/index.js",
-      "type": "script",
-      "format": "esm",
-      "uncompressed": 4,
-      "gzip": 23,
+      "uncompressed": 11223,
+      "gzip": 3468,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     },
@@ -97,15 +63,15 @@
       "name": "src/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 9327
+      "uncompressed": 9303
     },
     {
       "kind": "chunk",
       "name": "src/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 5550,
-      "gzip": 1625,
+      "uncompressed": 5557,
+      "gzip": 1635,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     }
@@ -123,12 +89,6 @@
       "name": "@dpuse/dpuse-shared",
       "paths": [
         "node_modules/@dpuse/dpuse-shared"
-      ]
-    },
-    {
-      "name": "nanoid",
-      "paths": [
-        "node_modules/nanoid"
       ]
     }
   ],
