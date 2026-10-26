@@ -1,5 +1,5 @@
 {
-  "version": "1.0.125",
+  "version": "1.0.126",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
@@ -8,7 +8,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.143"
+          "version": "1.0.146"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1201,8 +1201,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.143",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.143.tgz",
+      "version": "1.0.146",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.146.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1268,12 +1268,12 @@
       }
     },
     "@dpuse/dpuse-tool-adaltas-csv-parser": {
-      "version": "1.0.115",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.115.tgz",
+      "version": "1.0.118",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.118.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.143"
+          "version": "1.0.146"
         },
         "csv-parse": {
           "version": "7.0.3",
@@ -1283,19 +1283,19 @@
       }
     },
     "@dpuse/dpuse-tool-file-previewer": {
-      "version": "1.0.123",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.123.tgz",
+      "version": "1.0.125",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-file-previewer/-/dpuse-tool-file-previewer-1.0.125.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.143"
+          "version": "1.0.146"
         },
         "file-type": {
           "version": "22.2.0"
         },
         "jschardet": {
-          "version": "4.0.0",
-          "resolved": "https://registry.npmjs.org/jschardet/-/jschardet-4.0.0.tgz",
+          "version": "4.1.0",
+          "resolved": "https://registry.npmjs.org/jschardet/-/jschardet-4.1.0.tgz",
           "overridden": false
         }
       }
@@ -1306,7 +1306,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.143"
+          "version": "1.0.146"
         }
       }
     },
@@ -3900,8 +3900,8 @@
       }
     },
     "wrangler": {
-      "version": "4.152.0",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.152.0.tgz",
+      "version": "4.153.0",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.153.0.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -3918,7 +3918,7 @@
               "version": "2.0.0-rc.24"
             },
             "workerd": {
-              "version": "1.20261019.1"
+              "version": "1.20261023.1"
             }
           }
         },
@@ -3935,8 +3935,8 @@
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261019.2-beta",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261019.2-beta.tgz",
+          "version": "5.20261023.0-beta",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261023.0-beta.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {
@@ -4016,12 +4016,12 @@
               }
             },
             "undici": {
-              "version": "7.29.1",
-              "resolved": "https://registry.npmjs.org/undici/-/undici-7.29.1.tgz",
+              "version": "7.30.1",
+              "resolved": "https://registry.npmjs.org/undici/-/undici-7.30.1.tgz",
               "overridden": false
             },
             "workerd": {
-              "version": "1.20261019.1"
+              "version": "1.20261023.1"
             },
             "ws": {
               "version": "8.21.0",
@@ -4118,14 +4118,14 @@
           }
         },
         "workerd": {
-          "version": "1.20261019.1",
-          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261019.1.tgz",
+          "version": "1.20261023.1",
+          "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20261023.1.tgz",
           "overridden": false,
           "dependencies": {
             "@cloudflare/workerd-darwin-64": {},
             "@cloudflare/workerd-darwin-arm64": {
-              "version": "1.20261019.1",
-              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261019.1.tgz",
+              "version": "1.20261023.1",
+              "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20261023.1.tgz",
               "overridden": false
             },
             "@cloudflare/workerd-linux-64": {},

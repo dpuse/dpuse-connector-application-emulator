@@ -320,9 +320,9 @@ describe('Connector', () => {
             const previewFile = vi.fn().mockResolvedValue({ bytes: new Uint8Array(0), dataFormatId: undefined, fileTypeConfig: undefined, text: undefined });
             tools.byName['file-previewer'] = { previewFile };
 
-            await createConnector().previewObject({ dataFormatId: 'dtv', encodingId: 'MacRoman', path: OBJECT_PATH } as never);
+            await createConnector().previewObject({ dataFormatId: 'dtv', encodingId: 'macroman', path: OBJECT_PATH } as never);
 
-            expect(previewFile).toHaveBeenCalledWith(expect.any(String), expect.any(AbortSignal), undefined, undefined, undefined, { dataFormatId: 'dtv', encodingId: 'MacRoman' });
+            expect(previewFile).toHaveBeenCalledWith(expect.any(String), expect.any(AbortSignal), undefined, undefined, undefined, { dataFormatId: 'dtv', encodingId: 'macroman' });
         });
 
         it('keeps the text of a detected format with no reader yet, such as XML', async () => {
