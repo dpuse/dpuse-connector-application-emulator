@@ -1,11 +1,11 @@
 {
-    "@dpuse/dpuse-shared@1.0.142": {
+    "@dpuse/dpuse-shared@1.0.143": {
         "licenses": "MIT",
         "repository": "https://github.com/dpuse/dpuse-shared",
         "publisher": "Jonathan Terrell",
         "email": "terrell.jm@gmail.com",
         "path": "node_modules/@dpuse/dpuse-shared",
-        "licenseFile": "downloads/@dpuse/dpuse-shared@1.0.142-LICENSE.txt"
+        "licenseFile": "downloads/@dpuse/dpuse-shared@1.0.143-LICENSE.txt"
     },
     "valibot@1.5.0": {
         "licenses": "MIT",

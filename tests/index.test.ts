@@ -176,7 +176,9 @@ describe('Connector', () => {
     });
 
     describe('previewObject', () => {
-        it('previews the file, parses its text and infers its types', async () => {
+        const PARSE_ISSUE = { id: 'INVALID_OPENING_QUOTE', lineNumber: 2, message: 'Invalid Opening Quote', severityId: 'error' };
+
+        it('previews the file, parses its text, infers its types and passes on the parse issues', async () => {
             tools.byName['file-previewer'] = {
                 previewFile: vi.fn().mockResolvedValue({
                     bytes: new Uint8Array(4),
@@ -188,7 +190,7 @@ describe('Connector', () => {
                 })
             };
             tools.byName['adaltas-csv-parser'] = {
-                parseText: vi.fn().mockResolvedValue({ parsedRecords: [['a'], ['1']], recordDelimiterId: '\n', valueDelimiterId: ',' })
+                parseText: vi.fn().mockResolvedValue({ issues: [PARSE_ISSUE], parsedRecords: [['a'], ['1']], recordDelimiterId: '\n', valueDelimiterId: ',' })
             };
 
             const preview = await createConnector().previewObject({ path: OBJECT_PATH } as never);
@@ -200,6 +202,7 @@ describe('Connector', () => {
                     encodingId: 'utf-8',
                     hasHeaders: true,
                     inferenceRecords: [['typed']],
+                    issues: [PARSE_ISSUE],
                     parsedRecords: [['a'], ['1']],
                     size: 4,
                     text: 'a\n1',
@@ -241,13 +244,22 @@ describe('Connector', () => {
             expect(connector.abortController).toBeUndefined();
         });
 
-        it('reports an empty file as delimited text with no rows, read with the defaults', async () => {
+        it('reports an empty file as delimited text with no rows, read with the defaults, and says it is empty', async () => {
             tools.byName['file-previewer'] = {
                 previewFile: vi.fn().mockResolvedValue({ bytes: new Uint8Array(0), dataFormatId: undefined, fileTypeConfig: undefined, text: undefined })
             };
 
             expect(await createConnector().previewObject({ path: OBJECT_PATH } as never)).toEqual(
-                expect.objectContaining({ dataFormatId: 'dtv', hasHeaders: false, parsedRecords: [], recordDelimiterId: '\n', size: 0, text: undefined, valueDelimiterId: ',' })
+                expect.objectContaining({
+                    dataFormatId: 'dtv',
+                    hasHeaders: false,
+                    issues: [{ id: 'empty', lineNumber: undefined, message: 'The file is empty.', severityId: 'info' }],
+                    parsedRecords: [],
+                    recordDelimiterId: '\n',
+                    size: 0,
+                    text: undefined,
+                    valueDelimiterId: ','
+                })
             );
         });
 
@@ -269,17 +281,15 @@ describe('Connector', () => {
             ['jsonl', '{"name": "Ada"}\n{"name": "Grace"}']
         ])('keeps the text of %s without parsing it', async (dataFormatId, text) => {
             tools.byName['file-previewer'] = {
-                previewFile: vi
-                    .fn()
-                    .mockResolvedValue({
-                        bytes: new Uint8Array(40),
-                        dataFormatId,
-                        encodingId: 'utf-8',
-                        encodingConfidenceLevel: 1,
-                        fileTypeConfig: undefined,
-                        isComplete: true,
-                        text
-                    })
+                previewFile: vi.fn().mockResolvedValue({
+                    bytes: new Uint8Array(40),
+                    dataFormatId,
+                    encodingId: 'utf-8',
+                    encodingConfidenceLevel: 1,
+                    fileTypeConfig: undefined,
+                    isComplete: true,
+                    text
+                })
             };
             const parseText = vi.fn();
             tools.byName['adaltas-csv-parser'] = { parseText };
