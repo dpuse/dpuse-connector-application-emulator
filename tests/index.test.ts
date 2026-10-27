@@ -6,10 +6,13 @@ import { Connector } from '@/index';
 
 // ── Mocks ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Tools are loaded at run time from the engine, so each test supplies the tool it needs.
+// Tools are loaded at run time from the engine, so each test supplies the tool it needs. The shared preview, retrieve and
+// audit functions have their own tests in dpuse-shared, so here they only record what the connector hands them.
 const tools = vi.hoisted((): { byName: Record<string, unknown> } => ({ byName: {} }));
+const shared = vi.hoisted(() => ({ auditObjectContentWithParser: vi.fn(), buildPreviewConfig: vi.fn(), retrieveRecordsWithParser: vi.fn() }));
 vi.mock('@dpuse/dpuse-shared', async (importOriginal) => ({
     ...(await importOriginal<object>()),
+    ...shared,
     loadTool: vi.fn((_toolConfigs: unknown, name: string) => Promise.resolve(tools.byName[name]))
 }));
 
@@ -51,6 +54,7 @@ describe('Connector', () => {
     afterEach(() => {
         vi.unstubAllGlobals();
         tools.byName = {};
+        for (const mock of Object.values(shared)) mock.mockReset();
     });
 
     it('constructs with the static config and no active operation', () => {
@@ -187,231 +191,101 @@ describe('Connector', () => {
     });
 
     describe('previewObject', () => {
-        const PARSE_ISSUE = { id: 'INVALID_OPENING_QUOTE', lineNumber: 2, message: 'Invalid Opening Quote', severityId: 'error' };
-
-        it('previews the file, parses its text, infers its types and passes on the parse issues', async () => {
-            tools.byName['file-previewer'] = {
-                previewFile: vi.fn().mockResolvedValue({
-                    bytes: new Uint8Array(4),
-                    dataFormatId: 'dtv',
-                    encodingConfidenceLevel: 100,
-                    encodingId: 'utf-8',
-                    fileTypeConfig: undefined,
-                    text: 'a\n1'
-                })
-            };
-            tools.byName['adaltas-csv-parser'] = {
-                parseText: vi.fn().mockResolvedValue({ issues: [PARSE_ISSUE], parsedRecords: [['a'], ['1']], recordDelimiterId: '\n', valueDelimiterId: ',' })
-            };
-
-            const preview = await createConnector().previewObject({ path: OBJECT_PATH } as never);
-
-            expect(preview).toEqual(
-                expect.objectContaining({
-                    columnConfigs: [{ id: 'a' }],
-                    dataFormatId: 'dtv',
-                    encodingId: 'utf-8',
-                    hasHeaders: true,
-                    inferenceRecords: [['typed']],
-                    issues: [PARSE_ISSUE],
-                    parsedRecords: [['a'], ['1']],
-                    size: 4,
-                    text: 'a\n1',
-                    valueDelimiterId: ','
-                })
-            );
-        });
-
-        it('reads text with no delimiter found as comma-delimited, parsing it again with the comma', async () => {
-            const text = 'Some words.\nMore words.';
-            tools.byName['file-previewer'] = {
-                previewFile: vi.fn().mockResolvedValue({
-                    bytes: new Uint8Array(23),
-                    dataFormatId: 'dtv',
-                    encodingConfidenceLevel: 1,
-                    encodingId: 'utf-8',
-                    fileTypeConfig: undefined,
-                    isComplete: true,
-                    text
-                })
-            };
-            const parseText = vi.fn().mockResolvedValue({ parsedRecords: [['Some words.'], ['More words.']], recordDelimiterId: '\n', valueDelimiterId: undefined });
-            tools.byName['adaltas-csv-parser'] = { parseText };
-
-            const preview = await createConnector().previewObject({ path: OBJECT_PATH } as never);
-
-            expect(parseText).toHaveBeenLastCalledWith(text, [','], true);
-            expect(preview).toEqual(expect.objectContaining({ dataFormatId: 'dtv', text, valueDelimiterId: ',' }));
-        });
-
-        it('reports a file of a type it cannot read yet as an unknown preview', async () => {
-            const fileTypeConfig = { ext: 'pdf', mime: 'application/pdf' };
-            tools.byName['file-previewer'] = { previewFile: vi.fn().mockResolvedValue({ bytes: new Uint8Array(9), dataFormatId: undefined, fileTypeConfig, text: '%PDF-1.7\n' }) };
+        it("previews the file with the user's choices, then builds the preview with the parser they chose", async () => {
+            const filePreview = { bytes: new Uint8Array(4), dataFormatId: 'dtv', text: 'a,b\n' };
+            const previewFile = vi.fn().mockResolvedValue(filePreview);
+            tools.byName['file-previewer'] = { previewFile };
+            const previewConfig = { dataFormatId: 'dtv' };
+            shared.buildPreviewConfig.mockResolvedValue(previewConfig);
+            const options = { chunkSize: 4096, dataFormatId: 'dtv', encodingId: 'utf-8', mimeType: 'text/csv', parserId: 'dpuse-tool-adaltas-csv-parser', path: OBJECT_PATH };
             const connector = createConnector();
 
-            expect(await connector.previewObject({ path: OBJECT_PATH } as never)).toEqual(
-                expect.objectContaining({ dataFormatId: 'unknown', fileType: fileTypeConfig, parsedRecords: [], size: 9, text: '%PDF-1.7\n' })
-            );
+            expect(await connector.previewObject(options as never)).toBe(previewConfig);
+            expect(previewFile).toHaveBeenCalledWith(`${URL_PREFIX}${OBJECT_PATH}`, expect.any(AbortSignal), 4096, 'text/csv', undefined, {
+                dataFormatId: 'dtv',
+                encodingId: 'utf-8'
+            });
+            expect(shared.buildPreviewConfig).toHaveBeenCalledWith(expect.objectContaining({ filePreview, parserId: 'dpuse-tool-adaltas-csv-parser', toolConfigs: [] }));
             expect(connector.abortController).toBeUndefined();
         });
 
-        it('reports an empty file as delimited text with no rows, read with the defaults, and says it is empty', async () => {
-            tools.byName['file-previewer'] = {
-                previewFile: vi.fn().mockResolvedValue({ bytes: new Uint8Array(0), dataFormatId: undefined, fileTypeConfig: undefined, text: undefined })
-            };
+        it('passes on a failure and clears the operation', async () => {
+            tools.byName['file-previewer'] = { previewFile: vi.fn().mockRejectedValue(new Error('Not readable.')) };
+            const connector = createConnector();
 
-            expect(await createConnector().previewObject({ path: OBJECT_PATH } as never)).toEqual(
-                expect.objectContaining({
-                    dataFormatId: 'dtv',
-                    hasHeaders: false,
-                    issues: [{ id: 'empty', lineNumber: undefined, message: 'The file is empty.', severityId: 'info' }],
-                    parsedRecords: [],
-                    recordDelimiterId: '\n',
-                    size: 0,
-                    text: undefined,
-                    valueDelimiterId: ','
-                })
-            );
-        });
-
-        it('passes the MIME type from the listing to the previewer', async () => {
-            const previewFile = vi.fn().mockResolvedValue({ bytes: new Uint8Array(0), dataFormatId: undefined, fileTypeConfig: undefined, text: undefined });
-            tools.byName['file-previewer'] = { previewFile };
-
-            await createConnector().previewObject({ chunkSize: undefined, extension: undefined, mimeType: 'text/markdown', path: OBJECT_PATH });
-
-            expect(previewFile).toHaveBeenCalledWith(expect.stringContaining(OBJECT_PATH), expect.any(AbortSignal), undefined, 'text/markdown', undefined, {
-                dataFormatId: undefined,
-                encodingId: undefined
-            });
-        });
-
-        // A markdown table with a quote inside a cell is not valid delimited text under any delimiter, so parsing it threw.
-        it.each([
-            ['json', '[{"name": "Ada"}]'],
-            ['jsonl', '{"name": "Ada"}\n{"name": "Grace"}']
-        ])('keeps the text of %s without parsing it', async (dataFormatId, text) => {
-            tools.byName['file-previewer'] = {
-                previewFile: vi.fn().mockResolvedValue({
-                    bytes: new Uint8Array(40),
-                    dataFormatId,
-                    encodingId: 'utf-8',
-                    encodingConfidenceLevel: 1,
-                    fileTypeConfig: undefined,
-                    isComplete: true,
-                    text
-                })
-            };
-            const parseText = vi.fn();
-            tools.byName['adaltas-csv-parser'] = { parseText };
-
-            expect(await createConnector().previewObject({ path: OBJECT_PATH } as never)).toEqual(
-                expect.objectContaining({ dataFormatId, parsedRecords: [], text, valueDelimiterId: undefined })
-            );
-            expect(parseText).not.toHaveBeenCalled();
-        });
-
-        it('keeps the text of markdown without parsing it', async () => {
-            const text = '| File | Tests |\n| --- | --- |\n| `people.xml` | XML stating `encoding="ISO-8859-1"` |';
-            tools.byName['file-previewer'] = {
-                previewFile: vi
-                    .fn()
-                    .mockResolvedValue({ bytes: new Uint8Array(80), dataFormatId: 'markdown', encodingId: 'utf-8', encodingConfidenceLevel: 1, fileTypeConfig: undefined, text })
-            };
-            const parseText = vi.fn();
-            tools.byName['adaltas-csv-parser'] = { parseText };
-
-            expect(await createConnector().previewObject({ path: OBJECT_PATH } as never)).toEqual(
-                expect.objectContaining({ dataFormatId: 'markdown', encodingId: 'utf-8', parsedRecords: [], text, valueDelimiterId: undefined })
-            );
-            expect(parseText).not.toHaveBeenCalled();
-        });
-
-        it("passes the user's format and encoding choices to the previewer", async () => {
-            const previewFile = vi.fn().mockResolvedValue({ bytes: new Uint8Array(0), dataFormatId: undefined, fileTypeConfig: undefined, text: undefined });
-            tools.byName['file-previewer'] = { previewFile };
-
-            await createConnector().previewObject({ dataFormatId: 'dtv', encodingId: 'macroman', path: OBJECT_PATH } as never);
-
-            expect(previewFile).toHaveBeenCalledWith(expect.any(String), expect.any(AbortSignal), undefined, undefined, undefined, { dataFormatId: 'dtv', encodingId: 'macroman' });
-        });
-
-        it('keeps the text of a detected format with no reader yet, such as XML', async () => {
-            const fileTypeConfig = { ext: 'xml', mime: 'application/xml' };
-            const text = '<?xml version="1.0"?>\n<name>Ada</name>';
-            const previewFile = vi
-                .fn()
-                .mockResolvedValue({ bytes: new Uint8Array(40), dataFormatId: 'xml', encodingId: 'utf-8', encodingConfidenceLevel: 1, fileTypeConfig, text });
-            tools.byName['file-previewer'] = { previewFile };
-
-            expect(await createConnector().previewObject({ path: OBJECT_PATH } as never)).toEqual(
-                expect.objectContaining({ dataFormatId: 'xml', encodingId: 'utf-8', encodingConfidenceLevel: 1, fileType: fileTypeConfig, parsedRecords: [], text })
-            );
+            await expect(connector.previewObject({ path: OBJECT_PATH } as never)).rejects.toThrow('Not readable.');
+            expect(connector.abortController).toBeUndefined();
         });
     });
 
     describe('retrieveRecords', () => {
-        it('streams the file through the CSV parser and reports its summary', async () => {
-            const summary = { recordCount: 2 };
-            const parseStream = vi.fn().mockResolvedValue(summary);
-            tools.byName['adaltas-csv-parser'] = { parseStream };
+        it('fetches the object, reads it with the parser that read its preview, and reports the summary', async () => {
+            const body = new ReadableStream<Uint8Array>();
+            const fetchMock = vi.fn().mockResolvedValue({ ok: true, body });
+            vi.stubGlobal('fetch', fetchMock);
+            const summary = { recordCount: 3 };
+            shared.retrieveRecordsWithParser.mockResolvedValue(summary);
             const chunk = vi.fn();
             const complete = vi.fn();
-
-            await createConnector().retrieveRecords({ path: OBJECT_PATH, valueDelimiterId: ',' } as never, chunk, complete);
-
-            expect(parseStream).toHaveBeenCalledWith(
-                expect.anything(),
-                expect.objectContaining({ delimiter: ',', info: true }),
-                `${URL_PREFIX}${OBJECT_PATH}`,
-                expect.any(AbortController),
-                chunk
-            );
-            expect(complete).toHaveBeenCalledWith(summary);
-        });
-
-        it('passes on a parsing failure', async () => {
-            tools.byName['adaltas-csv-parser'] = { parseStream: vi.fn().mockRejectedValue(new Error('Bad CSV.')) };
+            const options = { dataFormatId: 'dtv', parserId: 'dpuse-tool-adaltas-csv-parser', path: OBJECT_PATH };
             const connector = createConnector();
 
-            await expect(connector.retrieveRecords({ path: OBJECT_PATH } as never, vi.fn(), vi.fn())).rejects.toThrow('Bad CSV.');
+            await connector.retrieveRecords(options as never, chunk, complete);
+
+            expect(fetchMock).toHaveBeenCalledWith(`${URL_PREFIX}${OBJECT_PATH}`, expect.objectContaining({ signal: expect.any(AbortSignal) as AbortSignal }));
+            expect(shared.retrieveRecordsWithParser).toHaveBeenCalledWith({ chunk, options, signal: expect.any(AbortSignal) as AbortSignal, stream: body, toolConfigs: [] });
+            expect(complete).toHaveBeenCalledWith(summary);
             expect(connector.abortController).toBeUndefined();
+        });
+
+        it('fails when the object cannot be fetched', async () => {
+            const response = { ok: false, status: 404, statusText: 'Not Found', text: () => Promise.resolve(''), headers: new Headers() };
+            vi.stubGlobal('fetch', vi.fn().mockResolvedValue(response));
+
+            await expect(createConnector().retrieveRecords({ path: OBJECT_PATH } as never, vi.fn(), vi.fn())).rejects.toThrow(`Failed to fetch '${OBJECT_PATH}' file.`);
+            expect(shared.retrieveRecordsWithParser).not.toHaveBeenCalled();
         });
     });
 
     describe('auditObjectContent', () => {
-        it('counts records with the Rust parser, using transferable streams where supported', async () => {
-            vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, body: new ReadableStream<Uint8Array>() }));
-            const processWithTransferableStream = vi.fn().mockResolvedValue({ processedRowCount: 10, durationMs: 5 });
-            const processWithChunks = vi.fn().mockResolvedValue({ processedRowCount: 20 });
-            tools.byName['rust-csv-core-parser'] = { processWithChunks, processWithTransferableStream };
+        it('fetches the object and audits it with the parser that read its preview', async () => {
+            const body = new ReadableStream<Uint8Array>();
+            vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, body }));
+            const contentAuditConfig = { recordCount: 2 };
+            shared.auditObjectContentWithParser.mockResolvedValue(contentAuditConfig);
+            const chunk = vi.fn();
+            const options = { dataFormatId: 'dtv', hasHeaders: true, parserId: undefined, path: OBJECT_PATH };
             const connector = createConnector();
-            const options = { parsingToolName: 'dpuse-tool-rust-csv-core-parser', path: OBJECT_PATH };
 
-            const transferredResult = await connector.auditObjectContent({ ...options, supportsTransferableStreams: true } as never, vi.fn());
-            const chunkedResult = await connector.auditObjectContent({ ...options, supportsTransferableStreams: false } as never, vi.fn());
-
-            expect(transferredResult.contentAuditConfig).toMatchObject({ columns: [], duration: 5, lineCount: undefined, recordCount: 10 });
-            expect(chunkedResult.contentAuditConfig).toMatchObject({ columns: [], recordCount: 20 });
+            expect(await connector.auditObjectContent(options as never, chunk)).toEqual({ contentAuditConfig });
+            expect(shared.auditObjectContentWithParser).toHaveBeenCalledWith(
+                expect.objectContaining({ constructColumnAuditor: connector.connectorUtilities.constructColumnAuditor, onProgress: chunk, options, stream: body, toolConfigs: [] })
+            );
+            expect(connector.abortController).toBeUndefined();
         });
 
-        it('audits columns and counts with the CSV parser otherwise, leaving the header out of the record count', async () => {
-            const summary = { byteCount: 9, commentLineCount: 0, emptyLineCount: 1, lineCount: 4, nonUniformRecordCount: 0, recordCount: 3 };
-            const parseStream = vi.fn((_options: unknown, _parseOptions: unknown, _url: string, _abortController: unknown, chunk: (typeId: string, records: unknown[]) => void) => {
-                chunk('parsingRecordArray', [['id'], ['1'], ['2']]);
-                return Promise.resolve(summary);
-            });
-            tools.byName['adaltas-csv-parser'] = { parseStream };
-            const chunk = vi.fn();
+        it('stops the fetch when the operation is aborted', async () => {
+            const fetchMock = vi.fn(
+                (_url: string, init: { signal: AbortSignal }) =>
+                    new Promise((_resolve, reject) => {
+                        init.signal.addEventListener('abort', () => {
+                            reject(new Error('Aborted.'));
+                        });
+                    })
+            );
+            vi.stubGlobal('fetch', fetchMock);
+            const connector = createConnector();
 
-            const { contentAuditConfig } = await createConnector().auditObjectContent({ hasHeaders: true, path: OBJECT_PATH } as never, chunk);
+            const audit = connector.auditObjectContent({ path: OBJECT_PATH } as never, vi.fn());
+            connector.abortOperation();
 
-            expect(chunk).toHaveBeenCalledWith(3);
-            expect(contentAuditConfig).toMatchObject({ columns: [{ id: 'a' }], commentLineCount: 0, emptyLineCount: 1, invalidFieldLengthCount: 0, lineCount: 4, recordCount: 2 });
+            await expect(audit).rejects.toThrow('Aborted.');
+            expect(shared.auditObjectContentWithParser).not.toHaveBeenCalled();
         });
 
         it('passes on a failure and clears the operation', async () => {
-            tools.byName['adaltas-csv-parser'] = { parseStream: vi.fn().mockRejectedValue(new Error('Bad CSV.')) };
+            vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, body: new ReadableStream<Uint8Array>() }));
+            shared.auditObjectContentWithParser.mockRejectedValue(new Error('Bad CSV.'));
             const connector = createConnector();
 
             await expect(connector.auditObjectContent({ path: OBJECT_PATH } as never, vi.fn())).rejects.toThrow('Bad CSV.');

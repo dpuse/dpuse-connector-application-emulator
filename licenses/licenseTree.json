@@ -1,14 +1,14 @@
 {
-  "version": "1.0.128",
+  "version": "1.0.129",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
-      "version": "1.0.133",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.133.tgz",
+      "version": "1.0.135",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-development/-/dpuse-development-1.0.135.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.147"
+          "version": "1.0.152"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1201,8 +1201,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.147",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.147.tgz",
+      "version": "1.0.152",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.152.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1268,12 +1268,12 @@
       }
     },
     "@dpuse/dpuse-tool-adaltas-csv-parser": {
-      "version": "1.0.119",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.119.tgz",
+      "version": "1.0.120",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.120.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.147"
+          "version": "1.0.152"
         },
         "csv-parse": {
           "version": "7.0.3",
@@ -1288,7 +1288,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.147"
+          "version": "1.0.152"
         },
         "file-type": {
           "version": "22.2.0"
@@ -1306,7 +1306,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.147"
+          "version": "1.0.152"
         }
       }
     },

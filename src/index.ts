@@ -14,28 +14,26 @@ import type {
     ParsingRecord,
     PreviewConfig,
     PreviewObjectOptions,
-    RecordDelimiterId,
     RecordRetrievalTypeId,
     RetrieveRecordsOptions,
     RetrieveRecordsSummary,
-    ToolConfig,
-    ValueDelimiterId
+    ToolConfig
 } from '@dpuse/dpuse-shared';
 import {
+    auditObjectContentWithParser,
     buildFetchError,
+    buildPreviewConfig,
     ConnectorError,
     extractExtensionFromPath,
     extractPathWithoutExtension,
     loadTool,
     lookupMimeTypeForExtension,
     normalizeToError,
-    ORDERED_VALUE_DELIMITER_IDS
+    retrieveRecordsWithParser
 } from '@dpuse/dpuse-shared';
 
 // ── DPUse Tools
-import type { Tool as CSVParseTool } from '@dpuse/dpuse-tool-adaltas-csv-parser';
 import type { Tool as FilePreviewerTool } from '@dpuse/dpuse-tool-file-previewer';
-import type { Tool as RustCsvCoreTool } from '@dpuse/dpuse-tool-rust-csv-core-parser';
 
 // ── Data
 import config from '~/config.json';
@@ -49,8 +47,6 @@ type AppFolderPaths = Record<string, AppFolderNode[]>;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const DEFAULT_RECORD_DELIMITER_ID: RecordDelimiterId = '\n';
-const DEFAULT_VALUE_DELIMITER_ID: ValueDelimiterId = ',';
 const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
 const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json';
 const INDEX_TIMEOUT_MS = 30_000; // A stalled index request fails after this, rather than holding up 'listNodes' and 'findObject'.
@@ -79,60 +75,20 @@ export class Connector implements ConnectorInterface {
         this.abortController = undefined;
     }
 
-    // The Rust CSV parser only counts records, so its audit has no columns and leaves the other counts undefined.
     async auditObjectContent(options: AuditObjectContentOptions, chunk: (recordCount: number) => void): Promise<AuditObjectContentResult> {
-        this.abortController = new AbortController();
+        const { signal } = (this.abortController = new AbortController());
 
         try {
-            const asAt = Date.now();
-            const startedAt = performance.now();
-            if (options.parsingToolName === 'dpuse-tool-rust-csv-core-parser') {
-                // Get the readable stream
-                const stream = await this.getReadableStream({ id: '', path: options.path });
-
-                // Load the Rust CSV core tool
-                const rustCsvTool = await loadTool<RustCsvCoreTool>(this.toolConfigs, 'rust-csv-core-parser');
-
-                // Choose processing mode based on browser capability
-                const rustParseOptions = { delimiter: ',', hasHeaders: true };
-                const result = options.supportsTransferableStreams
-                    ? await rustCsvTool.processWithTransferableStream(stream, rustParseOptions, chunk)
-                    : await rustCsvTool.processWithChunks(stream, rustParseOptions, chunk);
-
-                return {
-                    contentAuditConfig: {
-                        asAt,
-                        columns: [],
-                        commentLineCount: undefined,
-                        duration: result.durationMs ?? performance.now() - startedAt,
-                        emptyLineCount: undefined,
-                        invalidFieldLengthCount: undefined,
-                        lineCount: undefined,
-                        recordCount: result.processedRowCount
-                    }
-                };
-            }
-
-            const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
-            const columnAuditor = this.connectorUtilities.constructColumnAuditor(options.hasHeaders);
-            const parseStreamOptions = { delimiter: options.valueDelimiterId, relax_column_count: true };
-            const url = `${URL_PREFIX}${options.path}`;
-            const summary = await csvParseTool.parseStream(options, parseStreamOptions, url, this.abortController, (_typeId, records) => {
-                columnAuditor.auditRecords(records);
-                chunk(records.length);
+            const stream = await fetchObjectStream(options.path, signal);
+            const contentAuditConfig = await auditObjectContentWithParser({
+                constructColumnAuditor: this.connectorUtilities.constructColumnAuditor,
+                onProgress: chunk,
+                options,
+                signal,
+                stream,
+                toolConfigs: this.toolConfigs
             });
-            return {
-                contentAuditConfig: {
-                    asAt,
-                    columns: columnAuditor.completeAudit(),
-                    commentLineCount: summary.commentLineCount,
-                    duration: performance.now() - startedAt,
-                    emptyLineCount: summary.emptyLineCount,
-                    invalidFieldLengthCount: summary.nonUniformRecordCount,
-                    lineCount: summary.lineCount,
-                    recordCount: Math.max(0, summary.recordCount - (options.hasHeaders ? 1 : 0)) // The parser counts a header as a record.
-                }
-            };
+            return { contentAuditConfig };
         } catch (error) {
             throw normalizeToError(error);
         } finally {
@@ -160,14 +116,7 @@ export class Connector implements ConnectorInterface {
         const { signal } = (this.abortController = new AbortController());
 
         try {
-            const response = await fetch(encodeURI(`${URL_PREFIX}${options.path}`), { signal }); // Encoded as the CSV parser and file previewer encode theirs.
-            if (!response.ok) {
-                throw await buildFetchError(response, `Failed to fetch '${options.path}' file.`, 'dpuse-connector-application-emulator|Connector|getReadableStream');
-            }
-            if (response.body == null) {
-                throw new ConnectorError('Readable streams are not supported in this runtime.', 'dpuse-connector-application-emulator|Connector|getReadableStream.unsupported');
-            }
-            return response.body;
+            return await fetchObjectStream(options.path, signal);
         } catch (error) {
             throw normalizeToError(error);
         } finally {
@@ -198,84 +147,18 @@ export class Connector implements ConnectorInterface {
 
             // Preview file to determine file format and decode text.
             const filePreviewerTool = await loadTool<FilePreviewerTool>(this.toolConfigs, 'file-previewer');
-            const filePreviewResult = await filePreviewerTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, undefined, {
+            const filePreview = await filePreviewerTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, undefined, {
                 dataFormatId: options.dataFormatId,
                 encodingId: options.encodingId
             }); // The user's choices, when made, replace what detection would find.
-            // An empty file is a table with no rows. An issue says so, because it is not an error but the user should know
-            // why there is nothing to show.
-            if (filePreviewResult.bytes.length === 0) {
-                return {
-                    asAt,
-                    columnConfigs: [],
-                    dataFormatId: 'dtv',
-                    duration: performance.now() - startedAt,
-                    encodingId: undefined,
-                    encodingConfidenceLevel: undefined,
-                    fileType: undefined,
-                    hasHeaders: false,
-                    recordDelimiterId: DEFAULT_RECORD_DELIMITER_ID,
-                    parsedRecords: [],
-                    inferenceRecords: [],
-                    issues: [{ id: 'empty', lineNumber: undefined, message: 'The file is empty.', severityId: 'info' }],
-                    size: 0,
-                    text: undefined,
-                    valueDelimiterId: DEFAULT_VALUE_DELIMITER_ID
-                };
-            }
-            // Only delimited text is parsed. Any other format comes back as itself with no records, rather than as an error:
-            // markdown, which is a document, JSON and JSON Lines, which have no reader yet, and a type the app cannot read,
-            // which comes back as 'unknown'. The text is kept so the picker can still show it.
-            if (filePreviewResult.dataFormatId !== 'dtv' || filePreviewResult.text == null) {
-                return {
-                    asAt,
-                    columnConfigs: [],
-                    dataFormatId: filePreviewResult.dataFormatId ?? 'unknown',
-                    duration: performance.now() - startedAt,
-                    encodingId: filePreviewResult.encodingId,
-                    encodingConfidenceLevel: filePreviewResult.encodingConfidenceLevel,
-                    fileType: filePreviewResult.fileTypeConfig,
-                    hasHeaders: undefined,
-                    recordDelimiterId: undefined,
-                    parsedRecords: [],
-                    inferenceRecords: [],
-                    issues: [],
-                    size: filePreviewResult.bytes.length,
-                    text: filePreviewResult.text,
-                    valueDelimiterId: undefined
-                };
-            }
-
-            // Parse text, identify delimiters, and produce string value records. With no delimiter found, the text is parsed
-            // again with the default, so the records match the delimiter reported. Whether the preview holds the whole file
-            // decides if a quote left open at its end is an error, or a value the preview cut off.
-            const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
-            const detectedParseTextResult = await csvParseTool.parseText(filePreviewResult.text, ORDERED_VALUE_DELIMITER_IDS, filePreviewResult.isComplete);
-            const parseTextResult =
-                detectedParseTextResult.valueDelimiterId == null
-                    ? await csvParseTool.parseText(filePreviewResult.text, [DEFAULT_VALUE_DELIMITER_ID], filePreviewResult.isComplete)
-                    : detectedParseTextResult;
-
-            // Infer and cast values for each parsed record.
-            const inferenceSummary = this.connectorUtilities.inferDataTypes(parseTextResult.parsedRecords);
-
-            return {
+            return await buildPreviewConfig({
                 asAt,
-                columnConfigs: inferenceSummary.columnConfigs,
-                dataFormatId: filePreviewResult.dataFormatId,
-                duration: performance.now() - startedAt,
-                encodingId: filePreviewResult.encodingId,
-                encodingConfidenceLevel: filePreviewResult.encodingConfidenceLevel,
-                fileType: filePreviewResult.fileTypeConfig,
-                hasHeaders: inferenceSummary.hasHeaderRow,
-                recordDelimiterId: parseTextResult.recordDelimiterId,
-                parsedRecords: parseTextResult.parsedRecords,
-                inferenceRecords: inferenceSummary.typedRecords,
-                issues: parseTextResult.issues, // Records the parser could not read. The text is still returned, so the user can see them.
-                size: filePreviewResult.bytes.length,
-                text: filePreviewResult.text,
-                valueDelimiterId: parseTextResult.valueDelimiterId ?? DEFAULT_VALUE_DELIMITER_ID
-            };
+                filePreview,
+                inferDataTypes: this.connectorUtilities.inferDataTypes,
+                parserId: options.parserId,
+                startedAt,
+                toolConfigs: this.toolConfigs
+            });
         } catch (error) {
             throw normalizeToError(error);
         } finally {
@@ -283,19 +166,17 @@ export class Connector implements ConnectorInterface {
         }
     }
 
-    // Retrieves all records from a CSV object node using streaming and chunked processing
+    // Retrieves all records from the object node, with the tool that read its preview.
     async retrieveRecords(
         options: RetrieveRecordsOptions,
         chunk: (typeId: RecordRetrievalTypeId, records: ParsingRecord[]) => void,
         complete: (result: RetrieveRecordsSummary) => void
     ): Promise<void> {
-        this.abortController = new AbortController();
+        const { signal } = (this.abortController = new AbortController());
+
         try {
-            const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
-            const parseStreamOptions = { delimiter: options.valueDelimiterId, info: true, relax_column_count: true };
-            const url = `${URL_PREFIX}${options.path}`;
-            const summary = await csvParseTool.parseStream(options, parseStreamOptions, url, this.abortController, chunk);
-            complete(summary);
+            const stream = await fetchObjectStream(options.path, signal);
+            complete(await retrieveRecordsWithParser({ chunk, options, signal, stream, toolConfigs: this.toolConfigs }));
         } catch (error) {
             throw normalizeToError(error);
         } finally {
@@ -326,6 +207,15 @@ export class Connector implements ConnectorInterface {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+// Fetches an object's content. Aborting the signal stops the fetch and the reading of the stream it returns.
+async function fetchObjectStream(path: string, signal: AbortSignal): Promise<ReadableStream<Uint8Array>> {
+    const response = await fetch(encodeURI(`${URL_PREFIX}${path}`), { signal }); // Encoded as the file previewer encodes its URL.
+    if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${path}' file.`, 'dpuse-connector-application-emulator|fetchObjectStream');
+    if (response.body == null)
+        throw new ConnectorError('Readable streams are not supported in this runtime.', 'dpuse-connector-application-emulator|fetchObjectStream.unsupported');
+    return response.body;
+}
 
 // Construct folder node configuration. The index's label, when it has one, shows the folder as a group of tables.
 function constructFolderNodeConfig(folderPath: string, id: string, name: string, childCount: number, label = name): ConnectionNodeConfig {
