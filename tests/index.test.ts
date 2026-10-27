@@ -254,12 +254,20 @@ describe('Connector', () => {
             const contentAuditConfig = { recordCount: 2 };
             shared.auditObjectContentWithParser.mockResolvedValue(contentAuditConfig);
             const chunk = vi.fn();
+            const records = vi.fn();
             const options = { dataFormatId: 'dtv', hasHeaders: true, parserId: undefined, path: OBJECT_PATH };
             const connector = createConnector();
 
-            expect(await connector.auditObjectContent(options as never, chunk)).toEqual({ contentAuditConfig });
+            expect(await connector.auditObjectContent(options as never, chunk, records)).toEqual({ contentAuditConfig });
             expect(shared.auditObjectContentWithParser).toHaveBeenCalledWith(
-                expect.objectContaining({ constructColumnAuditor: connector.connectorUtilities.constructColumnAuditor, onProgress: chunk, options, stream: body, toolConfigs: [] })
+                expect.objectContaining({
+                    constructColumnAuditor: connector.connectorUtilities.constructColumnAuditor,
+                    onProgress: chunk,
+                    onRecords: records,
+                    options,
+                    stream: body,
+                    toolConfigs: []
+                })
             );
             expect(connector.abortController).toBeUndefined();
         });
