@@ -75,7 +75,7 @@ describe('Connector', () => {
 
             const result = await createConnector().listNodes({ folderPath: '' });
 
-            expect(fetchMock).toHaveBeenCalledWith(INDEX_URL);
+            expect(fetchMock).toHaveBeenCalledWith(INDEX_URL, expect.objectContaining({ signal: expect.any(AbortSignal) as AbortSignal }));
             expect(result.connectionNodeConfigs).toContainEqual(expect.objectContaining({ id: 'hrId', name: 'hr', label: 'HR', typeId: 'folder', childCount: 1, folderPath: '' }));
             expect(result.connectionNodeConfigs).toContainEqual(
                 expect.objectContaining({ id: 'locationsId', label: 'Locations', name: 'locations', extension: 'csv', mimeType: 'text/csv', size: 778, typeId: 'object' })
@@ -145,7 +145,7 @@ describe('Connector', () => {
         it('rejects an object that does not exist', async () => {
             stubIndexFetch();
 
-            await expect(createConnector().findObject({ nodeId: 'missing' } as never)).rejects.toThrow('Not found.');
+            await expect(createConnector().findObject({ nodeId: 'missing' } as never)).rejects.toThrow("Object 'missing' not found.");
         });
     });
 
@@ -159,6 +159,14 @@ describe('Connector', () => {
             expect(await connector.getReadableStream({ id: '', path: OBJECT_PATH })).toBe(body);
             expect(fetchMock).toHaveBeenCalledWith(`${URL_PREFIX}${OBJECT_PATH}`, expect.objectContaining({ signal: expect.any(AbortSignal) as AbortSignal }));
             expect(connector.abortController).toBeUndefined();
+        });
+
+        it('encodes the path, so a name with a space can be fetched', async () => {
+            const fetchMock = vi.fn().mockResolvedValue({ ok: true, body: new ReadableStream<Uint8Array>() });
+            vi.stubGlobal('fetch', fetchMock);
+
+            await createConnector().getReadableStream({ id: '', path: '/Type Samples/people.csv' });
+            expect(fetchMock).toHaveBeenCalledWith(`${URL_PREFIX}/Type%20Samples/people.csv`, expect.anything());
         });
 
         it('fails when the response has no body', async () => {

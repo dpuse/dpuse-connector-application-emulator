@@ -34,42 +34,31 @@ import {
 
 // ── DPUse Tools
 import type { Tool as CSVParseTool } from '@dpuse/dpuse-tool-adaltas-csv-parser';
-import type { Tool as FileOperatorsTool } from '@dpuse/dpuse-tool-file-previewer';
+import type { Tool as FilePreviewerTool } from '@dpuse/dpuse-tool-file-previewer';
 import type { Tool as RustCsvCoreTool } from '@dpuse/dpuse-tool-rust-csv-core-parser';
 
 // ── Data
 import config from '~/config.json';
 
-/**
- * File store folder paths.
- */
-// eslint-disable-next-line unicorn/name-replacements -- Prefer ApplicationFolderNode to AppFolderNode
-type ApplicationFolderNode =
-    | ({ typeId: 'folder'; childCount: number; id: string } & { label?: string; name: string })
-    | ({ typeId: 'object'; id: string; lastModifiedAt: number; mimeType?: string; size: number } & { label?: string; name: string });
+// ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/**
- * File store folder paths.
- */
-// eslint-disable-next-line unicorn/name-replacements -- Prefer ApplicationFolderPath to AppFolderPath.
-type ApplicationFolderPaths = Record<string, ApplicationFolderNode[]>;
+type AppFolderNode =
+    | { typeId: 'folder'; childCount: number; id: string; label?: string; name: string }
+    | { typeId: 'object'; id: string; label?: string; lastModifiedAt: number; mimeType?: string; name: string; size: number };
+type AppFolderPaths = Record<string, AppFolderNode[]>;
 
-/**
- * Cloudflare R2 file store directory prefix.
- */
-const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
+// ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Lists the application folder's folders and files, published with them.
-const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json';
-
-// Text the previewer takes as delimited is read as delimited even when no delimiter is found, such as a single column
-// or rows that split unevenly. It is then read with these, the most common ones. An empty file is read with them too.
 const DEFAULT_RECORD_DELIMITER_ID: RecordDelimiterId = '\n';
 const DEFAULT_VALUE_DELIMITER_ID: ValueDelimiterId = ',';
+const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
+const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json';
+const INDEX_TIMEOUT_MS = 30_000; // A stalled index request fails after this, rather than holding up 'listNodes' and 'findObject'.
 
-// Connectors
+// ── Connectors ───────────────────────────────────────────────────────────────────────────────────────────────────────
+
 export class Connector implements ConnectorInterface {
-    #applicationFolderPaths: Promise<ApplicationFolderPaths> | undefined; // The application index, loaded on first use.
+    private applicationFolderPaths: Promise<AppFolderPaths> | undefined; // The application index, loaded on first use.
     abortController: AbortController | undefined;
     readonly config: ConnectorConfig;
     connectorUtilities: ConnectorUtilities;
@@ -82,16 +71,14 @@ export class Connector implements ConnectorInterface {
         this.toolConfigs = toolConfigs;
     }
 
-    // ── Operations ───────────────────────────────────────────────────────────────────────────────────────────────────
+    // ── Actions ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-    // Abort the currently running operation
     abortOperation(): void {
         if (!this.abortController) return;
         this.abortController.abort();
         this.abortController = undefined;
     }
 
-    // Audit object content
     async auditObjectContent(options: AuditObjectContentOptions, chunk: (rowCount: number) => void): Promise<AuditObjectContentResult> {
         this.abortController = new AbortController();
 
@@ -104,10 +91,10 @@ export class Connector implements ConnectorInterface {
                 const rustCsvTool = await loadTool<RustCsvCoreTool>(this.toolConfigs, 'rust-csv-core-parser');
 
                 // Choose processing mode based on browser capability
-                const options2 = { delimiter: ',', hasHeaders: true };
+                const rustParseOptions = { delimiter: ',', hasHeaders: true };
                 const result = options.supportsTransferableStreams
-                    ? await rustCsvTool.processWithTransferableStream(stream, options2, chunk)
-                    : await rustCsvTool.processWithChunks(stream, options2, chunk);
+                    ? await rustCsvTool.processWithTransferableStream(stream, rustParseOptions, chunk)
+                    : await rustCsvTool.processWithChunks(stream, rustParseOptions, chunk);
 
                 return { processedRowCount: result.processedRowCount, durationMs: result.durationMs ?? 0 };
             }
@@ -131,16 +118,16 @@ export class Connector implements ConnectorInterface {
 
     // Find the folder path containing the specified object node
     async findObject(options: FindObjectOptions): Promise<FindObjectResult> {
-        const fileStoreFolderPaths = await this.loadApplicationFolderPaths();
+        const appFolderPaths = await this.loadApplicationFolderPaths();
         // Loop through the folder path data checking for an object entry with an identifier equal to the object name.
-        for (const folderPath in fileStoreFolderPaths) {
-            if (!Object.hasOwn(fileStoreFolderPaths, folderPath)) continue;
+        for (const folderPath in appFolderPaths) {
+            if (!Object.hasOwn(appFolderPaths, folderPath)) continue;
 
-            const folderPathNodes = fileStoreFolderPaths[folderPath];
+            const folderPathNodes = appFolderPaths[folderPath];
             const folderPathNode = folderPathNodes?.find((folderPathNode) => folderPathNode.typeId === 'object' && folderPathNode.id === options.nodeId);
             if (folderPathNode) return { path: folderPath }; // Found, return folder path.
         }
-        throw new Error('Not found.'); // Not found.
+        throw new ConnectorError(`Object '${options.nodeId}' not found.`, 'dpuse-connector-application-emulator|Connector|findObject');
     }
 
     // Get a readable stream for the specified object node path
@@ -149,7 +136,7 @@ export class Connector implements ConnectorInterface {
         const { signal } = (this.abortController = new AbortController());
 
         try {
-            const response = await fetch(`${URL_PREFIX}${options.path}`, { signal });
+            const response = await fetch(encodeURI(`${URL_PREFIX}${options.path}`), { signal }); // Encoded as the CSV parser and file previewer encode theirs.
             if (!response.ok) {
                 throw await buildFetchError(response, `Failed to fetch '${options.path}' file.`, 'dpuse-connector-application-emulator|Connector|getReadableStream');
             }
@@ -166,8 +153,8 @@ export class Connector implements ConnectorInterface {
 
     // Lists all nodes (folders and objects) in the specified folder path
     async listNodes(options: ListNodesOptions): Promise<ListNodesResult> {
-        const fileStoreFolderPaths = await this.loadApplicationFolderPaths();
-        const folderNodes = fileStoreFolderPaths[options.folderPath] ?? [];
+        const appFolderPaths = await this.loadApplicationFolderPaths();
+        const folderNodes = appFolderPaths[options.folderPath] ?? [];
         const connectionNodeConfigs: ConnectionNodeConfig[] = folderNodes.map((folderNode) =>
             folderNode.typeId === 'folder'
                 ? constructFolderNodeConfig(options.folderPath, folderNode.id, folderNode.name, folderNode.childCount, folderNode.label)
@@ -186,8 +173,8 @@ export class Connector implements ConnectorInterface {
             const startedAt = performance.now();
 
             // Preview file to determine file format and decode text.
-            const fileOperatorsTool = await loadTool<FileOperatorsTool>(this.toolConfigs, 'file-previewer');
-            const filePreviewResult = await fileOperatorsTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, undefined, {
+            const filePreviewerTool = await loadTool<FilePreviewerTool>(this.toolConfigs, 'file-previewer');
+            const filePreviewResult = await filePreviewerTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, undefined, {
                 dataFormatId: options.dataFormatId,
                 encodingId: options.encodingId
             }); // The user's choices, when made, replace what detection would find.
@@ -271,6 +258,7 @@ export class Connector implements ConnectorInterface {
             this.abortController = undefined;
         }
     }
+
     // Retrieves all records from a CSV object node using streaming and chunked processing
     async retrieveRecords(
         options: RetrieveRecordsOptions,
@@ -294,20 +282,20 @@ export class Connector implements ConnectorInterface {
     // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
     // Loads the application index once, from beside the files it lists, so it always matches them.
-    private loadApplicationFolderPaths(): Promise<ApplicationFolderPaths> {
-        this.#applicationFolderPaths ??= this.fetchApplicationFolderPaths();
-        return this.#applicationFolderPaths;
+    private loadApplicationFolderPaths(): Promise<AppFolderPaths> {
+        this.applicationFolderPaths ??= this.fetchApplicationFolderPaths();
+        return this.applicationFolderPaths;
     }
 
     // A failed fetch is not kept, so the next call tries again.
-    private async fetchApplicationFolderPaths(): Promise<ApplicationFolderPaths> {
+    private async fetchApplicationFolderPaths(): Promise<AppFolderPaths> {
         try {
-            const response = await fetch(INDEX_URL);
+            const response = await fetch(INDEX_URL, { signal: AbortSignal.timeout(INDEX_TIMEOUT_MS) });
             if (!response.ok)
                 throw await buildFetchError(response, 'Failed to fetch the application index.', 'dpuse-connector-application-emulator|Connector|fetchApplicationFolderPaths');
-            return (await response.json()) as ApplicationFolderPaths;
+            return (await response.json()) as AppFolderPaths;
         } catch (error) {
-            this.#applicationFolderPaths = undefined;
+            this.applicationFolderPaths = undefined;
             throw normalizeToError(error);
         }
     }
@@ -348,7 +336,6 @@ function constructObjectNodeConfig(
 ): ConnectionNodeConfig {
     const name = extractPathWithoutExtension(fullName) ?? '';
     const extension = extractExtensionFromPath(fullName);
-    const lastModifiedAtTimestamp = lastModifiedAt;
     return {
         childCount: undefined,
         childNodes: [],
@@ -360,7 +347,7 @@ function constructObjectNodeConfig(
         iconDark: null,
         id,
         label,
-        lastModifiedAt: lastModifiedAtTimestamp,
+        lastModifiedAt,
         mimeType: mimeType ?? lookupMimeTypeForExtension(extension), // The index's type, which matches what the bucket serves.
         name,
         size,
