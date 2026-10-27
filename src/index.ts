@@ -79,10 +79,13 @@ export class Connector implements ConnectorInterface {
         this.abortController = undefined;
     }
 
-    async auditObjectContent(options: AuditObjectContentOptions, chunk: (rowCount: number) => void): Promise<AuditObjectContentResult> {
+    // The Rust CSV parser only counts records, so its audit has no columns and leaves the other counts undefined.
+    async auditObjectContent(options: AuditObjectContentOptions, chunk: (recordCount: number) => void): Promise<AuditObjectContentResult> {
         this.abortController = new AbortController();
 
         try {
+            const asAt = Date.now();
+            const startedAt = performance.now();
             if (options.parsingToolName === 'dpuse-tool-rust-csv-core-parser') {
                 // Get the readable stream
                 const stream = await this.getReadableStream({ id: '', path: options.path });
@@ -96,19 +99,40 @@ export class Connector implements ConnectorInterface {
                     ? await rustCsvTool.processWithTransferableStream(stream, rustParseOptions, chunk)
                     : await rustCsvTool.processWithChunks(stream, rustParseOptions, chunk);
 
-                return { processedRowCount: result.processedRowCount, durationMs: result.durationMs ?? 0 };
+                return {
+                    contentAuditConfig: {
+                        asAt,
+                        columns: [],
+                        commentLineCount: undefined,
+                        duration: result.durationMs ?? performance.now() - startedAt,
+                        emptyLineCount: undefined,
+                        invalidFieldLengthCount: undefined,
+                        lineCount: undefined,
+                        recordCount: result.processedRowCount
+                    }
+                };
             }
 
             const csvParseTool = await loadTool<CSVParseTool>(this.toolConfigs, 'adaltas-csv-parser');
+            const columnAuditor = this.connectorUtilities.constructColumnAuditor(options.hasHeaders);
             const parseStreamOptions = { delimiter: options.valueDelimiterId, relax_column_count: true };
             const url = `${URL_PREFIX}${options.path}`;
-            const summary = await csvParseTool.parseStream(options, parseStreamOptions, url, this.abortController, (parameter) => {
-                console.log(parameter);
+            const summary = await csvParseTool.parseStream(options, parseStreamOptions, url, this.abortController, (_typeId, records) => {
+                columnAuditor.auditRecords(records);
+                chunk(records.length);
             });
-            console.log('summary', summary);
-            // complete(summary);
-
-            return { processedRowCount: 0, durationMs: 0 };
+            return {
+                contentAuditConfig: {
+                    asAt,
+                    columns: columnAuditor.completeAudit(),
+                    commentLineCount: summary.commentLineCount,
+                    duration: performance.now() - startedAt,
+                    emptyLineCount: summary.emptyLineCount,
+                    invalidFieldLengthCount: summary.nonUniformRecordCount,
+                    lineCount: summary.lineCount,
+                    recordCount: Math.max(0, summary.recordCount - (options.hasHeaders ? 1 : 0)) // The parser counts a header as a record.
+                }
+            };
         } catch (error) {
             throw normalizeToError(error);
         } finally {

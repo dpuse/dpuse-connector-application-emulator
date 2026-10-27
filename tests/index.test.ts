@@ -40,7 +40,10 @@ function stubIndexFetch(): ReturnType<typeof vi.fn> {
 }
 
 function createConnector(): Connector {
-    const connectorUtilities = { inferDataTypes: () => ({ columnConfigs: [{ id: 'a' }], hasHeaderRow: true, typedRecords: [['typed']] }) };
+    const connectorUtilities = {
+        constructColumnAuditor: () => ({ auditRecords: vi.fn(), completeAudit: () => [{ id: 'a' }] }),
+        inferDataTypes: () => ({ columnConfigs: [{ id: 'a' }], hasHeaderRow: true, typedRecords: [['typed']] })
+    };
     return new Connector(connectorUtilities as never, []);
 }
 
@@ -377,7 +380,7 @@ describe('Connector', () => {
     });
 
     describe('auditObjectContent', () => {
-        it('counts rows with the Rust parser, using transferable streams where supported', async () => {
+        it('counts records with the Rust parser, using transferable streams where supported', async () => {
             vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, body: new ReadableStream<Uint8Array>() }));
             const processWithTransferableStream = vi.fn().mockResolvedValue({ processedRowCount: 10, durationMs: 5 });
             const processWithChunks = vi.fn().mockResolvedValue({ processedRowCount: 20 });
@@ -385,19 +388,26 @@ describe('Connector', () => {
             const connector = createConnector();
             const options = { parsingToolName: 'dpuse-tool-rust-csv-core-parser', path: OBJECT_PATH };
 
-            expect(await connector.auditObjectContent({ ...options, supportsTransferableStreams: true } as never, vi.fn())).toEqual({ processedRowCount: 10, durationMs: 5 });
-            expect(await connector.auditObjectContent({ ...options, supportsTransferableStreams: false } as never, vi.fn())).toEqual({ processedRowCount: 20, durationMs: 0 });
+            const transferredResult = await connector.auditObjectContent({ ...options, supportsTransferableStreams: true } as never, vi.fn());
+            const chunkedResult = await connector.auditObjectContent({ ...options, supportsTransferableStreams: false } as never, vi.fn());
+
+            expect(transferredResult.contentAuditConfig).toMatchObject({ columns: [], duration: 5, lineCount: undefined, recordCount: 10 });
+            expect(chunkedResult.contentAuditConfig).toMatchObject({ columns: [], recordCount: 20 });
         });
 
-        it('parses with the CSV parser otherwise', async () => {
-            vi.spyOn(console, 'log').mockReturnValue();
-            const parseStream = vi.fn().mockResolvedValue({});
+        it('audits columns and counts with the CSV parser otherwise, leaving the header out of the record count', async () => {
+            const summary = { byteCount: 9, commentLineCount: 0, emptyLineCount: 1, lineCount: 4, nonUniformRecordCount: 0, recordCount: 3 };
+            const parseStream = vi.fn((_options: unknown, _parseOptions: unknown, _url: string, _abortController: unknown, chunk: (typeId: string, records: unknown[]) => void) => {
+                chunk('parsingRecordArray', [['id'], ['1'], ['2']]);
+                return Promise.resolve(summary);
+            });
             tools.byName['adaltas-csv-parser'] = { parseStream };
+            const chunk = vi.fn();
 
-            const result = await createConnector().auditObjectContent({ parsingToolName: 'dpuse-tool-adaltas-csv-parser', path: OBJECT_PATH } as never, vi.fn());
+            const { contentAuditConfig } = await createConnector().auditObjectContent({ hasHeaders: true, path: OBJECT_PATH } as never, chunk);
 
-            expect(parseStream).toHaveBeenCalledOnce();
-            expect(result).toEqual({ processedRowCount: 0, durationMs: 0 });
+            expect(chunk).toHaveBeenCalledWith(3);
+            expect(contentAuditConfig).toMatchObject({ columns: [{ id: 'a' }], commentLineCount: 0, emptyLineCount: 1, invalidFieldLengthCount: 0, lineCount: 4, recordCount: 2 });
         });
 
         it('passes on a failure and clears the operation', async () => {
