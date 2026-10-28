@@ -1,6 +1,6 @@
 {
     "packages": [
-        "@dpuse/dpuse-shared@1.0.153",
+        "@dpuse/dpuse-shared@1.0.155",
         "valibot@1.5.0"
     ],
     "external": []
