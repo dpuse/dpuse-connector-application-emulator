@@ -1,5 +1,5 @@
 {
-  "version": "1.0.135",
+  "version": "1.0.136",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
@@ -8,7 +8,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.162"
+          "version": "1.0.164"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1201,8 +1201,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.162",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.162.tgz",
+      "version": "1.0.164",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.164.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1276,7 +1276,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.162"
+          "version": "1.0.164"
         },
         "csv-parse": {
           "version": "7.0.3",
@@ -1291,7 +1291,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.162"
+          "version": "1.0.164"
         },
         "file-type": {
           "version": "22.3.0"
@@ -1309,7 +1309,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.162"
+          "version": "1.0.164"
         }
       }
     },
@@ -3903,8 +3903,8 @@
       }
     },
     "wrangler": {
-      "version": "4.155.0",
-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.155.0.tgz",
+      "version": "4.156.0",
+      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.156.0.tgz",
       "overridden": false,
       "dependencies": {
         "@cloudflare/kv-asset-handler": {
@@ -3938,8 +3938,8 @@
           "version": "2.3.3"
         },
         "miniflare": {
-          "version": "5.20261023.2-beta",
-          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261023.2-beta.tgz",
+          "version": "5.20261023.3-beta",
+          "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20261023.3-beta.tgz",
           "overridden": false,
           "dependencies": {
             "@cspotcode/source-map-support": {
