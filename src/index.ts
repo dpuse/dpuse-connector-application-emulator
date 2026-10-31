@@ -157,7 +157,8 @@ export class Connector implements ConnectorInterface {
                 inferDataTypes: this.connectorUtilities.inferDataTypes,
                 parserId: options.parserId,
                 startedAt,
-                toolConfigs: this.toolConfigs
+                toolConfigs: this.toolConfigs,
+                valueDelimiterId: options.valueDelimiterId
             });
         } catch (error) {
             throw normalizeToError(error);
