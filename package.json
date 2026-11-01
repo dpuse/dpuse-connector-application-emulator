@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "1.0.140",
+    "version": "1.0.141",
     "private": false,
     "description": "Provides read-only sample data simulating an application such as Salesforce or SAP.",
     "license": "MIT",
@@ -61,14 +61,14 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.169"
+        "@dpuse/dpuse-shared": "^1.0.171"
     },
     "devDependencies": {
-        "@dpuse/dpuse-development": "^1.0.141",
+        "@dpuse/dpuse-development": "^1.0.144",
         "@dpuse/dpuse-tool-adaltas-csv-parser": "^1.0.126",
         "@dpuse/dpuse-tool-file-previewer": "^1.0.126",
         "@dpuse/dpuse-tool-rust-csv-core-parser": "^1.0.116",
-        "@dpuse/eslint-config-dpuse": "^1.0.145",
+        "@dpuse/eslint-config-dpuse": "^1.0.148",
         "@types/node": "^26.6.6",
         "@vitest/coverage-v8": "^5.0.5",
         "eslint": "^10.14.0",

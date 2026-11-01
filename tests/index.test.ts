@@ -9,7 +9,7 @@ import { Connector } from '@/index';
 // Tools are loaded at run time from the engine, so each test supplies the tool it needs. The shared preview, retrieve and
 // audit functions have their own tests in dpuse-shared, so here they only record what the connector hands them.
 const tools = vi.hoisted((): { byName: Record<string, unknown> } => ({ byName: {} }));
-const shared = vi.hoisted(() => ({ auditObjectContentWithParser: vi.fn(), buildPreviewConfig: vi.fn(), retrieveRecordsWithParser: vi.fn() }));
+const shared = vi.hoisted(() => ({ auditObjectContentWithParser: vi.fn(), buildPreviewObjectResult: vi.fn(), retrieveRecordsWithParser: vi.fn() }));
 vi.mock('@dpuse/dpuse-shared', async (importOriginal) => ({
     ...(await importOriginal<object>()),
     ...shared,
@@ -196,7 +196,7 @@ describe('Connector', () => {
             const previewFile = vi.fn().mockResolvedValue(filePreview);
             tools.byName['file-previewer'] = { previewFile };
             const previewConfig = { dataFormatId: 'dtv' };
-            shared.buildPreviewConfig.mockResolvedValue(previewConfig);
+            shared.buildPreviewObjectResult.mockResolvedValue(previewConfig);
             const options = { chunkSize: 4096, dataFormatId: 'dtv', encodingId: 'utf-8', mimeType: 'text/csv', parserId: 'dpuse-tool-adaltas-csv-parser', path: OBJECT_PATH };
             const connector = createConnector();
 
@@ -205,7 +205,7 @@ describe('Connector', () => {
                 dataFormatId: 'dtv',
                 encodingId: 'utf-8'
             });
-            expect(shared.buildPreviewConfig).toHaveBeenCalledWith(expect.objectContaining({ filePreview, parserId: 'dpuse-tool-adaltas-csv-parser', toolConfigs: [] }));
+            expect(shared.buildPreviewObjectResult).toHaveBeenCalledWith(expect.objectContaining({ filePreview, parserId: 'dpuse-tool-adaltas-csv-parser', toolConfigs: [] }));
             expect(connector.abortController).toBeUndefined();
         });
 
