@@ -1,5 +1,5 @@
 {
-  "version": "1.0.138",
+  "version": "1.0.139",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
@@ -8,7 +8,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.166"
+          "version": "1.0.169"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1211,8 +1211,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.166",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.166.tgz",
+      "version": "1.0.169",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.169.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1286,7 +1286,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.166"
+          "version": "1.0.169"
         },
         "csv-parse": {
           "version": "7.0.3",
@@ -1301,7 +1301,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.166"
+          "version": "1.0.169"
         },
         "file-type": {
           "version": "22.3.0"
@@ -1319,7 +1319,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.166"
+          "version": "1.0.169"
         }
       }
     },
