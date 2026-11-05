@@ -1,7 +1,7 @@
 {
     "id": "dpuse-connector-application-emulator",
     "label": {
-        "en": "Application Emulator"
+        "en": "DPUse Application Emulator"
     },
     "description": {
         "en": "The Application Emulator Connector is a read-only connector that provides access to a sample dataset simulating a hypothetical application such as Salesforce or SAP. It is intended for demonstration, evaluation, and testing, and is freely available to all users."
@@ -36,5 +36,5 @@
     "vendorAccountURL": null,
     "vendorDocumentationURL": null,
     "vendorHomeURL": null,
-    "version": "1.0.144"
+    "version": "1.0.145"
 }
