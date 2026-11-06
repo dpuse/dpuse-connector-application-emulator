@@ -195,12 +195,12 @@ describe('Connector', () => {
             const filePreview = { bytes: new Uint8Array(4), dataFormatId: 'dtv', text: 'a,b\n' };
             const previewFile = vi.fn().mockResolvedValue(filePreview);
             tools.byName['file-previewer'] = { previewFile };
-            const previewConfig = { dataFormatId: 'dtv' };
-            shared.buildPreviewObjectResult.mockResolvedValue(previewConfig);
+            const previewObjectResult = { dataFormatId: 'dtv' };
+            shared.buildPreviewObjectResult.mockResolvedValue(previewObjectResult);
             const options = { chunkSize: 4096, dataFormatId: 'dtv', encodingId: 'utf-8', mimeType: 'text/csv', parserId: 'dpuse-tool-adaltas-csv-parser', path: OBJECT_PATH };
             const connector = createConnector();
 
-            expect(await connector.previewObject(options as never)).toBe(previewConfig);
+            expect(await connector.previewObject(options as never)).toBe(previewObjectResult);
             expect(previewFile).toHaveBeenCalledWith(`${URL_PREFIX}${OBJECT_PATH}`, expect.any(AbortSignal), 4096, 'text/csv', undefined, {
                 dataFormatId: 'dtv',
                 encodingId: 'utf-8'
@@ -251,13 +251,13 @@ describe('Connector', () => {
         it('fetches the object and audits it with the parser that read its preview', async () => {
             const body = new ReadableStream<Uint8Array>();
             vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, body }));
-            const contentAuditConfig = { recordCount: 2 };
-            shared.auditObjectContentWithParser.mockResolvedValue(contentAuditConfig);
+            const auditResult = { contentAuditConfig: { recordCount: 2 }, hasHeaders: true };
+            shared.auditObjectContentWithParser.mockResolvedValue(auditResult);
             const chunk = vi.fn();
             const options = { dataFormatId: 'dtv', hasHeaders: true, parserId: undefined, path: OBJECT_PATH };
             const connector = createConnector();
 
-            expect(await connector.auditObjectContent(options as never, chunk)).toEqual({ contentAuditConfig });
+            expect(await connector.auditObjectContent(options as never, chunk)).toBe(auditResult);
             expect(shared.auditObjectContentWithParser).toHaveBeenCalledWith(
                 expect.objectContaining({
                     constructColumnAuditor: connector.connectorUtilities.constructColumnAuditor,
