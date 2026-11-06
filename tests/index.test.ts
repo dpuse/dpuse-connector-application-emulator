@@ -45,7 +45,7 @@ function stubIndexFetch(): ReturnType<typeof vi.fn> {
 function createConnector(): Connector {
     const connectorUtilities = {
         constructColumnAuditor: () => ({ auditRecords: vi.fn(), completeAudit: () => [{ id: 'a' }] }),
-        inferDataTypes: () => ({ columnConfigs: [{ id: 'a' }], hasHeaderRow: true, typedRecords: [['typed']] })
+        inferDataTypes: () => ({ columnConfigs: [{ id: 'a' }], hasHeaders: true, typedRecords: [['typed']] })
     };
     return new Connector(connectorUtilities as never, []);
 }

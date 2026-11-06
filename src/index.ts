@@ -11,7 +11,7 @@ import type {
     GetReadableStreamOptions,
     ListNodesOptions,
     ListNodesResult,
-    ParsingRecord,
+    ParsedRecord,
     PreviewObjectOptions,
     PreviewObjectResult,
     RecordRetrievalTypeId,
@@ -169,7 +169,7 @@ export class Connector implements ConnectorInterface {
     // Retrieves all records from the object node, with the tool that read its preview.
     async retrieveRecords(
         options: RetrieveRecordsOptions,
-        chunk: (typeId: RecordRetrievalTypeId, records: ParsingRecord[]) => void,
+        chunk: (typeId: RecordRetrievalTypeId, records: ParsedRecord[]) => void,
         complete: (result: RetrieveRecordsSummary) => void
     ): Promise<void> {
         const { signal } = (this.abortController = new AbortController());
