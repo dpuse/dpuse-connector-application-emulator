@@ -1,68 +1,39 @@
 // ── DPUse Framework
-import type {
-    AuditObjectContentOptions,
-    AuditObjectContentResult,
-    ConnectionNodeConfig,
-    ConnectorConfig,
-    ConnectorInterface,
-    ConnectorUtilities,
-    FindObjectOptions,
-    FindObjectResult,
-    GetReadableStreamOptions,
-    ListNodesOptions,
-    ListNodesResult,
-    ParsedRecord,
-    PreviewObjectOptions,
-    PreviewObjectResult,
-    RecordRetrievalTypeId,
-    RetrieveRecordsOptions,
-    RetrieveRecordsSummary,
-    ToolConfig
-} from '@dpuse/dpuse-shared';
-import {
-    auditObjectContentWithParser,
-    buildFetchError,
-    buildPreviewObjectResult,
-    ConnectorError,
-    extractExtensionFromPath,
-    extractPathWithoutExtension,
-    loadTool,
-    lookupMimeTypeForExtension,
-    normalizeToError,
-    retrieveRecordsWithParser
-} from '@dpuse/dpuse-shared';
+import type { AuditObjectContentOptions, AuditObjectContentResult, ConnectionNodeConfig } from '@dpuse/dpuse-shared';
+import { auditObjectContentWithParser, buildFetchError, buildPreviewObjectResult } from '@dpuse/dpuse-shared';
+import { ConnectorError, extractExtensionFromPath, extractPathWithoutExtension, loadTool } from '@dpuse/dpuse-shared';
+import type { ConnectorInterface, ConnectorUtilities, FindObjectOptions, FindObjectResult } from '@dpuse/dpuse-shared';
+import type { GetReadableStreamOptions, ListNodesOptions, ListNodesResult, ParsedRecord } from '@dpuse/dpuse-shared';
+import { normalizeToError, retrieveRecordsWithParser } from '@dpuse/dpuse-shared';
+import type { PreviewObjectOptions, PreviewObjectResult, RecordRetrievalTypeId } from '@dpuse/dpuse-shared';
+import type { RetrieveRecordsOptions, RetrieveRecordsSummary, ToolConfig } from '@dpuse/dpuse-shared';
 
 // ── DPUse Tools
 import type { Tool as FilePreviewerTool } from '@dpuse/dpuse-tool-file-previewer';
 
-// ── Data
-import config from '~/config.json';
-
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-type AppFolderNode =
+type AppIndexEntry =
     | { typeId: 'folder'; childCount: number; id: string; label?: string; name: string }
-    | { typeId: 'object'; id: string; label?: string; lastModifiedAt: number; mimeType?: string; name: string; size: number };
-type AppFolderPaths = Record<string, AppFolderNode[]>;
+    | { typeId: 'object'; id: string; label?: string; lastModifiedAt: number; mimeType: string; name: string; size: number };
+type AppIndex = Record<string, AppIndexEntry[]>;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
-const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json';
+const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json'; // Fetched from the bucket rather than bundled, so changing the sample files needs no connector release.
 const INDEX_TIMEOUT_MS = 30_000; // A stalled index request fails after this, rather than holding up 'listNodes' and 'findObject'.
+const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
 
 // ── Connectors ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
 export class Connector implements ConnectorInterface {
-    private applicationFolderPaths: Promise<AppFolderPaths> | undefined; // The application index, loaded on first use.
-    abortController: AbortController | undefined;
-    readonly config: ConnectorConfig;
-    connectorUtilities: ConnectorUtilities;
-    readonly toolConfigs;
+    private pendingAppIndex: Promise<AppIndex> | undefined; // The application index, loaded on first use.
+    private abortController: AbortController | undefined; // The latest operation's. An operation that ends clears it only if no later one has replaced it.
+    private readonly connectorUtilities: ConnectorUtilities;
+    private readonly toolConfigs;
 
     constructor(connectorUtilities: ConnectorUtilities, toolConfigs: ToolConfig[]) {
         this.abortController = undefined;
-        this.config = config as ConnectorConfig;
         this.connectorUtilities = connectorUtilities;
         this.toolConfigs = toolConfigs;
     }
@@ -76,7 +47,9 @@ export class Connector implements ConnectorInterface {
     }
 
     async auditObjectContent(options: AuditObjectContentOptions, chunk: (recordCount: number, byteCount: number) => void): Promise<AuditObjectContentResult> {
-        const { signal } = (this.abortController = new AbortController());
+        const abortController = new AbortController();
+        this.abortController = abortController;
+        const { signal } = abortController;
 
         try {
             const stream = await fetchObjectStream(options.path, signal);
@@ -91,42 +64,40 @@ export class Connector implements ConnectorInterface {
         } catch (error) {
             throw normalizeToError(error);
         } finally {
-            this.abortController = undefined;
+            if (this.abortController === abortController) this.abortController = undefined;
         }
     }
 
-    // Find the folder path containing the specified object node
     async findObject(options: FindObjectOptions): Promise<FindObjectResult> {
-        const appFolderPaths = await this.loadApplicationFolderPaths();
-        // Loop through the folder path data checking for an object entry with an identifier equal to the object name.
-        for (const folderPath in appFolderPaths) {
-            if (!Object.hasOwn(appFolderPaths, folderPath)) continue;
+        const appIndex = await this.loadAppIndex();
+        for (const folderPath in appIndex) {
+            if (!Object.hasOwn(appIndex, folderPath)) continue;
 
-            const folderPathNodes = appFolderPaths[folderPath];
+            const folderPathNodes = appIndex[folderPath];
             const folderPathNode = folderPathNodes?.find((folderPathNode) => folderPathNode.typeId === 'object' && folderPathNode.id === options.nodeId);
-            if (folderPathNode) return { path: folderPath }; // Found, return folder path.
+            if (folderPathNode) return { path: folderPath };
         }
-        throw new ConnectorError(`Object '${options.nodeId}' not found.`, 'dpuse-connector-application-emulator|Connector|findObject');
+        throw new ConnectorError(`Object '${options.nodeId}' not found.`, 'dpuse-connector-application-emulator.Connector.findObject');
     }
 
-    // Get a readable stream for the specified object node path
     async getReadableStream(options: GetReadableStreamOptions): Promise<ReadableStream<Uint8Array>> {
-        // Create an abort controller and extract its signal.
-        const { signal } = (this.abortController = new AbortController());
+        const abortController = new AbortController();
+        this.abortController = abortController;
+        const { signal } = abortController;
 
         try {
             return await fetchObjectStream(options.path, signal);
         } catch (error) {
             throw normalizeToError(error);
         } finally {
-            this.abortController = undefined;
+            if (this.abortController === abortController) this.abortController = undefined;
         }
     }
 
-    // Lists all nodes (folders and objects) in the specified folder path
+    // Lists the folders and files directly inside the folder.
     async listNodes(options: ListNodesOptions): Promise<ListNodesResult> {
-        const appFolderPaths = await this.loadApplicationFolderPaths();
-        const folderNodes = appFolderPaths[options.folderPath] ?? [];
+        const appIndex = await this.loadAppIndex();
+        const folderNodes = appIndex[options.folderPath] ?? [];
         const connectionNodeConfigs: ConnectionNodeConfig[] = folderNodes.map((folderNode) =>
             folderNode.typeId === 'folder'
                 ? constructFolderNodeConfig(options.folderPath, folderNode.id, folderNode.name, folderNode.childCount, folderNode.label)
@@ -135,10 +106,10 @@ export class Connector implements ConnectorInterface {
         return { cursor: undefined, isMore: false, connectionNodeConfigs, totalCount: connectionNodeConfigs.length };
     }
 
-    // Preview the contents of the object node with the specified path
     async previewObject(options: PreviewObjectOptions): Promise<PreviewObjectResult> {
-        // Create an abort controller and extract its signal.
-        const { signal } = (this.abortController = new AbortController());
+        const abortController = new AbortController();
+        this.abortController = abortController;
+        const { signal } = abortController;
 
         try {
             const asAt = Date.now();
@@ -146,10 +117,11 @@ export class Connector implements ConnectorInterface {
 
             // Preview file to determine file format and decode text.
             const filePreviewerTool = await loadTool<FilePreviewerTool>(this.toolConfigs, 'file-previewer');
+            // The user's choices of format and encoding, when made, replace what detection would find.
             const filePreview = await filePreviewerTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, undefined, {
                 dataFormatId: options.dataFormatId,
                 encodingId: options.encodingId
-            }); // The user's choices, when made, replace what detection would find.
+            });
             return await buildPreviewObjectResult({
                 asAt,
                 filePreview,
@@ -162,17 +134,19 @@ export class Connector implements ConnectorInterface {
         } catch (error) {
             throw normalizeToError(error);
         } finally {
-            this.abortController = undefined;
+            if (this.abortController === abortController) this.abortController = undefined;
         }
     }
 
     // Retrieves all records from the object node, with the tool that read its preview.
     async retrieveRecords(
         options: RetrieveRecordsOptions,
-        chunk: (typeId: RecordRetrievalTypeId, records: ParsedRecord[]) => void,
+        chunk: (typeId: RecordRetrievalTypeId, records: ParsedRecord[]) => void | Promise<void>, // A returned promise holds the read back until it settles.
         complete: (result: RetrieveRecordsSummary) => void
     ): Promise<void> {
-        const { signal } = (this.abortController = new AbortController());
+        const abortController = new AbortController();
+        this.abortController = abortController;
+        const { signal } = abortController;
 
         try {
             const stream = await fetchObjectStream(options.path, signal);
@@ -180,27 +154,30 @@ export class Connector implements ConnectorInterface {
         } catch (error) {
             throw normalizeToError(error);
         } finally {
-            this.abortController = undefined;
+            if (this.abortController === abortController) this.abortController = undefined;
         }
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────
 
-    // Loads the application index once, from beside the files it lists, so it always matches them.
-    private loadApplicationFolderPaths(): Promise<AppFolderPaths> {
-        this.applicationFolderPaths ??= this.fetchApplicationFolderPaths();
-        return this.applicationFolderPaths;
+    // Fetches the application index on first use. Later calls, including ones made while the fetch is running, share it.
+    private loadAppIndex(): Promise<AppIndex> {
+        this.pendingAppIndex ??= this.fetchAppIndex();
+        return this.pendingAppIndex;
     }
 
     // A failed fetch is not kept, so the next call tries again.
-    private async fetchApplicationFolderPaths(): Promise<AppFolderPaths> {
+    private async fetchAppIndex(): Promise<AppIndex> {
         try {
             const response = await fetch(INDEX_URL, { signal: AbortSignal.timeout(INDEX_TIMEOUT_MS) });
-            if (!response.ok)
-                throw await buildFetchError(response, 'Failed to fetch the application index.', 'dpuse-connector-application-emulator|Connector|fetchApplicationFolderPaths');
-            return (await response.json()) as AppFolderPaths;
+            if (!response.ok) throw await buildFetchError(response, 'Failed to fetch the application index.', 'dpuse-connector-application-emulator.Connector.fetchAppIndex');
+            return (await response.json()) as AppIndex; // Not validated, because dpuse-resources generates the index ('scripts/buildIndexes.ts').
         } catch (error) {
-            this.applicationFolderPaths = undefined;
+            this.pendingAppIndex = undefined;
+            if (error instanceof Error && error.name === 'TimeoutError') {
+                const message = `Failed to fetch the application index within ${String(INDEX_TIMEOUT_MS / 1000)} seconds.`;
+                throw new ConnectorError(message, 'dpuse-connector-application-emulator.Connector.fetchAppIndex.timeout', undefined, { cause: error });
+            }
             throw normalizeToError(error);
         }
     }
@@ -210,14 +187,14 @@ export class Connector implements ConnectorInterface {
 
 // Fetches an object's content. Aborting the signal stops the fetch and the reading of the stream it returns.
 async function fetchObjectStream(path: string, signal: AbortSignal): Promise<ReadableStream<Uint8Array>> {
-    const response = await fetch(encodeURI(`${URL_PREFIX}${path}`), { signal }); // Encoded as the file previewer encodes its URL.
-    if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${path}' file.`, 'dpuse-connector-application-emulator|fetchObjectStream');
+    const response = await fetch(encodeURI(`${URL_PREFIX}${path}`), { signal }); // Encoded the same way the file previewer encodes its URL, so both fetch the same file. 'encodeURI' leaves '#' and '?' as they are, but the files are managed in dpuse-resources and no name holds them.
+    if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${path}' file.`, 'dpuse-connector-application-emulator.fetchObjectStream');
     if (response.body == null)
-        throw new ConnectorError('Readable streams are not supported in this runtime.', 'dpuse-connector-application-emulator|fetchObjectStream.unsupported');
+        throw new ConnectorError('Readable streams are not supported in this runtime.', 'dpuse-connector-application-emulator.fetchObjectStream.unsupported');
     return response.body;
 }
 
-// Construct folder node configuration. The index's label, when it has one, shows the folder as a group of tables.
+// The index's label, when it has one, shows the folder as a group of tables.
 function constructFolderNodeConfig(folderPath: string, id: string, name: string, childCount: number, label = name): ConnectionNodeConfig {
     return {
         childCount,
@@ -236,14 +213,14 @@ function constructFolderNodeConfig(folderPath: string, id: string, name: string,
     };
 }
 
-// Construct object (file) node configuration. The index's label, when it has one, shows the file as a table.
+// The index's label, when it has one, shows the file as a table.
 function constructObjectNodeConfig(
     folderPath: string,
     id: string,
     fullName: string,
     lastModifiedAt: number,
     size: number,
-    mimeType: string | undefined,
+    mimeType: string,
     label = fullName
 ): ConnectionNodeConfig {
     const name = extractPathWithoutExtension(fullName) ?? '';
@@ -258,7 +235,7 @@ function constructObjectNodeConfig(
         id,
         label,
         lastModifiedAt,
-        mimeType: mimeType ?? lookupMimeTypeForExtension(extension), // The index's type, which matches what the bucket serves.
+        mimeType, // The index's type, which matches what the bucket serves.
         name,
         size,
         typeId: 'object'
