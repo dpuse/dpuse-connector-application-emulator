@@ -1,5 +1,5 @@
 {
-  "version": "1.0.154",
+  "version": "1.0.155",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
