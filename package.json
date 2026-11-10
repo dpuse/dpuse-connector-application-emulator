@@ -1,6 +1,6 @@
 {
     "name": "@dpuse/dpuse-connector-application-emulator",
-    "version": "1.0.151",
+    "version": "1.0.152",
     "private": false,
     "description": "Provides read-only sample data simulating an application such as Salesforce or SAP.",
     "license": "MIT",
@@ -47,7 +47,7 @@
         "fsevents@2.3.3": true,
         "esbuild@0.28.2": true,
         "unrs-resolver@1.12.2": true,
-        "workerd@1.20261109.1": true
+        "workerd@1.20261110.1": true
     },
     "scripts": {
         "audit": "node -e \"import('@dpuse/dpuse-development').then(m => m.auditDependencies())\"",
@@ -61,7 +61,7 @@
         "test": "node -e \"import('@dpuse/dpuse-development').then(m => m.testProject())\""
     },
     "dependencies": {
-        "@dpuse/dpuse-shared": "^1.0.202"
+        "@dpuse/dpuse-shared": "^1.0.203"
     },
     "devDependencies": {
         "@dpuse/dpuse-development": "^1.0.149",
@@ -78,6 +78,6 @@
         "vite": "^8.3.7",
         "vite-plugin-dts": "^5.1.2",
         "vitest": "^5.1.0",
-        "wrangler": "^4.159.0"
+        "wrangler": "^4.160.0"
     }
 }
