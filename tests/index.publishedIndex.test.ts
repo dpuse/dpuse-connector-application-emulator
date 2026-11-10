@@ -1,9 +1,13 @@
 // ── External Dependencies & Registrations
 import { beforeAll, describe, expect, it } from 'vitest';
 
+// ── DPUse Framework
+import { readTableSchema } from '@dpuse/dpuse-shared';
+
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json';
+const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
 
 // ── Tests ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -45,6 +49,22 @@ describe('published application index', () => {
 
         expect(unsafeNames).toEqual([]);
     });
+
+    // Every application table states how it is read and its columns, as a database does. dpuse-resources checks each
+    // resource against its table's header row, so this only checks that one is published and the connector can read it.
+    it('publishes a resource the connector can read beside every table', async () => {
+        const tablePaths = Object.entries(appIndex).flatMap(([folderPath, entries]) =>
+            entries.filter((entry) => isObjectEntry(entry)).map((entry) => `${folderPath}/${entry.name}`)
+        );
+        const fieldCounts = await Promise.all(
+            tablePaths.map(async (tablePath) => {
+                const response = await fetch(encodeURI(`${URL_PREFIX}${tablePath.replace(/\.csv$/u, '.resource.json')}`));
+                return response.ok ? readTableSchema((await response.json()) as Parameters<typeof readTableSchema>[0]).declaredColumnConfigs.length : 0;
+            })
+        );
+
+        expect(tablePaths.filter((_tablePath, index) => fieldCounts[index] === 0)).toEqual([]);
+    }, 30_000);
 });
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────

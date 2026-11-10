@@ -2,9 +2,9 @@
 import type { AuditObjectContentOptions, AuditObjectContentResult, ConnectionNodeConfig } from '@dpuse/dpuse-shared';
 import { auditObjectContentWithParser, buildFetchError, buildPreviewObjectResult } from '@dpuse/dpuse-shared';
 import { ConnectorError, extractExtensionFromPath, extractPathWithoutExtension, loadTool } from '@dpuse/dpuse-shared';
-import type { ConnectorInterface, ConnectorUtilities, FindObjectOptions, FindObjectResult } from '@dpuse/dpuse-shared';
-import type { GetReadableStreamOptions, ListNodesOptions, ListNodesResult, ParsedRecord } from '@dpuse/dpuse-shared';
-import { normalizeToError, retrieveRecordsWithParser } from '@dpuse/dpuse-shared';
+import type { ConnectorInterface, ConnectorUtilities, FindObjectOptions } from '@dpuse/dpuse-shared';
+import type { FindObjectResult, GetReadableStreamOptions, ListNodesOptions, ListNodesResult, ParsedRecord } from '@dpuse/dpuse-shared';
+import { normalizeToError, readTableSchema, retrieveRecordsWithParser } from '@dpuse/dpuse-shared';
 import type { PreviewObjectOptions, PreviewObjectResult, RecordRetrievalTypeId } from '@dpuse/dpuse-shared';
 import type { RetrieveRecordsOptions, RetrieveRecordsSummary, ToolConfig } from '@dpuse/dpuse-shared';
 
@@ -17,12 +17,14 @@ type AppIndexEntry =
     | { typeId: 'folder'; childCount: number; id: string; label?: string; name: string }
     | { typeId: 'object'; id: string; label?: string; lastModifiedAt: number; mimeType: string; name: string; size: number };
 type AppIndex = Record<string, AppIndexEntry[]>;
+type TableResource = ReturnType<typeof readTableSchema>;
 
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json'; // Fetched from the bucket rather than bundled, so changing the sample files needs no connector release.
 const INDEX_TIMEOUT_MS = 30_000; // A stalled index request fails after this, rather than holding up 'listNodes' and 'findObject'.
 const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
+const RESOURCE_FILE_SUFFIX = '.resource.json'; // A table's Data Resource sits beside it, e.g. 'people.resource.json' for 'people.csv'.
 
 // ── Connectors ───────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -52,9 +54,11 @@ export class Connector implements ConnectorInterface {
         const { signal } = abortController;
 
         try {
+            const tableResource = await fetchTableResource(options.path, signal); // The options already read the table as its resource says, because they come from its preview.
             const stream = await fetchObjectStream(options.path, signal);
             return await auditObjectContentWithParser({
                 constructColumnAuditor: this.connectorUtilities.constructColumnAuditor,
+                declaredColumnConfigs: tableResource?.declaredColumnConfigs,
                 onProgress: chunk,
                 options,
                 signal,
@@ -115,21 +119,25 @@ export class Connector implements ConnectorInterface {
             const asAt = Date.now();
             const startedAt = performance.now();
 
-            // Preview file to determine file format and decode text.
+            // A table's resource says how it is read, in place of the user's choices and of detection. A table without one is
+            // read as the user chose, or as detected.
+            const tableResource = await fetchTableResource(options.path, signal);
+            const declaredReadingConfig = tableResource?.declaredReadingConfig;
             const filePreviewerTool = await loadTool<FilePreviewerTool>(this.toolConfigs, 'file-previewer');
-            // The user's choices of format and encoding, when made, replace what detection would find.
             const filePreview = await filePreviewerTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, undefined, {
-                dataFormatId: options.dataFormatId,
-                encodingId: options.encodingId
+                dataFormatId: declaredReadingConfig?.dataFormatId ?? options.dataFormatId,
+                encodingId: declaredReadingConfig?.encodingId ?? options.encodingId
             });
             return await buildPreviewObjectResult({
                 asAt,
+                declaredColumnConfigs: tableResource?.declaredColumnConfigs,
                 filePreview,
+                hasHeaders: declaredReadingConfig?.hasHeaders,
                 inferDataTypes: this.connectorUtilities.inferDataTypes,
                 parserId: options.parserId,
                 startedAt,
                 toolConfigs: this.toolConfigs,
-                valueDelimiterId: options.valueDelimiterId
+                valueDelimiterId: declaredReadingConfig?.valueDelimiterId ?? options.valueDelimiterId
             });
         } catch (error) {
             throw normalizeToError(error);
@@ -192,6 +200,16 @@ async function fetchObjectStream(path: string, signal: AbortSignal): Promise<Rea
     if (response.body == null)
         throw new ConnectorError('Readable streams are not supported in this runtime.', 'dpuse-connector-application-emulator.fetchObjectStream.unsupported');
     return response.body;
+}
+
+// Fetches the Data Resource beside a table and reads how the table is read and the columns it holds. A table without one
+// is read as any file is, so a missing resource is not an error.
+async function fetchTableResource(path: string, signal: AbortSignal): Promise<TableResource | undefined> {
+    const resourcePath = `${extractPathWithoutExtension(path) ?? path}${RESOURCE_FILE_SUFFIX}`;
+    const response = await fetch(encodeURI(`${URL_PREFIX}${resourcePath}`), { signal }); // Encoded as the table's own URL is.
+    if (response.status === 404) return undefined;
+    if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${resourcePath}' resource.`, 'dpuse-connector-application-emulator.fetchTableResource');
+    return readTableSchema((await response.json()) as Parameters<typeof readTableSchema>[0]); // Checked by 'readTableSchema', which rejects a resource without a valid schema.
 }
 
 // The index's label, when it has one, shows the folder as a group of tables.
