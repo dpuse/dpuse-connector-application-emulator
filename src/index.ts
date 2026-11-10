@@ -131,13 +131,13 @@ export class Connector implements ConnectorInterface {
             return await buildPreviewObjectResult({
                 asAt,
                 declaredColumnConfigs: tableResource?.declaredColumnConfigs,
+                declaredReadingConfig,
                 filePreview,
-                hasHeaders: declaredReadingConfig?.hasHeaders,
                 inferDataTypes: this.connectorUtilities.inferDataTypes,
                 parserId: options.parserId,
                 startedAt,
                 toolConfigs: this.toolConfigs,
-                valueDelimiterId: declaredReadingConfig?.valueDelimiterId ?? options.valueDelimiterId
+                valueDelimiterId: options.valueDelimiterId // Replaced by the resource's delimiter, when it gives one.
             });
         } catch (error) {
             throw normalizeToError(error);

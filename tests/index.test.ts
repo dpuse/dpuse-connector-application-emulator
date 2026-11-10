@@ -410,11 +410,10 @@ describe('Connector', () => {
             expect(shared.buildPreviewObjectResult).toHaveBeenCalledWith(
                 expect.objectContaining({
                     declaredColumnConfigs: ENGAGEMENT_COLUMN_CONFIGS,
+                    declaredReadingConfig: { dataFormatId: 'dtv', encodingId: 'utf-8', hasHeaders: true, valueDelimiterId: ',' },
                     filePreview,
-                    hasHeaders: true,
                     parserId: 'dpuse-tool-adaltas-csv-parser',
-                    toolConfigs: [],
-                    valueDelimiterId: ','
+                    toolConfigs: []
                 })
             );
         });
@@ -428,7 +427,7 @@ describe('Connector', () => {
 
             expect(previewFile).toHaveBeenCalledWith(expect.any(String), expect.any(AbortSignal), undefined, undefined, undefined, { dataFormatId: 'dtv', encodingId: 'utf-16le' });
             expect(shared.buildPreviewObjectResult).toHaveBeenCalledWith(
-                expect.objectContaining({ declaredColumnConfigs: undefined, hasHeaders: undefined, valueDelimiterId: ';' })
+                expect.objectContaining({ declaredColumnConfigs: undefined, declaredReadingConfig: undefined, valueDelimiterId: ';' })
             );
         });
 
