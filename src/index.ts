@@ -122,7 +122,7 @@ export class Connector implements ConnectorInterface {
             const tableResource = await fetchTableResource(options.path, signal);
             const declaredReadingConfig = tableResource?.declaredReadingConfig;
             const filePreviewerTool = await loadTool<FilePreviewerInterface>(this.toolConfigs, 'file-previewer');
-            const filePreview = await filePreviewerTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, undefined, {
+            const filePreview = await filePreviewerTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, {
                 dataFormatId: declaredReadingConfig?.dataFormatId ?? options.dataFormatId,
                 encodingId: declaredReadingConfig?.encodingId ?? options.encodingId
             });
