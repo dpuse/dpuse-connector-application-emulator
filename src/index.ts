@@ -122,20 +122,28 @@ export class Connector implements ConnectorInterface {
             const tableResource = await fetchTableResource(options.path, signal);
             const declaredReadingConfig = tableResource?.declaredReadingConfig;
             const filePreviewerTool = await loadTool<FilePreviewerInterface>(this.toolConfigs, 'file-previewer');
-            const filePreview = await filePreviewerTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, {
-                dataFormatId: declaredReadingConfig?.dataFormatId ?? options.dataFormatId,
-                encodingId: declaredReadingConfig?.encodingId ?? options.encodingId
-            });
+            const filePreview = await filePreviewerTool.previewFile(
+                `${URL_PREFIX}${options.path}`,
+                signal,
+                options.chunkSize,
+                options.mimeType,
+                declaredReadingConfig?.encodingId ?? options.encodingId
+            );
             return await buildPreviewObjectResult({
                 asAt,
                 declaredColumnConfigs: tableResource?.declaredColumnConfigs,
                 declaredReadingConfig,
                 filePreview,
                 inferDataTypes: this.connectorUtilities.inferDataTypes,
-                parserId: options.parserId,
+                readingChoiceConfig: {
+                    dataFormatId: options.dataFormatId,
+                    encodingId: options.encodingId,
+                    hasHeaders: undefined,
+                    parserId: options.parserId,
+                    valueDelimiterId: options.valueDelimiterId // Replaced by the resource's delimiter, when it gives one.
+                },
                 startedAt,
-                toolConfigs: this.toolConfigs,
-                valueDelimiterId: options.valueDelimiterId // Replaced by the resource's delimiter, when it gives one.
+                toolConfigs: this.toolConfigs
             });
         } catch (error) {
             throw normalizeToError(error);

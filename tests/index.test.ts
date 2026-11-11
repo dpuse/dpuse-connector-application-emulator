@@ -403,16 +403,13 @@ describe('Connector', () => {
 
             expect(await connector.previewObject(options)).toBe(previewObjectResult);
             expect(fetchMock).toHaveBeenCalledWith(ENGAGEMENTS_RESOURCE_URL, expect.objectContaining({ signal: expect.any(AbortSignal) as AbortSignal }));
-            expect(previewFile).toHaveBeenCalledWith(`${URL_PREFIX}${OBJECT_PATH}`, expect.any(AbortSignal), 4096, 'text/csv', {
-                dataFormatId: 'dtv',
-                encodingId: 'utf-8'
-            });
+            expect(previewFile).toHaveBeenCalledWith(`${URL_PREFIX}${OBJECT_PATH}`, expect.any(AbortSignal), 4096, 'text/csv', 'utf-8');
             expect(shared.buildPreviewObjectResult).toHaveBeenCalledWith(
                 expect.objectContaining({
                     declaredColumnConfigs: ENGAGEMENT_COLUMN_CONFIGS,
                     declaredReadingConfig: { dataFormatId: 'dtv', encodingId: 'utf-8', hasHeaders: true, valueDelimiterId: ',' },
                     filePreview,
-                    parserId: 'dpuse-tool-adaltas-csv-parser',
+                    readingChoiceConfig: expect.objectContaining({ parserId: 'dpuse-tool-adaltas-csv-parser' }) as unknown,
                     toolConfigs: []
                 })
             );
@@ -425,9 +422,13 @@ describe('Connector', () => {
 
             await createConnector().previewObject(buildPreviewOptions({ dataFormatId: 'dtv', encodingId: 'utf-16le', path: '/HR/Workforce/README.md', valueDelimiterId: ';' }));
 
-            expect(previewFile).toHaveBeenCalledWith(expect.any(String), expect.any(AbortSignal), undefined, undefined, { dataFormatId: 'dtv', encodingId: 'utf-16le' });
+            expect(previewFile).toHaveBeenCalledWith(expect.any(String), expect.any(AbortSignal), undefined, undefined, 'utf-16le');
             expect(shared.buildPreviewObjectResult).toHaveBeenCalledWith(
-                expect.objectContaining({ declaredColumnConfigs: undefined, declaredReadingConfig: undefined, valueDelimiterId: ';' })
+                expect.objectContaining({
+                    declaredColumnConfigs: undefined,
+                    declaredReadingConfig: undefined,
+                    readingChoiceConfig: expect.objectContaining({ valueDelimiterId: ';' }) as unknown
+                })
             );
         });
 
@@ -457,7 +458,7 @@ describe('Connector', () => {
 
             await createConnector().previewObject(buildPreviewOptions({ path: '/Type Samples/people.csv' }));
 
-            expect(previewFile).toHaveBeenCalledWith(`${URL_PREFIX}/Type Samples/people.csv`, expect.any(AbortSignal), undefined, undefined, expect.anything());
+            expect(previewFile).toHaveBeenCalledWith(`${URL_PREFIX}/Type Samples/people.csv`, expect.any(AbortSignal), undefined, undefined, undefined);
         });
 
         it('fails when the file previewer tool cannot be loaded', async () => {
