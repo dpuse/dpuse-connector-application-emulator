@@ -4,10 +4,10 @@ import { auditObjectContentWithParser, buildFetchError, buildPreviewObjectResult
 import { ConnectorError, extractExtensionFromPath, extractPathWithoutExtension, loadTool } from '@dpuse/dpuse-shared';
 import type { ConnectorInterface, ConnectorUtilities, FilePreviewerInterface } from '@dpuse/dpuse-shared';
 import type { FindObjectOptions, FindObjectResult, GetReadableStreamOptions } from '@dpuse/dpuse-shared';
-import type { ListNodesOptions, ListNodesResult, ParsedRecord } from '@dpuse/dpuse-shared';
+import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared';
 import { normalizeToError, readTableSchema, retrieveRecordsWithParser } from '@dpuse/dpuse-shared';
-import type { PreviewObjectOptions, PreviewObjectResult, RecordRetrievalTypeId } from '@dpuse/dpuse-shared';
-import type { RetrieveRecordsOptions, RetrieveRecordsSummary, ToolConfig } from '@dpuse/dpuse-shared';
+import type { ParsedRecordsChunk, PreviewObjectOptions, PreviewObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared';
+import type { RetrieveRecordsSummary, ToolConfig } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -153,18 +153,14 @@ export class Connector implements ConnectorInterface {
     }
 
     // Retrieves all records from the object node, with the tool that read its preview.
-    async retrieveRecords(
-        options: RetrieveRecordsOptions,
-        chunk: (typeId: RecordRetrievalTypeId, records: ParsedRecord[]) => void | Promise<void>, // A returned promise holds the read back until it settles.
-        complete: (result: RetrieveRecordsSummary) => void
-    ): Promise<void> {
+    async *retrieveRecords(options: RetrieveRecordsOptions): AsyncGenerator<ParsedRecordsChunk, RetrieveRecordsSummary, undefined> {
         const abortController = new AbortController();
         this.abortController = abortController;
         const { signal } = abortController;
 
         try {
             const stream = await fetchObjectStream(options.path, signal);
-            complete(await retrieveRecordsWithParser({ chunk, options, signal, stream, toolConfigs: this.toolConfigs }));
+            return yield* retrieveRecordsWithParser({ options, signal, stream, toolConfigs: this.toolConfigs });
         } catch (error) {
             throw normalizeToError(error);
         } finally {
