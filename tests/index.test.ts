@@ -17,7 +17,7 @@ type FetchMock = Mock<(url: string, init: { signal: AbortSignal }) => Promise<un
 interface Operation {
     name: string;
     holdUntil?: (fetchMock: FetchMock, release: Promise<void>) => Promise<void>; // Only for operations that can be aborted. Settles once the held request has started.
-    start: (connector: Connector) => Promise<unknown>;
+    start: (connector: Connector, signal?: AbortSignal) => Promise<unknown>; // 'signal' stands in for the one the engine adds to a request the app names.
 }
 type AbortableOperation = Required<Operation>;
 
@@ -82,7 +82,6 @@ const CONNECTOR_UTILITIES = {
 // Every action a connector may implement. Typed as a record of 'ConnectorActionName', so the file stops compiling when
 // dpuse-shared adds an action until it is listed here.
 const CONNECTOR_ACTION_NAMES = Object.keys({
-    abortOperation: true,
     auditObjectContent: true,
     closeStore: true,
     createObject: true,
@@ -102,7 +101,7 @@ const CONNECTOR_ACTION_NAMES = Object.keys({
     upsertRecords: true
 } satisfies Record<ConnectorActionName, true>);
 
-// The actions that do work, in the order a user meets them. 'holdUntil', on the ones that create an abort controller,
+// The actions that do work, in the order a user meets them. 'holdUntil', on the ones that take the request's signal,
 // makes the action's request wait for 'release' and then succeed: a fetched object for the actions that fetch, a file
 // preview for 'previewObject', which reads through the file previewer tool. Previews and audits fetch the table's resource first, so
 // the promise it returns says when the held request has actually started.
@@ -120,7 +119,7 @@ const OPERATIONS: Operation[] = [
     {
         name: 'getReadableStream',
         holdUntil: holdFetchUntil,
-        start: (connector) => connector.getReadableStream({ path: OBJECT_PATH })
+        start: (connector, signal) => connector.getReadableStream({ path: OBJECT_PATH, signal })
     },
     {
         name: 'previewObject',
@@ -135,21 +134,21 @@ const OPERATIONS: Operation[] = [
             };
             return started.promise;
         },
-        start: (connector) => connector.previewObject(buildPreviewOptions())
+        start: (connector, signal) => connector.previewObject(buildPreviewOptions({ signal }))
     },
     {
         name: 'retrieveRecords',
         holdUntil: holdFetchUntil,
-        start: (connector) => {
+        start: (connector, signal) => {
             // The parser is mocked, so it is given a read with no records for when the fetch succeeds.
             shared.retrieveRecordsWithParser.mockImplementation(() => buildRetrieval([], EMPTY_SUMMARY));
-            return readRetrieval(connector.retrieveRecords(buildRetrieveOptions()));
+            return readRetrieval(connector.retrieveRecords(buildRetrieveOptions({ signal })));
         }
     },
     {
         name: 'auditObjectContent',
         holdUntil: holdFetchUntil,
-        start: (connector) => connector.auditObjectContent(buildAuditOptions(), vi.fn())
+        start: (connector, signal) => connector.auditObjectContent(buildAuditOptions({ signal }), vi.fn())
     }
 ];
 const ABORTABLE_OPERATIONS = OPERATIONS.filter((operation): operation is AbortableOperation => operation.holdUntil !== undefined);
@@ -177,39 +176,33 @@ describe('Connector', () => {
         });
     });
 
-    describe('abortOperation', () => {
-        it('does nothing when no operation is running', () => {
-            expect(() => {
-                createConnector().abortOperation();
-            }).not.toThrow();
-        });
-
-        it.each(ABORTABLE_OPERATIONS)('stops a running $name', async ({ start }) => {
+    // The engine gives each request the app names a signal of its own, so each can be stopped without touching another.
+    describe('abort', () => {
+        it.each(ABORTABLE_OPERATIONS)('stops a running $name when its request is aborted', async ({ start }) => {
             stubWaitingRequests();
-            const connector = createConnector();
+            const abortController = new AbortController();
 
-            const operation = start(connector);
-            connector.abortOperation();
+            const operation = start(createConnector(), abortController.signal);
+            abortController.abort();
 
             await expect(operation).rejects.toThrow('Aborted.');
         });
 
-        // The connector keeps only the latest operation's abort controller. An earlier operation that ends must leave it
-        // in place, or the later one could no longer be aborted.
-        it.each(ABORTABLE_OPERATIONS)('can still stop a later operation after $name ends', async ({ holdUntil, start }) => {
+        it.each(ABORTABLE_OPERATIONS)('leaves a running $name alone when another request on the same connector is aborted', async ({ holdUntil, start }) => {
             const fetchMock = stubWaitingRequests();
             const release = Promise.withResolvers<undefined>();
             const started = holdUntil(fetchMock, release.promise);
             const connector = createConnector();
+            const laterAbortController = new AbortController();
 
-            const earlierOperation = start(connector);
+            const earlierOperation = start(connector, new AbortController().signal);
             await started;
-            const laterOperation = connector.getReadableStream({ path: OBJECT_PATH });
+            const laterOperation = connector.getReadableStream({ path: OBJECT_PATH, signal: laterAbortController.signal });
+            laterAbortController.abort();
             release.resolve(undefined);
-            await earlierOperation;
-            connector.abortOperation();
 
             await expect(laterOperation).rejects.toThrow('Aborted.');
+            await expect(earlierOperation).resolves.not.toThrow();
         });
     });
 
