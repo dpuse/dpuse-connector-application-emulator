@@ -2,14 +2,12 @@
 import type { AuditObjectContentOptions, AuditObjectContentResult, ConnectionNodeConfig } from '@dpuse/dpuse-shared';
 import { auditObjectContentWithParser, buildFetchError, buildPreviewObjectResult } from '@dpuse/dpuse-shared';
 import { ConnectorError, extractExtensionFromPath, extractPathWithoutExtension, loadTool } from '@dpuse/dpuse-shared';
-import type { ConnectorInterface, ConnectorUtilities, FindObjectOptions } from '@dpuse/dpuse-shared';
-import type { FindObjectResult, GetReadableStreamOptions, ListNodesOptions, ListNodesResult, ParsedRecord } from '@dpuse/dpuse-shared';
+import type { ConnectorInterface, ConnectorUtilities, FilePreviewerInterface } from '@dpuse/dpuse-shared';
+import type { FindObjectOptions, FindObjectResult, GetReadableStreamOptions } from '@dpuse/dpuse-shared';
+import type { ListNodesOptions, ListNodesResult, ParsedRecord } from '@dpuse/dpuse-shared';
 import { normalizeToError, readTableSchema, retrieveRecordsWithParser } from '@dpuse/dpuse-shared';
 import type { PreviewObjectOptions, PreviewObjectResult, RecordRetrievalTypeId } from '@dpuse/dpuse-shared';
 import type { RetrieveRecordsOptions, RetrieveRecordsSummary, ToolConfig } from '@dpuse/dpuse-shared';
-
-// ── DPUse Tools
-import type { Tool as FilePreviewerTool } from '@dpuse/dpuse-tool-file-previewer';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -123,7 +121,7 @@ export class Connector implements ConnectorInterface {
             // read as the user chose, or as detected.
             const tableResource = await fetchTableResource(options.path, signal);
             const declaredReadingConfig = tableResource?.declaredReadingConfig;
-            const filePreviewerTool = await loadTool<FilePreviewerTool>(this.toolConfigs, 'file-previewer');
+            const filePreviewerTool = await loadTool<FilePreviewerInterface>(this.toolConfigs, 'file-previewer');
             const filePreview = await filePreviewerTool.previewFile(`${URL_PREFIX}${options.path}`, signal, options.chunkSize, options.mimeType, undefined, {
                 dataFormatId: declaredReadingConfig?.dataFormatId ?? options.dataFormatId,
                 encodingId: declaredReadingConfig?.encodingId ?? options.encodingId
