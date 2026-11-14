@@ -64,10 +64,10 @@ export class Connector implements ConnectorInterface {
             if (!Object.hasOwn(appIndex, folderPath)) continue;
 
             const folderPathNodes = appIndex[folderPath];
-            const folderPathNode = folderPathNodes?.find((folderPathNode) => folderPathNode.typeId === 'object' && folderPathNode.id === options.nodeId);
-            if (folderPathNode) return { path: folderPath };
+            const folderPathNode = folderPathNodes?.find((folderPathNode) => folderPathNode.typeId === 'object' && folderPathNode.id === options.id);
+            if (folderPathNode) return { path: `${folderPath}/${folderPathNode.name}` };
         }
-        throw new ConnectorError(`Object '${options.nodeId}' not found.`, 'dpuse-connector-application-emulator.Connector.findObject');
+        throw new ConnectorError(`Object '${options.id}' not found.`, 'dpuse-connector-application-emulator.Connector.findObject');
     }
 
     async getReadableStream(options: GetReadableStreamOptions): Promise<ReadableStream<Uint8Array>> {

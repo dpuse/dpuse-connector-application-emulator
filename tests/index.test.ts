@@ -329,10 +329,10 @@ describe('Connector', () => {
     });
 
     describe('findObject', () => {
-        it('returns the folder holding an object', async () => {
+        it("returns an object's path, wherever it is", async () => {
             stubIndexFetch();
 
-            expect(await createConnector().findObject(buildFindOptions('engagementsId'))).toEqual({ path: '/HR/Workforce' });
+            expect(await createConnector().findObject(buildFindOptions('engagementsId'))).toEqual({ path: '/HR/Workforce/engagements.csv' });
         });
 
         it('rejects an object that does not exist', async () => {
@@ -565,8 +565,8 @@ function buildAuditOptions(overrides: Partial<AuditObjectContentOptions> = {}): 
     };
 }
 
-function buildFindOptions(nodeId: string): FindObjectOptions {
-    return { nodeId, storeId: undefined };
+function buildFindOptions(id: string): FindObjectOptions {
+    return { id };
 }
 
 function buildPreviewOptions(overrides: Partial<PreviewObjectOptions> = {}): PreviewObjectOptions {
