@@ -3,10 +3,11 @@ import type { AuditObjectContentOptions, AuditObjectContentResult, ConnectionNod
 import { auditObjectContentWithParser, buildFetchError, buildPreviewObjectResult } from '@dpuse/dpuse-shared';
 import { ConnectorError, extractExtensionFromPath, extractPathWithoutExtension, loadTool } from '@dpuse/dpuse-shared';
 import type { ConnectorInterface, ConnectorUtilities, FilePreviewerInterface } from '@dpuse/dpuse-shared';
+import { fetchObjectContentStream, normalizeToError } from '@dpuse/dpuse-shared';
 import type { GetObjectOptions, GetObjectResult, GetReadableStreamOptions } from '@dpuse/dpuse-shared';
 import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared';
-import { normalizeToError, readTableSchema, resolveRequestSignal, retrieveRecordsWithParser } from '@dpuse/dpuse-shared';
 import type { ParsedRecordsChunk, PreviewObjectOptions, PreviewObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared';
+import { readTableSchema, resolveRequestSignal, retrieveRecordsWithParser } from '@dpuse/dpuse-shared';
 import type { RetrieveRecordsSummary, ToolConfig } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -171,13 +172,10 @@ export class Connector implements ConnectorInterface {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────────────────────────────────────────────
 
-// Fetches an object's content. Aborting the signal stops the fetch and the reading of the stream it returns.
+// Fetches an object's content without the browser holding more of it than the reader is about to use.
 async function fetchObjectStream(path: string, signal: AbortSignal): Promise<ReadableStream<Uint8Array>> {
-    const response = await fetch(encodeURI(`${URL_PREFIX}${path}`), { signal }); // Encoded the same way the file previewer encodes its URL, so both fetch the same file. 'encodeURI' leaves '#' and '?' as they are, but the files are managed in dpuse-resources and no name holds them.
-    if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${path}' file.`, 'dpuse-connector-application-emulator.fetchObjectStream');
-    if (response.body == null)
-        throw new ConnectorError('Readable streams are not supported in this runtime.', 'dpuse-connector-application-emulator.fetchObjectStream.unsupported');
-    return response.body;
+    const url = encodeURI(`${URL_PREFIX}${path}`); // Encoded the same way the file previewer encodes its URL, so both fetch the same file. 'encodeURI' leaves '#' and '?' as they are, but the files are managed in dpuse-resources and no name holds them.
+    return fetchObjectContentStream(url, { locator: 'dpuse-connector-application-emulator.fetchObjectStream', path, signal });
 }
 
 // Fetches the Data Resource beside a table and reads how the table is read and the columns it holds. A table without one

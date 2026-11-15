@@ -111,10 +111,10 @@ _Note: Sonda's Vite reports currently exclude CSS files, since Vite does not gen
 
 | Chunk/Module/File                                                     | Composition                                                                                    |
 | :-------------------------------------------------------------------- | :--------------------------------------------------------------------------------------------- |
-| **dist/dpuse-connector-application-emulator.es.js**                   | 47.4&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;10.4&nbsp;kB&nbsp;·&nbsp;100.0%&nbsp;of&nbsp;the&nbsp;build |
-| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `████████████████░░░░`&nbsp;81.9%&nbsp;·&nbsp;38.8&nbsp;kB                                     |
-| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `██░░░░░░░░░░░░░░░░░░`&nbsp;8.4%&nbsp;·&nbsp;4.0&nbsp;kB                                       |
-| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;9.6%&nbsp;·&nbsp;4.6&nbsp;kB                                       |
+| **dist/dpuse-connector-application-emulator.es.js**                   | 48.5&nbsp;kB&nbsp;·&nbsp;gzip&nbsp;10.9&nbsp;kB&nbsp;·&nbsp;100.0%&nbsp;of&nbsp;the&nbsp;build |
+| &nbsp;&nbsp;&nbsp;&nbsp;@dpuse/dpuse-shared → dist/dpuse-shared.es.js | `█████████████████░░░`&nbsp;82.7%&nbsp;·&nbsp;40.1&nbsp;kB                                     |
+| &nbsp;&nbsp;&nbsp;&nbsp;src → index.ts                                | `██░░░░░░░░░░░░░░░░░░`&nbsp;7.8%&nbsp;·&nbsp;3.8&nbsp;kB                                       |
+| &nbsp;&nbsp;&nbsp;&nbsp;(bundler output, whitespace & JSON)           | `██░░░░░░░░░░░░░░░░░░`&nbsp;9.5%&nbsp;·&nbsp;4.6&nbsp;kB                                       |
 
 Bars show each row's share of its output file.
 
