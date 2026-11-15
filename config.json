@@ -8,7 +8,7 @@
     },
     "actionNames": [
         "auditObjectContent",
-        "findObject",
+        "getObject",
         "getReadableStream",
         "listNodes",
         "previewObject",

@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, type Mock, vi } from 'vitest';
 
 // ── DPUse Framework
-import type { AuditObjectContentOptions, ConnectorActionName, DeclaredColumnConfig, FindObjectOptions } from '@dpuse/dpuse-shared';
+import type { AuditObjectContentOptions, ConnectorActionName, DeclaredColumnConfig, GetObjectOptions } from '@dpuse/dpuse-shared';
 import type { ParsedRecordsChunk, PreviewObjectOptions, RetrieveRecordsOptions, RetrieveRecordsSummary } from '@dpuse/dpuse-shared';
 
 // ── Local Framework
@@ -89,6 +89,7 @@ const CONNECTOR_ACTION_NAMES = Object.keys({
     dropObject: true,
     findObject: true,
     getInfo: true,
+    getObject: true,
     getReadableStream: true,
     getRecord: true,
     indexObjectStructure: true,
@@ -115,8 +116,8 @@ const OPERATIONS: Operation[] = [
         start: (connector) => connector.listNodes({ folderPath: '' })
     },
     {
-        name: 'findObject',
-        start: (connector) => connector.findObject(buildFindOptions('engagementsId'))
+        name: 'getObject',
+        start: (connector) => connector.getObject(buildGetObjectOptions('engagementsId'))
     },
     {
         name: 'getReadableStream',
@@ -330,23 +331,23 @@ describe('Connector', () => {
         });
     });
 
-    describe('findObject', () => {
+    describe('getObject', () => {
         it("returns an object's path, wherever it is", async () => {
             stubIndexFetch();
 
-            expect(await createConnector().findObject(buildFindOptions('engagementsId'))).toEqual({ path: '/HR/Workforce/engagements.csv' });
+            expect(await createConnector().getObject(buildGetObjectOptions('engagementsId'))).toEqual({ path: '/HR/Workforce/engagements.csv' });
         });
 
         it('rejects an object that does not exist', async () => {
             stubIndexFetch();
 
-            await expect(createConnector().findObject(buildFindOptions('missing'))).rejects.toThrow("Object 'missing' not found.");
+            await expect(createConnector().getObject(buildGetObjectOptions('missing'))).rejects.toThrow("Object 'missing' not found.");
         });
 
         it('finds only files, not a folder with the same id', async () => {
             stubIndexFetch();
 
-            await expect(createConnector().findObject(buildFindOptions('hrId'))).rejects.toThrow("Object 'hrId' not found.");
+            await expect(createConnector().getObject(buildGetObjectOptions('hrId'))).rejects.toThrow("Object 'hrId' not found.");
         });
     });
 
@@ -567,7 +568,7 @@ function buildAuditOptions(overrides: Partial<AuditObjectContentOptions> = {}): 
     };
 }
 
-function buildFindOptions(id: string): FindObjectOptions {
+function buildGetObjectOptions(id: string): GetObjectOptions {
     return { id };
 }
 

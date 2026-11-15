@@ -3,7 +3,7 @@ import type { AuditObjectContentOptions, AuditObjectContentResult, ConnectionNod
 import { auditObjectContentWithParser, buildFetchError, buildPreviewObjectResult } from '@dpuse/dpuse-shared';
 import { ConnectorError, extractExtensionFromPath, extractPathWithoutExtension, loadTool } from '@dpuse/dpuse-shared';
 import type { ConnectorInterface, ConnectorUtilities, FilePreviewerInterface } from '@dpuse/dpuse-shared';
-import type { FindObjectOptions, FindObjectResult, GetReadableStreamOptions } from '@dpuse/dpuse-shared';
+import type { GetObjectOptions, GetObjectResult, GetReadableStreamOptions } from '@dpuse/dpuse-shared';
 import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared';
 import { normalizeToError, readTableSchema, resolveRequestSignal, retrieveRecordsWithParser } from '@dpuse/dpuse-shared';
 import type { ParsedRecordsChunk, PreviewObjectOptions, PreviewObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared';
@@ -20,7 +20,7 @@ type TableResource = ReturnType<typeof readTableSchema>;
 // ── Constants ────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const INDEX_URL = 'https://sample-data-eu.dpuse.app/applicationIndex.json'; // Fetched from the bucket rather than bundled, so changing the sample files needs no connector release.
-const INDEX_TIMEOUT_MS = 30_000; // A stalled index request fails after this, rather than holding up 'listNodes' and 'findObject'.
+const INDEX_TIMEOUT_MS = 30_000; // A stalled index request fails after this, rather than holding up 'listNodes' and 'getObject'.
 const URL_PREFIX = 'https://sample-data-eu.dpuse.app/application';
 const RESOURCE_FILE_SUFFIX = '.resource.json'; // A table's Data Resource sits beside it, e.g. 'people.resource.json' for 'people.csv'.
 
@@ -58,7 +58,7 @@ export class Connector implements ConnectorInterface {
         }
     }
 
-    async findObject(options: FindObjectOptions): Promise<FindObjectResult> {
+    async getObject(options: GetObjectOptions): Promise<GetObjectResult> {
         const appIndex = await this.loadAppIndex();
         for (const folderPath in appIndex) {
             if (!Object.hasOwn(appIndex, folderPath)) continue;
@@ -67,7 +67,7 @@ export class Connector implements ConnectorInterface {
             const folderPathNode = folderPathNodes?.find((folderPathNode) => folderPathNode.typeId === 'object' && folderPathNode.id === options.id);
             if (folderPathNode) return { path: `${folderPath}/${folderPathNode.name}` };
         }
-        throw new ConnectorError(`Object '${options.id}' not found.`, 'dpuse-connector-application-emulator.Connector.findObject');
+        throw new ConnectorError(`Object '${options.id}' not found.`, 'dpuse-connector-application-emulator.Connector.getObject');
     }
 
     async getReadableStream(options: GetReadableStreamOptions): Promise<ReadableStream<Uint8Array>> {
