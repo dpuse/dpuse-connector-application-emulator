@@ -163,7 +163,7 @@ export class Connector implements ConnectorInterface {
             this.pendingAppIndex = undefined;
             if (error instanceof Error && error.name === 'TimeoutError') {
                 const message = `Failed to fetch the application index within ${String(INDEX_TIMEOUT_MS / 1000)} seconds.`;
-                throw new ConnectorError(message, 'dpuse-connector-application-emulator.Connector.fetchAppIndex.timeout', undefined, { cause: error });
+                throw new ConnectorError(message, 'dpuse-connector-application-emulator.Connector.fetchAppIndex.timeout', { cause: error });
             }
             throw normalizeToError(error);
         }
