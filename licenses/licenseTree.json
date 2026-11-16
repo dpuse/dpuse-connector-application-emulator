@@ -1,5 +1,5 @@
 {
-  "version": "1.0.167",
+  "version": "1.0.168",
   "name": "@dpuse/dpuse-connector-application-emulator",
   "dependencies": {
     "@dpuse/dpuse-development": {
@@ -8,7 +8,7 @@
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.228"
+          "version": "1.0.231"
         },
         "license-checker-rseidelsohn": {
           "version": "5.0.1",
@@ -1211,8 +1211,8 @@
       }
     },
     "@dpuse/dpuse-shared": {
-      "version": "1.0.228",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.228.tgz",
+      "version": "1.0.231",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-shared/-/dpuse-shared-1.0.231.tgz",
       "overridden": false,
       "dependencies": {
         "file-type": {
@@ -1281,12 +1281,12 @@
       }
     },
     "@dpuse/dpuse-tool-adaltas-csv-parser": {
-      "version": "1.0.131",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.131.tgz",
+      "version": "1.0.133",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-adaltas-csv-parser/-/dpuse-tool-adaltas-csv-parser-1.0.133.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.228"
+          "version": "1.0.231"
         },
         "csv-parse": {
           "version": "7.0.3",
@@ -1296,12 +1296,12 @@
       }
     },
     "@dpuse/dpuse-tool-rust-csv-core-parser": {
-      "version": "1.0.121",
-      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-rust-csv-core-parser/-/dpuse-tool-rust-csv-core-parser-1.0.121.tgz",
+      "version": "1.0.123",
+      "resolved": "https://registry.npmjs.org/@dpuse/dpuse-tool-rust-csv-core-parser/-/dpuse-tool-rust-csv-core-parser-1.0.123.tgz",
       "overridden": false,
       "dependencies": {
         "@dpuse/dpuse-shared": {
-          "version": "1.0.228"
+          "version": "1.0.231"
         }
       }
     },
