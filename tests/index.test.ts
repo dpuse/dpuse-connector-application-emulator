@@ -476,7 +476,7 @@ describe('Connector', () => {
             const body = new ReadableStream<Uint8Array>();
             const fetchMock = vi.fn().mockResolvedValue({ ok: true, body });
             vi.stubGlobal('fetch', fetchMock);
-            const chunks: ParsedRecordsChunk[] = [{ records: [[{ value: 'a', valueWasQuoted: false }]], typeId: 'parsingRecordArray' }];
+            const chunks: ParsedRecordsChunk[] = [{ records: [['a']], typeId: 'parsingRecordArray' }];
             const summary = { recordCount: 1 };
             shared.retrieveRecordsWithParser.mockImplementation(() => buildRetrieval(chunks, summary));
             const options = buildRetrieveOptions({ parserId: 'dpuse-tool-adaltas-csv-parser' });
