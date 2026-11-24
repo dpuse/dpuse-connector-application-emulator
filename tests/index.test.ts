@@ -106,8 +106,8 @@ const CONNECTOR_ACTION_NAMES = Object.keys({
 
 // The actions that do work, in the order a user meets them. 'holdUntil', on the ones that take the request's signal,
 // makes the action's request wait for 'release' and then succeed: a fetched object for the actions that fetch, a file
-// preview for 'previewObject', which reads through the file previewer tool. Previews and audits fetch the table's resource first, so
-// the promise it returns says when the held request has actually started.
+// preview for 'previewObject', which reads through the file previewer tool. Previews, audits and retrievals fetch the
+// table's resource first, so the promise it returns says when the held request has actually started.
 const EMPTY_SUMMARY: RetrieveRecordsSummary = { recordCount: 0 };
 
 const OPERATIONS: Operation[] = [
@@ -474,8 +474,7 @@ describe('Connector', () => {
     describe('retrieveRecords', () => {
         it('fetches the object, reads it with the parser that read its preview, and hands on its chunks and summary', async () => {
             const body = new ReadableStream<Uint8Array>();
-            const fetchMock = vi.fn().mockResolvedValue({ ok: true, body });
-            vi.stubGlobal('fetch', fetchMock);
+            const fetchMock = stubObjectFetch({ ok: true, body });
             const chunks: ParsedRecordsChunk[] = [{ records: [['a']], typeId: 'parsingRecordArray' }];
             const summary = { recordCount: 1 };
             shared.retrieveRecordsWithParser.mockImplementation(() => buildRetrieval(chunks, summary));
@@ -495,8 +494,20 @@ describe('Connector', () => {
             expect(result.value).toBe(summary);
         });
 
+        // The app sends no encoding or value delimiter, because it treats the connector's items as tables.
+        it('reads the table with the encoding and value delimiter its resource states', async () => {
+            stubObjectFetch({ ok: true, body: new ReadableStream<Uint8Array>() });
+            shared.retrieveRecordsWithParser.mockImplementation(() => buildRetrieval([], EMPTY_SUMMARY));
+
+            await readRetrieval(createConnector().retrieveRecords(buildRetrieveOptions({ encodingId: undefined, valueDelimiterId: undefined })));
+
+            expect(shared.retrieveRecordsWithParser).toHaveBeenCalledWith(
+                expect.objectContaining({ options: expect.objectContaining({ encodingId: 'utf-8', valueDelimiterId: ',' }) as RetrieveRecordsOptions })
+            );
+        });
+
         it('fails when the object cannot be fetched', async () => {
-            vi.stubGlobal('fetch', vi.fn().mockResolvedValue(buildNotFoundResponse()));
+            stubObjectFetch(buildNotFoundResponse());
 
             const retrieval = createConnector().retrieveRecords(buildRetrieveOptions());
 
@@ -505,7 +516,7 @@ describe('Connector', () => {
         });
 
         it('passes on a failure to read the records', async () => {
-            vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, body: new ReadableStream<Uint8Array>() }));
+            stubObjectFetch({ ok: true, body: new ReadableStream<Uint8Array>() });
             shared.retrieveRecordsWithParser.mockImplementation(() => buildRetrieval([], new Error('Bad CSV.')));
 
             const retrieval = createConnector().retrieveRecords(buildRetrieveOptions());
@@ -515,13 +526,13 @@ describe('Connector', () => {
     });
 
     describe('auditObjectContent', () => {
-        it('fetches the object and audits it as its preview read it, with the columns its resource states', async () => {
+        it('fetches the object and audits it as its preview read it, with the columns, encoding and value delimiter its resource states', async () => {
             const body = new ReadableStream<Uint8Array>();
             stubObjectFetch({ ok: true, body });
             const auditResult = { contentAuditConfig: { recordCount: 2 }, hasHeaders: true };
             shared.auditObjectContentWithParser.mockResolvedValue(auditResult);
             const chunk = vi.fn();
-            const options = buildAuditOptions({ dataFormatId: 'json', encodingId: 'utf-16le', hasHeaders: undefined, valueDelimiterId: ';' });
+            const options = buildAuditOptions({ dataFormatId: 'json', encodingId: undefined, hasHeaders: undefined, valueDelimiterId: undefined }); // The app sends no encoding or value delimiter, because it treats the connector's items as tables.
             const connector = createConnector();
 
             expect(await connector.auditObjectContent(options, chunk)).toBe(auditResult);
@@ -530,11 +541,21 @@ describe('Connector', () => {
                     constructColumnAuditor: CONNECTOR_UTILITIES.constructColumnAuditor,
                     declaredColumnConfigs: ENGAGEMENT_COLUMN_CONFIGS,
                     onProgress: chunk,
-                    options,
+                    options: { ...options, encodingId: 'utf-8', valueDelimiterId: ',' },
                     stream: body,
                     toolConfigs: []
                 })
             );
+        });
+
+        it('audits a table without a resource with the encoding and value delimiter it was given', async () => {
+            stubObjectFetch({ ok: true, body: new ReadableStream<Uint8Array>() });
+            shared.auditObjectContentWithParser.mockResolvedValue({ contentAuditConfig: { recordCount: 0 }, hasHeaders: true });
+            const options = buildAuditOptions({ encodingId: 'utf-16le', path: '/locations.csv', valueDelimiterId: ';' });
+
+            await createConnector().auditObjectContent(options, vi.fn());
+
+            expect(shared.auditObjectContentWithParser).toHaveBeenCalledWith(expect.objectContaining({ declaredColumnConfigs: undefined, options }));
         });
 
         it('passes on a failure to read the content', async () => {
@@ -654,7 +675,7 @@ function waitForAbort(signal: AbortSignal): Promise<never> {
 }
 
 // Makes every fetch, and every file preview, run until it is aborted. A table's resource is still served at once, because
-// previews and audits fetch it first.
+// previews, audits and retrievals fetch it first.
 function stubWaitingRequests(): FetchMock {
     const fetchMock: FetchMock = vi.fn((url: string, init: { signal: AbortSignal }) =>
         isResourceUrl(url) ? Promise.resolve(buildResourceResponse(url)) : waitForAbort(init.signal)

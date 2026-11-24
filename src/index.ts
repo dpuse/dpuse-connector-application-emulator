@@ -8,7 +8,7 @@ import type { GetObjectOptions, GetObjectResult, GetReadableStreamOptions } from
 import type { ListNodesOptions, ListNodesResult } from '@dpuse/dpuse-shared';
 import type { ParsedRecordsChunk, PreviewObjectOptions, PreviewObjectResult, RetrieveRecordsOptions } from '@dpuse/dpuse-shared';
 import { readTableSchema, resolveRequestSignal, retrieveRecordsWithParser } from '@dpuse/dpuse-shared';
-import type { RetrieveRecordsSummary, ToolConfig } from '@dpuse/dpuse-shared';
+import type { RetrieveRecordsSummary, ToolConfig, ValueDelimiterId } from '@dpuse/dpuse-shared';
 
 // ── Types ────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
@@ -43,13 +43,13 @@ export class Connector implements ConnectorInterface {
         const signal = resolveRequestSignal(options);
 
         try {
-            const tableResource = await fetchTableResource(options.path, signal); // The options already read the table as its resource says, because they come from its preview.
+            const tableResource = await fetchTableResource(options.path, signal);
             const stream = await fetchObjectStream(options.path, signal);
             return await auditObjectContentWithParser({
                 constructColumnAuditor: this.connectorUtilities.constructColumnAuditor,
                 declaredColumnConfigs: tableResource?.declaredColumnConfigs,
                 onProgress: chunk,
-                options,
+                options: { ...options, ...constructFileReading(options, tableResource) },
                 signal,
                 stream,
                 toolConfigs: this.toolConfigs
@@ -138,8 +138,9 @@ export class Connector implements ConnectorInterface {
         const signal = resolveRequestSignal(options);
 
         try {
+            const tableResource = await fetchTableResource(options.path, signal);
             const stream = await fetchObjectStream(options.path, signal);
-            return yield* retrieveRecordsWithParser({ options, signal, stream, toolConfigs: this.toolConfigs });
+            return yield* retrieveRecordsWithParser({ options: { ...options, ...constructFileReading(options, tableResource) }, signal, stream, toolConfigs: this.toolConfigs });
         } catch (error) {
             throw normalizeToError(error);
         }
@@ -186,6 +187,18 @@ async function fetchTableResource(path: string, signal: AbortSignal): Promise<Ta
     if (response.status === 404) return undefined;
     if (!response.ok) throw await buildFetchError(response, `Failed to fetch '${resourcePath}' resource.`, 'dpuse-connector-application-emulator.fetchTableResource');
     return readTableSchema((await response.json()) as Parameters<typeof readTableSchema>[0]); // Checked by 'readTableSchema', which rejects a resource without a valid schema.
+}
+
+// The app treats this connector's items as tables, so it sends no encoding or value delimiter. Each table is a CSV file,
+// though, and the parser needs both to read it, so they come from the table's resource.
+function constructFileReading(
+    options: { encodingId: string | undefined; valueDelimiterId: ValueDelimiterId | undefined },
+    tableResource: TableResource | undefined
+): { encodingId: string | undefined; valueDelimiterId: ValueDelimiterId | undefined } {
+    return {
+        encodingId: tableResource?.declaredReadingConfig.encodingId ?? options.encodingId,
+        valueDelimiterId: tableResource?.declaredReadingConfig.valueDelimiterId ?? options.valueDelimiterId
+    };
 }
 
 // The index's label, when it has one, shows the folder as a group of tables.
