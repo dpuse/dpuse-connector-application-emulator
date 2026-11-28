@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "0.14.0",
-    "generatedAt": "2026-11-27T13:44:07.550Z",
+    "generatedAt": "2026-11-28T11:44:06.521Z",
     "integration": "vite",
     "sources": false,
     "gzip": true,
@@ -21,8 +21,8 @@
       "name": "[unassigned]",
       "type": "other",
       "format": "other",
-      "uncompressed": 4901,
-      "gzip": 261,
+      "uncompressed": 4913,
+      "gzip": 263,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     },
@@ -30,8 +30,8 @@
       "kind": "asset",
       "name": "dist/dpuse-connector-application-emulator.es.js",
       "type": "script",
-      "uncompressed": 51782,
-      "gzip": 11646,
+      "uncompressed": 52225,
+      "gzip": 11802,
       "brotli": 0
     },
     {
@@ -39,15 +39,15 @@
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 72770
+      "uncompressed": 73943
     },
     {
       "kind": "chunk",
       "name": "node_modules/@dpuse/dpuse-shared/dist/dpuse-shared.es.js",
       "type": "script",
       "format": "esm",
-      "uncompressed": 42764,
-      "gzip": 9908,
+      "uncompressed": 43196,
+      "gzip": 10060,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     },
@@ -63,8 +63,8 @@
       "name": "src/index.ts",
       "type": "script",
       "format": "esm",
-      "uncompressed": 4117,
-      "gzip": 1477,
+      "uncompressed": 4116,
+      "gzip": 1479,
       "brotli": 0,
       "parent": "dist/dpuse-connector-application-emulator.es.js"
     }
